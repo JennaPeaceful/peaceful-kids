@@ -141,23 +141,23 @@ const Meditations = () => {
       {/* Filter Steps */}
       <div className="px-4">
         {currentStep === 'category' && (
-          <div className="space-y-6 mb-8">
-            <p className="text-muted-foreground text-lg text-center">
+          <div className="space-y-8 mb-8">
+            <p className="text-muted-foreground text-xl text-center px-4">
               Who will be meditating today?
             </p>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-6 px-2">
               {categories.map((category, index) => (
                 <Button
                   key={category}
                   variant="outline"
                   onClick={() => handleCategorySelect(category)}
-                  className={`aspect-square text-lg font-semibold rounded-xl border-2 transition-all ${
+                  className={`w-full h-24 text-xl font-bold rounded-2xl border-2 transition-all shadow-lg ${
                     index === 0 
-                      ? 'bg-gradient-to-br from-primary/10 to-secondary/10 border-primary/30 hover:from-primary/20 hover:to-secondary/20 hover:border-primary/50' 
-                      : 'bg-gradient-to-br from-accent/10 to-primary/10 border-accent/30 hover:from-accent/20 hover:to-primary/20 hover:border-accent/50'
+                      ? 'bg-gradient-to-br from-primary/15 to-secondary/15 border-primary/40 hover:from-primary/25 hover:to-secondary/25 hover:border-primary/60 hover:shadow-xl' 
+                      : 'bg-gradient-to-br from-accent/15 to-primary/15 border-accent/40 hover:from-accent/25 hover:to-primary/25 hover:border-accent/60 hover:shadow-xl'
                   }`}
                 >
-                  {category}
+                  Peaceful {category}
                 </Button>
               ))}
             </div>
@@ -165,22 +165,22 @@ const Meditations = () => {
         )}
 
         {currentStep === 'ageGroup' && filters.selectedCategory === 'Kids' && (
-          <div className="space-y-6 mb-8">
-            <p className="text-muted-foreground text-lg text-center">
+          <div className="space-y-8 mb-8">
+            <p className="text-muted-foreground text-xl text-center px-4">
               What's your age group?
             </p>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-6 px-2">
               {kidsAgeGroups.map((ageGroup, index) => (
                 <Button
                   key={ageGroup.id}
                   variant="outline"
                   onClick={() => handleAgeGroupSelect(ageGroup.label)}
-                  className={`aspect-square text-base font-semibold rounded-xl border-2 transition-all ${
+                  className={`h-24 text-lg font-bold rounded-2xl border-2 transition-all shadow-lg ${
                     index % 3 === 0 
-                      ? 'bg-gradient-to-br from-primary/10 to-accent/10 border-primary/30 hover:from-primary/20 hover:to-accent/20 hover:border-primary/50'
+                      ? 'bg-gradient-to-br from-primary/15 to-accent/15 border-primary/40 hover:from-primary/25 hover:to-accent/25 hover:border-primary/60 hover:shadow-xl'
                       : index % 3 === 1
-                      ? 'bg-gradient-to-br from-secondary/10 to-primary/10 border-secondary/30 hover:from-secondary/20 hover:to-primary/20 hover:border-secondary/50'
-                      : 'bg-gradient-to-br from-accent/10 to-secondary/10 border-accent/30 hover:from-accent/20 hover:to-secondary/20 hover:border-accent/50'
+                      ? 'bg-gradient-to-br from-secondary/15 to-primary/15 border-secondary/40 hover:from-secondary/25 hover:to-primary/25 hover:border-secondary/60 hover:shadow-xl'
+                      : 'bg-gradient-to-br from-accent/15 to-secondary/15 border-accent/40 hover:from-accent/25 hover:to-secondary/25 hover:border-accent/60 hover:shadow-xl'
                   }`}
                 >
                   {ageGroup.label}
@@ -191,41 +191,43 @@ const Meditations = () => {
         )}
 
         {currentStep === 'themes' && (
-          <div className="space-y-6 mb-8">
-            <p className="text-muted-foreground text-lg text-center">
+          <div className="space-y-8 mb-8">
+            <p className="text-muted-foreground text-xl text-center px-4">
               What would you like to focus on? (Select one or more)
             </p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-6 px-2">
               {mockThemes.map((theme, index) => (
                 <Button
                   key={theme.id}
                   variant={filters.selectedThemes.includes(theme.name) ? "default" : "outline"}
                   onClick={() => handleThemeToggle(theme.name)}
-                  className={`aspect-square flex flex-col items-center gap-1 text-sm font-semibold rounded-xl border-2 transition-all ${
+                  className={`h-24 flex flex-col items-center gap-2 text-base font-bold rounded-2xl border-2 transition-all shadow-lg ${
                     !filters.selectedThemes.includes(theme.name) 
                       ? index % 4 === 0 
-                        ? 'bg-gradient-to-br from-primary/10 to-secondary/10 border-primary/30 hover:from-primary/20 hover:to-secondary/20 hover:border-primary/50'
+                        ? 'bg-gradient-to-br from-primary/15 to-secondary/15 border-primary/40 hover:from-primary/25 hover:to-secondary/25 hover:border-primary/60 hover:shadow-xl'
                         : index % 4 === 1
-                        ? 'bg-gradient-to-br from-secondary/10 to-accent/10 border-secondary/30 hover:from-secondary/20 hover:to-accent/20 hover:border-secondary/50'
+                        ? 'bg-gradient-to-br from-secondary/15 to-accent/15 border-secondary/40 hover:from-secondary/25 hover:to-accent/25 hover:border-secondary/60 hover:shadow-xl'
                         : index % 4 === 2
-                        ? 'bg-gradient-to-br from-accent/10 to-primary/10 border-accent/30 hover:from-accent/20 hover:to-primary/20 hover:border-accent/50'
-                        : 'bg-gradient-to-br from-muted/20 to-primary/10 border-muted/40 hover:from-muted/30 hover:to-primary/20 hover:border-muted/60'
-                      : ''
+                        ? 'bg-gradient-to-br from-accent/15 to-primary/15 border-accent/40 hover:from-accent/25 hover:to-primary/25 hover:border-accent/60 hover:shadow-xl'
+                        : 'bg-gradient-to-br from-muted/25 to-primary/15 border-muted/50 hover:from-muted/35 hover:to-primary/25 hover:border-muted/70 hover:shadow-xl'
+                      : 'shadow-xl'
                   }`}
                 >
-                  <span className="text-lg">{theme.icon}</span>
-                  {theme.name}
+                  <span className="text-2xl">{theme.icon}</span>
+                  <span className="text-sm leading-tight text-center">{theme.name}</span>
                 </Button>
               ))}
             </div>
             
             {canProceed && (
-              <Button
-                onClick={handleViewResults}
-                className="w-full h-12 mt-6 text-lg font-semibold rounded-xl"
-              >
-                View Meditations ({filteredMeditations.length})
-              </Button>
+              <div className="px-2">
+                <Button
+                  onClick={handleViewResults}
+                  className="w-full h-14 mt-8 text-xl font-bold rounded-2xl shadow-lg"
+                >
+                  View Meditations ({filteredMeditations.length})
+                </Button>
+              </div>
             )}
           </div>
         )}
