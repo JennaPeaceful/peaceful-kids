@@ -145,13 +145,17 @@ const Meditations = () => {
             <p className="text-muted-foreground text-lg text-center">
               Who will be meditating today?
             </p>
-            <div className="space-y-4">
-              {categories.map((category) => (
+            <div className="grid grid-cols-2 gap-4">
+              {categories.map((category, index) => (
                 <Button
                   key={category}
                   variant="outline"
                   onClick={() => handleCategorySelect(category)}
-                  className="w-full h-16 text-lg font-semibold rounded-xl"
+                  className={`aspect-square text-lg font-semibold rounded-xl border-2 transition-all ${
+                    index === 0 
+                      ? 'bg-gradient-to-br from-primary/10 to-secondary/10 border-primary/30 hover:from-primary/20 hover:to-secondary/20 hover:border-primary/50' 
+                      : 'bg-gradient-to-br from-accent/10 to-primary/10 border-accent/30 hover:from-accent/20 hover:to-primary/20 hover:border-accent/50'
+                  }`}
                 >
                   {category}
                 </Button>
@@ -166,12 +170,18 @@ const Meditations = () => {
               What's your age group?
             </p>
             <div className="grid grid-cols-2 gap-4">
-              {kidsAgeGroups.map((ageGroup) => (
+              {kidsAgeGroups.map((ageGroup, index) => (
                 <Button
                   key={ageGroup.id}
                   variant="outline"
                   onClick={() => handleAgeGroupSelect(ageGroup.label)}
-                  className="h-16 text-base font-semibold rounded-xl"
+                  className={`aspect-square text-base font-semibold rounded-xl border-2 transition-all ${
+                    index % 3 === 0 
+                      ? 'bg-gradient-to-br from-primary/10 to-accent/10 border-primary/30 hover:from-primary/20 hover:to-accent/20 hover:border-primary/50'
+                      : index % 3 === 1
+                      ? 'bg-gradient-to-br from-secondary/10 to-primary/10 border-secondary/30 hover:from-secondary/20 hover:to-primary/20 hover:border-secondary/50'
+                      : 'bg-gradient-to-br from-accent/10 to-secondary/10 border-accent/30 hover:from-accent/20 hover:to-secondary/20 hover:border-accent/50'
+                  }`}
                 >
                   {ageGroup.label}
                 </Button>
@@ -186,12 +196,22 @@ const Meditations = () => {
               What would you like to focus on? (Select one or more)
             </p>
             <div className="grid grid-cols-2 gap-3">
-              {mockThemes.map((theme) => (
+              {mockThemes.map((theme, index) => (
                 <Button
                   key={theme.id}
                   variant={filters.selectedThemes.includes(theme.name) ? "default" : "outline"}
                   onClick={() => handleThemeToggle(theme.name)}
-                  className="h-16 flex flex-col items-center gap-1 text-sm font-semibold rounded-xl"
+                  className={`aspect-square flex flex-col items-center gap-1 text-sm font-semibold rounded-xl border-2 transition-all ${
+                    !filters.selectedThemes.includes(theme.name) 
+                      ? index % 4 === 0 
+                        ? 'bg-gradient-to-br from-primary/10 to-secondary/10 border-primary/30 hover:from-primary/20 hover:to-secondary/20 hover:border-primary/50'
+                        : index % 4 === 1
+                        ? 'bg-gradient-to-br from-secondary/10 to-accent/10 border-secondary/30 hover:from-secondary/20 hover:to-accent/20 hover:border-secondary/50'
+                        : index % 4 === 2
+                        ? 'bg-gradient-to-br from-accent/10 to-primary/10 border-accent/30 hover:from-accent/20 hover:to-primary/20 hover:border-accent/50'
+                        : 'bg-gradient-to-br from-muted/20 to-primary/10 border-muted/40 hover:from-muted/30 hover:to-primary/20 hover:border-muted/60'
+                      : ''
+                  }`}
                 >
                   <span className="text-lg">{theme.icon}</span>
                   {theme.name}
