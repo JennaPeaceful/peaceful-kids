@@ -24,10 +24,10 @@ All colors MUST be HSL for proper theming.
     --primary-dark: 275 100% 60%;
 
     /* Teal accent colors */
-    --secondary: 180 100% 70%;
+    --secondary: 180 65% 55%;
     --secondary-foreground: 260 8% 15%;
-    --secondary-light: 185 85% 85%;
-    --secondary-dark: 175 100% 60%;
+    --secondary-light: 185 50% 70%;
+    --secondary-dark: 175 70% 45%;
 
     --muted: 260 15% 96%;
     --muted-foreground: 260 8% 55%;
@@ -98,10 +98,10 @@ All colors MUST be HSL for proper theming.
     --primary-light: 285 85% 80%;
     --primary-dark: 275 100% 65%;
 
-    --secondary: 180 100% 65%;
+    --secondary: 180 60% 50%;
     --secondary-foreground: 260 15% 8%;
-    --secondary-light: 185 85% 75%;
-    --secondary-dark: 175 100% 55%;
+    --secondary-light: 185 45% 65%;
+    --secondary-dark: 175 65% 40%;
 
     --muted: 260 15% 15%;
     --muted-foreground: 260 8% 65%;

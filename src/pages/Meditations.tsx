@@ -219,16 +219,6 @@ const Meditations = () => {
               ))}
             </div>
             
-            {canProceed && (
-              <div className="px-2">
-                <Button
-                  onClick={handleViewResults}
-                  className="w-full h-14 mt-8 text-xl font-bold rounded-2xl shadow-lg"
-                >
-                  View Meditations ({filteredMeditations.length})
-                </Button>
-              </div>
-            )}
           </div>
         )}
 
