@@ -17,49 +17,53 @@ All colors MUST be HSL for proper theming.
     --popover: 255 100% 100%;
     --popover-foreground: 260 8% 15%;
 
-    /* Peaceful Kids Primary Colors - Purple gradient */
-    --primary: 280 100% 70%;
-    --primary-foreground: 255 100% 98%;
-    --primary-light: 285 85% 85%;
-    --primary-dark: 275 100% 60%;
+    /* Logo Purple colors */
+    --primary: 282 47% 74%;
+    --primary-foreground: 260 8% 15%;
+    --primary-light: 282 47% 84%;
+    --primary-dark: 325 42% 58%;
 
-    /* Teal accent colors */
-    --secondary: 180 65% 55%;
-    --secondary-foreground: 260 8% 15%;
-    --secondary-light: 185 50% 70%;
-    --secondary-dark: 175 70% 45%;
+    /* Logo Teal/Blue colors */
+    --secondary: 196 46% 50%;
+    --secondary-foreground: 255 100% 98%;
+    --secondary-light: 189 66% 73%;
+    --secondary-dark: 196 46% 40%;
 
-    --muted: 260 15% 96%;
-    --muted-foreground: 260 8% 55%;
+    --muted: 215 23% 92%;
+    --muted-foreground: 215 23% 55%;
 
-    --accent: 45 100% 85%;
+    /* Logo Yellow/Orange accent */
+    --accent: 45 100% 76%;
     --accent-foreground: 260 8% 15%;
 
-    --success: 150 100% 65%;
+    /* Logo Green success */
+    --success: 128 54% 62%;
     --success-foreground: 255 100% 98%;
 
-    --warning: 35 100% 65%;
+    /* Logo Orange warning */
+    --warning: 28 100% 62%;
     --warning-foreground: 260 8% 15%;
 
-    --destructive: 0 84% 65%;
-    --destructive-foreground: 255 100% 98%;
+    /* Logo Coral destructive */
+    --destructive: 0 80% 73%;
+    --destructive-foreground: 260 8% 15%;
 
-    --border: 260 15% 92%;
-    --input: 260 15% 95%;
-    --ring: 280 100% 70%;
+    --border: 215 23% 88%;
+    --input: 215 23% 95%;
+    --ring: 282 47% 74%;
 
     --radius: 12px;
 
     /* Gradients for beautiful backgrounds */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
     --gradient-hero: linear-gradient(135deg, hsl(var(--primary-light)), hsl(var(--secondary-light)));
-    --gradient-card: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(260 15% 98%) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(215 23% 98%) 100%);
     
-    /* Celebration colors */
-    --celebration-1: 280 100% 85%;
-    --celebration-2: 180 100% 85%;
-    --celebration-3: 45 100% 85%;
-    --celebration-4: 330 100% 85%;
+    /* Celebration colors from logo */
+    --celebration-1: 282 47% 84%;
+    --celebration-2: 189 66% 83%;
+    --celebration-3: 45 100% 86%;
+    --celebration-4: 351 100% 86%;
     
     /* Shadows with color */
     --shadow-primary: 0 10px 30px -10px hsl(var(--primary) / 0.3);
@@ -93,43 +97,44 @@ All colors MUST be HSL for proper theming.
     --popover: 260 15% 10%;
     --popover-foreground: 255 100% 98%;
 
-    --primary: 280 100% 75%;
+    --primary: 282 47% 68%;
     --primary-foreground: 260 15% 8%;
-    --primary-light: 285 85% 80%;
-    --primary-dark: 275 100% 65%;
+    --primary-light: 282 47% 78%;
+    --primary-dark: 325 38% 50%;
 
-    --secondary: 180 60% 50%;
-    --secondary-foreground: 260 15% 8%;
-    --secondary-light: 185 45% 65%;
-    --secondary-dark: 175 65% 40%;
+    --secondary: 196 46% 45%;
+    --secondary-foreground: 255 100% 98%;
+    --secondary-light: 189 66% 65%;
+    --secondary-dark: 196 46% 35%;
 
-    --muted: 260 15% 15%;
-    --muted-foreground: 260 8% 65%;
+    --muted: 215 23% 15%;
+    --muted-foreground: 215 23% 65%;
 
-    --accent: 45 100% 75%;
+    --accent: 45 100% 70%;
     --accent-foreground: 260 15% 8%;
 
-    --success: 150 100% 60%;
+    --success: 128 54% 55%;
     --success-foreground: 255 100% 98%;
 
-    --warning: 35 100% 60%;
+    --warning: 28 100% 58%;
     --warning-foreground: 260 15% 8%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 80% 65%;
     --destructive-foreground: 255 100% 98%;
 
-    --border: 260 15% 20%;
-    --input: 260 15% 18%;
-    --ring: 280 100% 75%;
+    --border: 215 23% 22%;
+    --input: 215 23% 18%;
+    --ring: 282 47% 68%;
 
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
     --gradient-hero: linear-gradient(135deg, hsl(var(--primary-light)), hsl(var(--secondary-light)));
-    --gradient-card: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(260 15% 12%) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(215 23% 12%) 100%);
     
-    --celebration-1: 280 100% 80%;
-    --celebration-2: 180 100% 80%;
+    /* Celebration colors from logo - dark mode */
+    --celebration-1: 282 47% 78%;
+    --celebration-2: 189 66% 75%;
     --celebration-3: 45 100% 80%;
-    --celebration-4: 330 100% 80%;
+    --celebration-4: 351 100% 80%;
     
     --shadow-primary: 0 10px 30px -10px hsl(var(--primary) / 0.4);
     --shadow-card: 0 4px 20px -4px hsl(260 15% 5% / 0.4);
