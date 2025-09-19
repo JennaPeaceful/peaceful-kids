@@ -85,7 +85,7 @@ export default {
         "3xl": "40px",
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Montserrat', 'system-ui', 'sans-serif'],
       },
       fontSize: {
         'xs': ['14px', '20px'],
