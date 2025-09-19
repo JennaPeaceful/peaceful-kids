@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Sparkles, Play, TrendingUp } from 'lucide-react';
 import { useUserStore } from '../stores/userStore';
 import { useMeditationStore } from '../stores/meditationStore';
@@ -8,8 +9,12 @@ import { Button } from '../components/ui/button';
 
 const Explore = () => {
   const { profile, subscription } = useUserStore();
-  const { recommendedMeditations, recentMeditations } = useMeditationStore();
+  const { recommendedMeditations, recentMeditations, fetchMeditations, isLoading } = useMeditationStore();
   const { stats } = useProgressStore();
+
+  useEffect(() => {
+    fetchMeditations();
+  }, [fetchMeditations]);
 
   return (
     <div className="pb-24 pt-6">

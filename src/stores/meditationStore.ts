@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { Meditation, FilterState, PlayerState } from '../types';
-import { mockMeditations } from '../data/mockData';
+import { supabase } from '@/integrations/supabase/client';
+import type { Tables } from '@/integrations/supabase/types';
 
 interface MeditationState {
   meditations: Meditation[];
@@ -9,8 +10,10 @@ interface MeditationState {
   recommendedMeditations: Meditation[];
   filters: FilterState;
   player: PlayerState;
+  isLoading: boolean;
   
   // Actions
+  fetchMeditations: () => Promise<void>;
   setMeditations: (meditations: Meditation[]) => void;
   setFilters: (filters: Partial<FilterState>) => void;
   clearFilters: () => void;
@@ -36,14 +39,59 @@ const initialPlayer: PlayerState = {
   isLoading: false,
 };
 
+// Helper function to transform Supabase data to app format
+const transformMeditation = (dbMeditation: Tables<'meditations'>): Meditation => ({
+  id: dbMeditation.id,
+  title: dbMeditation.title,
+  description: dbMeditation.description || '',
+  thumbnail: dbMeditation.thumbnail_url || '/api/placeholder/300/200',
+  duration: dbMeditation.duration || 0,
+  media_url: dbMeditation.media_url || '',
+  media_type: (dbMeditation.media_type as 'audio' | 'video') || 'audio',
+  is_free: dbMeditation.is_free || false,
+  category: (dbMeditation.category as 'Kids' | 'Adults') || 'Kids',
+  age_group: dbMeditation.age_group || '',
+  themes: dbMeditation.themes || [],
+  created_at: dbMeditation.created_at || '',
+  sort_order: dbMeditation.sort_order || 0,
+});
+
 export const useMeditationStore = create<MeditationState>((set, get) => ({
-  meditations: mockMeditations,
-  filteredMeditations: mockMeditations,
-  recentMeditations: mockMeditations.slice(0, 3),
-  recommendedMeditations: mockMeditations.filter(m => m.category === 'Kids' && m.age_group === '6-8 years').slice(0, 4),
+  meditations: [],
+  filteredMeditations: [],
+  recentMeditations: [],
+  recommendedMeditations: [],
   filters: initialFilters,
   player: initialPlayer,
+  isLoading: false,
   
+  fetchMeditations: async () => {
+    set({ isLoading: true });
+    try {
+      const { data, error } = await supabase
+        .from('meditations')
+        .select('*')
+        .order('sort_order', { ascending: true });
+
+      if (error) throw error;
+
+      const meditations = data.map(transformMeditation);
+      set({ 
+        meditations,
+        filteredMeditations: meditations,
+        recentMeditations: meditations.slice(0, 3),
+        recommendedMeditations: meditations.filter(m => m.category === 'Kids' && m.age_group === '6-8 years').slice(0, 4),
+        isLoading: false 
+      });
+      
+      // Apply current filters if any
+      get().applyFilters();
+    } catch (error) {
+      console.error('Error fetching meditations:', error);
+      set({ isLoading: false });
+    }
+  },
+
   setMeditations: (meditations) => set({ meditations }),
   
   setFilters: (newFilters) => {

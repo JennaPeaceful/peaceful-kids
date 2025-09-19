@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, ArrowLeft, X } from 'lucide-react';
 import { useMeditationStore } from '../stores/meditationStore';
 import { mockAgeGroups, mockThemes } from '../data/mockData';
@@ -9,8 +9,12 @@ import { Input } from '../components/ui/input';
 type FilterStep = 'category' | 'ageGroup' | 'themes' | 'results';
 
 const Meditations = () => {
-  const { filteredMeditations, filters, setFilters, clearFilters } = useMeditationStore();
+  const { filteredMeditations, filters, setFilters, clearFilters, fetchMeditations, isLoading } = useMeditationStore();
   const [currentStep, setCurrentStep] = useState<FilterStep>('category');
+
+  useEffect(() => {
+    fetchMeditations();
+  }, [fetchMeditations]);
 
   const categories = ['Kids', 'Adults'] as const;
   const kidsAgeGroups = mockAgeGroups.filter(ag => ag.category_id === '1');

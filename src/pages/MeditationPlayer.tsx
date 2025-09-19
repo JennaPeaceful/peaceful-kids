@@ -11,7 +11,7 @@ import { toast } from '../hooks/use-toast';
 const MeditationPlayer = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { meditations, player, setCurrentMeditation, setPlaying, setCurrentTime } = useMeditationStore();
+  const { meditations, player, setCurrentMeditation, setPlaying, setCurrentTime, fetchMeditations } = useMeditationStore();
   const { completeSession } = useProgressStore();
   const { subscription } = useUserStore();
   
@@ -20,6 +20,13 @@ const MeditationPlayer = () => {
 
   const meditation = meditations.find(m => m.id === id);
   const isLocked = meditation && !meditation.is_free && !subscription?.is_active;
+
+  useEffect(() => {
+    // Fetch meditations if not loaded yet
+    if (meditations.length === 0) {
+      fetchMeditations();
+    }
+  }, [meditations.length, fetchMeditations]);
 
   useEffect(() => {
     if (meditation) {
