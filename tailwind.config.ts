@@ -80,9 +80,9 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
-        xl: "16px",
-        "2xl": "20px",
-        "3xl": "24px",
+        xl: "24px",
+        "2xl": "32px",
+        "3xl": "40px",
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
