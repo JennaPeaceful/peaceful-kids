@@ -7,6 +7,7 @@ import { useUserStore } from '../stores/userStore';
 import { Button } from '../components/ui/button';
 import { Progress } from '../components/ui/progress';
 import { toast } from '../hooks/use-toast';
+import AudioWaveform from '../components/AudioWaveform';
 
 const MeditationPlayer = () => {
   const { id } = useParams<{ id: string }>();
@@ -94,6 +95,12 @@ const MeditationPlayer = () => {
     const newTime = Math.max(0, Math.min(localCurrentTime + seconds, meditation.duration));
     setLocalCurrentTime(newTime);
     setCurrentTime(newTime);
+  };
+
+  const handleWaveformClick = (time: number) => {
+    if (isLocked) return;
+    setLocalCurrentTime(time);
+    setCurrentTime(time);
   };
 
   const formatTime = (seconds: number) => {
@@ -191,9 +198,19 @@ const MeditationPlayer = () => {
           </div>
         </div>
 
-        {/* Progress Bar */}
-        <div className="w-full max-w-sm mb-6">
-          <Progress value={progressPercentage} className="h-2 mb-2" />
+        {/* Audio Waveform */}
+        <div className="w-full max-w-md mb-6">
+          <AudioWaveform
+            audioUrl={meditation.media_url}
+            isPlaying={player.isPlaying && !isLocked}
+            currentTime={localCurrentTime}
+            duration={meditation.duration}
+            height={60}
+            barWidth={3}
+            barGap={1}
+            onClick={handleWaveformClick}
+            className="mb-2"
+          />
           <div className="flex justify-between text-sm text-muted-foreground">
             <span>{formatTime(localCurrentTime)}</span>
             <span>{formatTime(meditation.duration)}</span>

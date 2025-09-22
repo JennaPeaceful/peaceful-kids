@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Meditation } from '../types';
 import { useUserStore } from '../stores/userStore';
 import { useMeditationStore } from '../stores/meditationStore';
+import AudioWaveform from './AudioWaveform';
 
 interface MeditationCardProps {
   meditation: Meditation;
@@ -67,6 +68,17 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
         <p className="text-sm text-muted-foreground line-clamp-2">
           {meditation.description}
         </p>
+        
+        {/* Audio Waveform */}
+        <div className="py-2">
+          <AudioWaveform
+            audioUrl={meditation.media_url}
+            height={24}
+            barWidth={1}
+            barGap={1}
+            className="opacity-60"
+          />
+        </div>
         
         {/* Metadata */}
         <div className="flex items-center justify-between text-xs text-muted-foreground">
