@@ -1,41 +1,66 @@
 import { useState, useEffect } from 'react';
 import { Search, ArrowLeft, X } from 'lucide-react';
 import { useMeditationStore } from '../stores/meditationStore';
-import { mockAgeGroups, mockThemes } from '../data/mockData';
 import MeditationCard from '../components/MeditationCard';
+import MeditationDrawer from '../components/MeditationDrawer';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 
-type FilterStep = 'category' | 'ageGroup' | 'themes' | 'results';
+type FilterStep = 'category' | 'contentCategory' | 'ageGroup' | 'themes' | 'results';
 
 const Meditations = () => {
-  const { filteredMeditations, filters, setFilters, clearFilters, fetchMeditations, isLoading } = useMeditationStore();
+  const { 
+    filteredMeditations, 
+    filters, 
+    contentCategories, 
+    themes, 
+    ageGroups, 
+    setFilters, 
+    clearFilters, 
+    fetchMeditations, 
+    isLoading 
+  } = useMeditationStore();
   const [currentStep, setCurrentStep] = useState<FilterStep>('category');
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerTitle, setDrawerTitle] = useState('');
 
   useEffect(() => {
     fetchMeditations();
   }, [fetchMeditations]);
 
   const categories = ['Kids', 'Adults'] as const;
-  const kidsAgeGroups = mockAgeGroups.filter(ag => ag.category_id === '1');
 
   const handleCategorySelect = (category: 'Kids' | 'Adults') => {
     setFilters({ 
       selectedCategory: category,
+      selectedContentCategories: [],
       selectedAgeGroup: null,
       selectedThemes: []
     });
     
     if (category === 'Kids') {
-      setCurrentStep('ageGroup');
+      setCurrentStep('contentCategory');
     } else {
       setCurrentStep('themes');
     }
   };
 
+  const handleContentCategoryToggle = (category: string) => {
+    const newCategories = filters.selectedContentCategories.includes(category)
+      ? filters.selectedContentCategories.filter(c => c !== category)
+      : [...filters.selectedContentCategories, category];
+    setFilters({ selectedContentCategories: newCategories });
+    
+    if (newCategories.length > 0) {
+      setDrawerTitle(`${newCategories.join(', ')} Meditations`);
+      setDrawerOpen(true);
+    }
+  };
+
   const handleAgeGroupSelect = (ageGroup: string) => {
     setFilters({ selectedAgeGroup: ageGroup });
-    setCurrentStep('themes');
+    setDrawerTitle(`${ageGroup} Meditations`);
+    setDrawerOpen(true);
   };
 
   const handleThemeToggle = (theme: string) => {
@@ -43,6 +68,11 @@ const Meditations = () => {
       ? filters.selectedThemes.filter(t => t !== theme)
       : [...filters.selectedThemes, theme];
     setFilters({ selectedThemes: newThemes });
+    
+    if (newThemes.length > 0) {
+      setDrawerTitle(`${newThemes.join(', ')} Meditations`);
+      setDrawerOpen(true);
+    }
   };
 
   const handleSearchChange = (query: string) => {
@@ -50,9 +80,14 @@ const Meditations = () => {
   };
 
   const handleBack = () => {
-    if (currentStep === 'ageGroup') {
+    setDrawerOpen(false);
+    
+    if (currentStep === 'contentCategory') {
       setCurrentStep('category');
-      setFilters({ selectedCategory: null, selectedAgeGroup: null, selectedThemes: [] });
+      setFilters({ selectedCategory: null, selectedContentCategories: [], selectedAgeGroup: null, selectedThemes: [] });
+    } else if (currentStep === 'ageGroup') {
+      setCurrentStep('contentCategory');
+      setFilters({ selectedContentCategories: [], selectedAgeGroup: null, selectedThemes: [] });
     } else if (currentStep === 'themes') {
       if (filters.selectedCategory === 'Kids') {
         setCurrentStep('ageGroup');
@@ -73,8 +108,14 @@ const Meditations = () => {
     setCurrentStep('results');
   };
 
-  const hasActiveFilters = filters.selectedCategory || filters.selectedAgeGroup || filters.selectedThemes.length > 0 || filters.searchQuery;
-  const canProceed = currentStep === 'themes' && (filters.selectedThemes.length > 0 || filters.selectedCategory === 'Adults');
+  const hasActiveFilters = filters.selectedCategory || filters.selectedContentCategories.length > 0 || filters.selectedAgeGroup || filters.selectedThemes.length > 0 || filters.searchQuery;
+  
+  // Get filtered themes that don't overlap with content categories
+  const availableThemes = themes.filter(theme => 
+    filters.selectedCategory === 'Adults' || 
+    theme.category.includes(filters.selectedCategory || '') &&
+    !filters.selectedContentCategories.includes(theme.name)
+  );
 
   return (
     <div className="pb-24 pt-6 min-h-screen">
@@ -92,6 +133,7 @@ const Meditations = () => {
           )}
           <h1 className="text-2xl font-bold text-gradient-primary flex-1">
             {currentStep === 'category' && 'Choose Category'}
+            {currentStep === 'contentCategory' && 'Choose Content Category'}
             {currentStep === 'ageGroup' && 'Choose Age Group'}
             {currentStep === 'themes' && 'Choose Themes'}
             {currentStep === 'results' && 'Your Meditations'}
@@ -127,14 +169,19 @@ const Meditations = () => {
                   {filters.selectedCategory}
                 </span>
               )}
+              {filters.selectedContentCategories.map((category) => (
+                <span key={category} className="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-sm font-medium">
+                  {category}
+                </span>
+              ))}
               {filters.selectedAgeGroup && (
-                <span className="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-sm font-medium">
+                <span className="bg-accent/10 text-accent-foreground px-3 py-1 rounded-full text-sm font-medium">
                   {filters.selectedAgeGroup}
                 </span>
               )}
               {filters.selectedThemes.map((theme) => (
-                <span key={theme} className="bg-accent/10 text-accent-foreground px-3 py-1 rounded-full text-sm font-medium">
-                  {mockThemes.find(t => t.name === theme)?.icon} {theme}
+                <span key={theme} className="bg-muted/10 text-muted-foreground px-3 py-1 rounded-full text-sm font-medium">
+                  {themes.find(t => t.name === theme)?.icon} {theme}
                 </span>
               ))}
             </div>
@@ -168,17 +215,56 @@ const Meditations = () => {
           </div>
         )}
 
+        {currentStep === 'contentCategory' && filters.selectedCategory === 'Kids' && (
+          <div className="space-y-8 mb-8">
+            <p className="text-muted-foreground text-xl text-center px-4">
+              What type of content are you looking for?
+            </p>
+            <div className="grid grid-cols-1 gap-4 px-2">
+              {contentCategories.map((category, index) => (
+                <Button
+                  key={category}
+                  variant={filters.selectedContentCategories.includes(category) ? "default" : "outline"}
+                  onClick={() => handleContentCategoryToggle(category)}
+                  className={`h-16 text-lg font-bold rounded-2xl border-2 transition-all shadow-lg ${
+                    !filters.selectedContentCategories.includes(category) 
+                      ? index % 3 === 0 
+                        ? 'bg-gradient-to-br from-primary/15 to-secondary/15 border-primary/40 hover:from-primary/25 hover:to-secondary/25 hover:border-primary/60 hover:shadow-xl'
+                        : index % 3 === 1
+                        ? 'bg-gradient-to-br from-secondary/15 to-accent/15 border-secondary/40 hover:from-secondary/25 hover:to-accent/25 hover:border-secondary/60 hover:shadow-xl'
+                        : 'bg-gradient-to-br from-accent/15 to-primary/15 border-accent/40 hover:from-accent/25 hover:to-primary/25 hover:border-accent/60 hover:shadow-xl'
+                      : 'shadow-xl'
+                  }`}
+                >
+                  {category}
+                </Button>
+              ))}
+            </div>
+            
+            {filters.selectedContentCategories.length > 0 && (
+              <div className="px-2">
+                <Button
+                  onClick={() => setCurrentStep('ageGroup')}
+                  className="w-full h-14 text-lg font-bold rounded-2xl"
+                >
+                  Continue to Age Groups →
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+
         {currentStep === 'ageGroup' && filters.selectedCategory === 'Kids' && (
           <div className="space-y-8 mb-8">
             <p className="text-muted-foreground text-xl text-center px-4">
               What's your age group?
             </p>
             <div className="grid grid-cols-2 gap-6 px-2">
-              {kidsAgeGroups.map((ageGroup, index) => (
+              {ageGroups.filter(ag => ag).map((ageGroup, index) => (
                 <Button
-                  key={ageGroup.id}
+                  key={ageGroup}
                   variant="outline"
-                  onClick={() => handleAgeGroupSelect(ageGroup.label)}
+                  onClick={() => handleAgeGroupSelect(ageGroup)}
                   className={`h-24 text-lg font-bold rounded-2xl border-2 transition-all shadow-lg ${
                     index % 3 === 0 
                       ? 'bg-gradient-to-br from-primary/15 to-accent/15 border-primary/40 hover:from-primary/25 hover:to-accent/25 hover:border-primary/60 hover:shadow-xl'
@@ -187,9 +273,18 @@ const Meditations = () => {
                       : 'bg-gradient-to-br from-accent/15 to-secondary/15 border-accent/40 hover:from-accent/25 hover:to-secondary/25 hover:border-accent/60 hover:shadow-xl'
                   }`}
                 >
-                  {ageGroup.label}
+                  {ageGroup}
                 </Button>
               ))}
+            </div>
+            
+            <div className="px-2">
+              <Button
+                onClick={() => setCurrentStep('themes')}
+                className="w-full h-14 text-lg font-bold rounded-2xl"
+              >
+                Continue to Themes →
+              </Button>
             </div>
           </div>
         )}
@@ -200,7 +295,7 @@ const Meditations = () => {
               What would you like to focus on? (Select one or more)
             </p>
             <div className="grid grid-cols-2 gap-6 px-2">
-              {mockThemes.map((theme, index) => (
+              {availableThemes.map((theme, index) => (
                 <Button
                   key={theme.id}
                   variant={filters.selectedThemes.includes(theme.name) ? "default" : "outline"}
@@ -216,13 +311,13 @@ const Meditations = () => {
                         : 'bg-gradient-to-br from-muted/25 to-primary/15 border-muted/50 hover:from-muted/35 hover:to-primary/25 hover:border-muted/70 hover:shadow-xl'
                       : 'shadow-xl'
                   }`}
+                  style={{ color: !filters.selectedThemes.includes(theme.name) ? theme.color : undefined }}
                 >
                   <span className="text-2xl">{theme.icon}</span>
                   <span className="text-sm leading-tight text-center">{theme.name}</span>
                 </Button>
               ))}
             </div>
-            
           </div>
         )}
 
@@ -259,25 +354,13 @@ const Meditations = () => {
           </div>
         )}
 
-        {/* Show meditation cards at bottom when not on results step and there are filters applied */}
-        {currentStep !== 'results' && filteredMeditations.length > 0 && hasActiveFilters && (
-          <div className="mt-12 pt-6 border-t border-border">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Preview ({filteredMeditations.length})</h3>
-              {canProceed && (
-                <Button onClick={handleViewResults} variant="outline" size="sm">
-                  View All
-                </Button>
-              )}
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              {filteredMeditations.slice(0, 4).map((meditation) => (
-                <MeditationCard key={meditation.id} meditation={meditation} />
-              ))}
-            </div>
-          </div>
-        )}
       </div>
+      
+      <MeditationDrawer 
+        isOpen={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        title={drawerTitle}
+      />
     </div>
   );
 };

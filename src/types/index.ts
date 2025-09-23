@@ -12,6 +12,7 @@ export interface Meditation {
   category: 'Kids' | 'Adults';
   age_group: string;
   themes: string[];
+  content_categories?: string[];
   created_at: string;
   sort_order: number;
 }
@@ -77,6 +78,7 @@ export interface UserSubscription {
 // UI State types
 export interface FilterState {
   selectedCategory: 'Kids' | 'Adults' | null;
+  selectedContentCategories: string[];
   selectedAgeGroup: string | null;
   selectedThemes: string[];
   searchQuery: string;
