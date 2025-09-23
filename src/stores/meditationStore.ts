@@ -190,7 +190,8 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
     
     if (filters.selectedThemes.length > 0) {
       filtered = filtered.filter(m => 
-        m.themes.some(theme => filters.selectedThemes.includes(theme))
+        m.themes.some(theme => filters.selectedThemes.includes(theme)) ||
+        m.content_categories?.some(cat => filters.selectedThemes.includes(cat))
       );
     }
     
