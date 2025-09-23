@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import { Search, ArrowLeft, X } from 'lucide-react';
 import { useMeditationStore } from '../stores/meditationStore';
 import MeditationCard from '../components/MeditationCard';
-import MeditationDrawer from '../components/MeditationDrawer';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
+import { ScrollArea } from '../components/ui/scroll-area';
 
 type FilterStep = 'category' | 'contentCategory' | 'ageGroup' | 'themes' | 'results';
+
+const ITEMS_PER_LOAD = 15;
 
 const Meditations = () => {
   const { 
@@ -21,12 +23,15 @@ const Meditations = () => {
     isLoading 
   } = useMeditationStore();
   const [currentStep, setCurrentStep] = useState<FilterStep>('category');
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [drawerTitle, setDrawerTitle] = useState('');
+  const [displayedItems, setDisplayedItems] = useState(ITEMS_PER_LOAD);
 
   useEffect(() => {
     fetchMeditations();
   }, [fetchMeditations]);
+
+  useEffect(() => {
+    setDisplayedItems(ITEMS_PER_LOAD);
+  }, [filteredMeditations]);
 
   const categories = ['Kids', 'Adults'] as const;
 
@@ -52,15 +57,13 @@ const Meditations = () => {
     setFilters({ selectedContentCategories: newCategories });
     
     if (newCategories.length > 0) {
-      setDrawerTitle(`${newCategories.join(', ')} Meditations`);
-      setDrawerOpen(true);
+      setCurrentStep('results');
     }
   };
 
   const handleAgeGroupSelect = (ageGroup: string) => {
     setFilters({ selectedAgeGroup: ageGroup });
-    setDrawerTitle(`${ageGroup} Meditations`);
-    setDrawerOpen(true);
+    setCurrentStep('results');
   };
 
   const handleThemeToggle = (theme: string) => {
@@ -70,8 +73,7 @@ const Meditations = () => {
     setFilters({ selectedThemes: newThemes });
     
     if (newThemes.length > 0) {
-      setDrawerTitle(`${newThemes.join(', ')} Meditations`);
-      setDrawerOpen(true);
+      setCurrentStep('results');
     }
   };
 
@@ -80,9 +82,7 @@ const Meditations = () => {
   };
 
   const handleBack = () => {
-    setDrawerOpen(false);
-    
-    if (currentStep === 'contentCategory') {
+    if (currentStep === 'contentCategory' || currentStep === 'results') {
       setCurrentStep('category');
       setFilters({ selectedCategory: null, selectedContentCategories: [], selectedAgeGroup: null, selectedThemes: [] });
     } else if (currentStep === 'ageGroup') {
@@ -104,8 +104,15 @@ const Meditations = () => {
     setCurrentStep('category');
   };
 
-  const handleViewResults = () => {
-    setCurrentStep('results');
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+    
+    // Load more when user scrolls to bottom
+    if (scrollHeight - scrollTop <= clientHeight + 100) {
+      if (displayedItems < filteredMeditations.length) {
+        setDisplayedItems(prev => Math.min(prev + ITEMS_PER_LOAD, filteredMeditations.length));
+      }
+    }
   };
 
   const hasActiveFilters = filters.selectedCategory || filters.selectedContentCategories.length > 0 || filters.selectedAgeGroup || filters.selectedThemes.length > 0 || filters.searchQuery;
@@ -116,6 +123,8 @@ const Meditations = () => {
     theme.category.includes(filters.selectedCategory || '') &&
     !filters.selectedContentCategories.includes(theme.name)
   );
+
+  const displayedMeditations = filteredMeditations.slice(0, displayedItems);
 
   return (
     <div className="pb-24 pt-6 min-h-screen">
@@ -344,23 +353,25 @@ const Meditations = () => {
                   </p>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-4">
-                  {filteredMeditations.map((meditation) => (
-                    <MeditationCard key={meditation.id} meditation={meditation} />
-                  ))}
-                </div>
+                <ScrollArea className="h-[60vh]" onScrollCapture={handleScroll}>
+                  <div className="grid grid-cols-2 gap-4 pb-6">
+                    {displayedMeditations.map((meditation) => (
+                      <MeditationCard key={meditation.id} meditation={meditation} />
+                    ))}
+                  </div>
+                  
+                  {displayedItems < filteredMeditations.length && (
+                    <div className="text-center py-4 text-muted-foreground">
+                      Loading more...
+                    </div>
+                  )}
+                </ScrollArea>
               </>
             )}
           </div>
         )}
 
       </div>
-      
-      <MeditationDrawer 
-        isOpen={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        title={drawerTitle}
-      />
     </div>
   );
 };
