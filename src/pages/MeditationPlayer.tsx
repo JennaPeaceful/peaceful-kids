@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Play, Pause, SkipBack, SkipForward, ArrowLeft, Heart, Share, Lock } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, ArrowLeft, Heart, Share, Lock, AlertCircle } from 'lucide-react';
 import { useMeditationStore } from '../stores/meditationStore';
 import { useProgressStore } from '../stores/progressStore';
 import { useUserStore } from '../stores/userStore';
@@ -16,8 +16,14 @@ const MeditationPlayer = () => {
   const { completeSession } = useProgressStore();
   const { subscription } = useUserStore();
   
+  // Media state
   const [localCurrentTime, setLocalCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [canPlay, setCanPlay] = useState(false);
+  
   const audioRef = useRef<HTMLAudioElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -36,34 +42,88 @@ const MeditationPlayer = () => {
   useEffect(() => {
     if (meditation) {
       setCurrentMeditation(meditation);
+      setDuration(meditation.duration);
     }
   }, [meditation, setCurrentMeditation]);
 
-  useEffect(() => {
-    // Sync with actual media playback
+  // Media event handlers
+  const handleLoadStart = () => {
+    setIsLoading(true);
+    setError(null);
+    setCanPlay(false);
+  };
+
+  const handleCanPlay = () => {
+    setIsLoading(false);
+    setCanPlay(true);
     const mediaElement = isAudio ? audioRef.current : videoRef.current;
-    if (mediaElement && player.isPlaying && !mediaElement.paused) {
-      const updateTime = () => {
-        const currentTime = mediaElement.currentTime;
-        setLocalCurrentTime(currentTime);
-        setCurrentTime(currentTime);
-        
-        // Check if meditation is completed
-        if (currentTime >= meditation!.duration && !isCompleted) {
-          setIsCompleted(true);
-          setPlaying(false);
-          completeSession(meditation!.id, currentTime);
-          toast({
-            title: "Meditation Complete! 🎉",
-            description: "Great job! You've completed another mindful session.",
-          });
-        }
-      };
-      
-      mediaElement.addEventListener('timeupdate', updateTime);
-      return () => mediaElement.removeEventListener('timeupdate', updateTime);
+    if (mediaElement && mediaElement.duration) {
+      setDuration(mediaElement.duration);
     }
-  }, [player.isPlaying, isAudio, meditation, completeSession, setCurrentTime, setPlaying, isCompleted]);
+  };
+
+  const handleLoadedMetadata = () => {
+    const mediaElement = isAudio ? audioRef.current : videoRef.current;
+    if (mediaElement && mediaElement.duration) {
+      setDuration(mediaElement.duration);
+    }
+  };
+
+  const handleTimeUpdate = () => {
+    const mediaElement = isAudio ? audioRef.current : videoRef.current;
+    if (mediaElement) {
+      const currentTime = mediaElement.currentTime;
+      setLocalCurrentTime(currentTime);
+      setCurrentTime(currentTime);
+      
+      // Check if meditation is completed (within 2 seconds of end)
+      if (duration > 0 && currentTime >= duration - 2 && !isCompleted) {
+        handleMediaComplete();
+      }
+    }
+  };
+
+  const handleMediaComplete = () => {
+    setIsCompleted(true);
+    setPlaying(false);
+    if (meditation) {
+      completeSession(meditation.id, duration);
+      toast({
+        title: "Meditation Complete! 🎉",
+        description: "Great job! You've completed another mindful session.",
+      });
+    }
+  };
+
+  const handleError = (e: any) => {
+    console.error('Media error:', e);
+    setIsLoading(false);
+    setError('Failed to load meditation. Please check your internet connection and try again.');
+    setPlaying(false);
+  };
+
+  const handleEnded = () => {
+    handleMediaComplete();
+  };
+
+  // Cleanup function
+  useEffect(() => {
+    return () => {
+      // Cleanup media on unmount
+      const audioEl = audioRef.current;
+      const videoEl = videoRef.current;
+      
+      if (audioEl) {
+        audioEl.pause();
+        audioEl.src = '';
+      }
+      if (videoEl) {
+        videoEl.pause();
+        videoEl.src = '';
+      }
+      setPlaying(false);
+    };
+  }, []);
 
   if (!meditation) {
     return (
@@ -78,7 +138,7 @@ const MeditationPlayer = () => {
     );
   }
 
-  const handlePlayPause = () => {
+  const handlePlayPause = async () => {
     if (isLocked) {
       toast({
         title: "Premium Required",
@@ -88,46 +148,69 @@ const MeditationPlayer = () => {
       return;
     }
     
+    if (!canPlay) {
+      toast({
+        title: "Media Loading",
+        description: "Please wait for the meditation to load completely.",
+      });
+      return;
+    }
+    
     const mediaElement = isAudio ? audioRef.current : videoRef.current;
     if (!mediaElement) return;
     
-    if (player.isPlaying) {
-      mediaElement.pause();
+    try {
+      if (player.isPlaying) {
+        mediaElement.pause();
+      } else {
+        // Request wake lock to keep screen active during playback
+        if ('wakeLock' in navigator) {
+          try {
+            await (navigator as any).wakeLock.request('screen');
+          } catch (err) {
+            // Wake lock not supported or denied
+            console.log('Wake lock not available');
+          }
+        }
+        
+        const playPromise = mediaElement.play();
+        if (playPromise !== undefined) {
+          playPromise.catch((error) => {
+            console.error('Playback failed:', error);
+            setError('Playback failed. Please try again.');
+            setPlaying(false);
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Playback error:', error);
+      setError('Playback failed. Please try again.');
       setPlaying(false);
-    } else {
-      mediaElement.play();
-      setPlaying(true);
     }
   };
 
   const handleSkip = (seconds: number) => {
-    if (isLocked) return;
+    if (isLocked || !canPlay) return;
     const mediaElement = isAudio ? audioRef.current : videoRef.current;
-    if (!mediaElement || !meditation) return;
+    if (!mediaElement) return;
     
-    const newTime = Math.max(0, Math.min(mediaElement.currentTime + seconds, meditation.duration));
+    const newTime = Math.max(0, Math.min(mediaElement.currentTime + seconds, duration));
     mediaElement.currentTime = newTime;
-    setLocalCurrentTime(newTime);
-    setCurrentTime(newTime);
   };
 
   const handleWaveformClick = (time: number) => {
-    if (isLocked) return;
+    if (isLocked || !canPlay) return;
     const mediaElement = isAudio ? audioRef.current : videoRef.current;
     if (!mediaElement) return;
     
     mediaElement.currentTime = time;
-    setLocalCurrentTime(time);
-    setCurrentTime(time);
   };
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
+    const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
-
-  const progressPercentage = (localCurrentTime / meditation.duration) * 100;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/5">
@@ -160,25 +243,58 @@ const MeditationPlayer = () => {
         </div>
       </div>
 
-      {/* Hidden Media Elements */}
+      {/* Media Elements */}
       {isAudio ? (
         <audio
           ref={audioRef}
           src={meditation.media_url}
+          onLoadStart={handleLoadStart}
+          onCanPlay={handleCanPlay}
+          onLoadedMetadata={handleLoadedMetadata}
+          onTimeUpdate={handleTimeUpdate}
           onPlay={() => setPlaying(true)}
           onPause={() => setPlaying(false)}
-          onEnded={() => setPlaying(false)}
+          onEnded={handleEnded}
+          onError={handleError}
+          preload="metadata"
           className="hidden"
         />
       ) : (
         <video
           ref={videoRef}
           src={meditation.media_url}
+          onLoadStart={handleLoadStart}
+          onCanPlay={handleCanPlay}
+          onLoadedMetadata={handleLoadedMetadata}
+          onTimeUpdate={handleTimeUpdate}
           onPlay={() => setPlaying(true)}
           onPause={() => setPlaying(false)}
-          onEnded={() => setPlaying(false)}
+          onEnded={handleEnded}
+          onError={handleError}
+          preload="metadata"
           className="hidden"
         />
+      )}
+
+      {/* Error State */}
+      {error && (
+        <div className="mx-4 mb-4 p-4 bg-destructive/10 border border-destructive/20 rounded-lg flex items-center gap-2">
+          <AlertCircle className="w-5 h-5 text-destructive" />
+          <p className="text-sm text-destructive">{error}</p>
+          <Button 
+            size="sm" 
+            variant="outline" 
+            onClick={() => {
+              setError(null);
+              const mediaElement = isAudio ? audioRef.current : videoRef.current;
+              if (mediaElement) {
+                mediaElement.load();
+              }
+            }}
+          >
+            Retry
+          </Button>
+        </div>
       )}
 
       {/* Main Content */}
@@ -190,6 +306,16 @@ const MeditationPlayer = () => {
             alt={meditation.title}
             className="w-full h-full object-cover rounded-3xl shadow-2xl"
           />
+          
+          {/* Loading Overlay */}
+          {isLoading && (
+            <div className="absolute inset-0 bg-black/60 rounded-3xl flex items-center justify-center">
+              <div className="text-center text-white">
+                <div className="animate-spin w-8 h-8 border-2 border-white border-t-transparent rounded-full mx-auto mb-2"></div>
+                <p className="text-sm">Loading meditation...</p>
+              </div>
+            </div>
+          )}
           
           {/* Lock Overlay */}
           {isLocked && (
@@ -241,9 +367,9 @@ const MeditationPlayer = () => {
         <div className="w-full max-w-md mb-6">
           <AudioWaveform
             audioUrl={meditation.media_url}
-            isPlaying={player.isPlaying && !isLocked}
+            isPlaying={player.isPlaying && !isLocked && canPlay}
             currentTime={localCurrentTime}
-            duration={isAudio ? audioRef.current?.duration || meditation.duration : meditation.duration}
+            duration={duration}
             height={60}
             barWidth={3}
             barGap={1}
@@ -252,7 +378,7 @@ const MeditationPlayer = () => {
           />
           <div className="flex justify-between text-sm text-muted-foreground">
             <span>{formatTime(localCurrentTime)}</span>
-            <span>{formatTime(meditation.duration)}</span>
+            <span>{formatTime(duration)}</span>
           </div>
         </div>
 
@@ -262,7 +388,7 @@ const MeditationPlayer = () => {
             variant="ghost"
             size="lg"
             onClick={() => handleSkip(-30)}
-            disabled={isLocked}
+            disabled={isLocked || !canPlay}
             className="w-12 h-12 rounded-full"
           >
             <SkipBack className="w-6 h-6" />
@@ -271,9 +397,11 @@ const MeditationPlayer = () => {
           <Button
             onClick={handlePlayPause}
             className="w-20 h-20 rounded-full btn-hero flex items-center justify-center"
-            disabled={isLocked}
+            disabled={isLocked || (!canPlay && !isLoading)}
           >
-            {player.isPlaying ? (
+            {isLoading ? (
+              <div className="animate-spin w-6 h-6 border-2 border-white border-t-transparent rounded-full"></div>
+            ) : player.isPlaying ? (
               <Pause className="w-8 h-8" />
             ) : (
               <Play className="w-8 h-8 ml-1" />
@@ -284,7 +412,7 @@ const MeditationPlayer = () => {
             variant="ghost"
             size="lg"
             onClick={() => handleSkip(30)}
-            disabled={isLocked}
+            disabled={isLocked || !canPlay}
             className="w-12 h-12 rounded-full"
           >
             <SkipForward className="w-6 h-6" />
@@ -299,7 +427,7 @@ const MeditationPlayer = () => {
               Meditation Complete!
             </h2>
             <p className="text-muted-foreground mb-6">
-              You've added {Math.round(meditation.duration / 60)} mindful minutes to your day
+              You've added {Math.round(duration / 60)} mindful minutes to your day
             </p>
             <div className="flex gap-3">
               <Button onClick={() => navigate('/tracking')} className="btn-soft">
