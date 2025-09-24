@@ -20,7 +20,8 @@ const MeditationPlayer = () => {
   const [isCompleted, setIsCompleted] = useState(false);
 
   const meditation = meditations.find(m => m.id === id);
-  const isLocked = meditation && !meditation.is_free && !subscription?.is_active;
+  // Temporarily disabled for development
+  const isLocked = false; // meditation && !meditation.is_free && !subscription?.is_active;
 
   useEffect(() => {
     // Fetch meditations if not loaded yet

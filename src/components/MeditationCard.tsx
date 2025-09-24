@@ -22,7 +22,8 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   
-  const isLocked = !meditation.is_free && !subscription?.is_active;
+  // Temporarily disabled for development
+  const isLocked = false; // !meditation.is_free && !subscription?.is_active;
   const isAudio = meditation.media_type === 'audio';
 
   const togglePlayback = (e: React.MouseEvent) => {
