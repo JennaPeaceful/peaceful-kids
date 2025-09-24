@@ -25,7 +25,8 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
   const isLocked = !meditation.is_free && !subscription?.is_active;
   const isAudio = meditation.media_type === 'audio';
 
-  const togglePlayback = () => {
+  const togglePlayback = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card navigation
     if (isLocked) return;
     
     const mediaElement = isAudio ? audioRef.current : videoRef.current;
@@ -62,8 +63,15 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
     setCurrentTime(time);
   };
 
+  const handleCardClick = () => {
+    navigate(`/meditation/${meditation.id}`);
+  };
+
   return (
-    <div className={`relative card-gradient p-4 transition-all duration-300 hover:scale-105 ${isLocked ? 'card-premium' : ''}`}>
+    <div 
+      className={`relative card-gradient p-4 transition-all duration-300 hover:scale-105 cursor-pointer ${isLocked ? 'card-premium' : ''}`}
+      onClick={handleCardClick}
+    >
       {/* Media Player */}
       <div className="relative mb-3 rounded-xl overflow-hidden">
         {isAudio ? (
@@ -138,7 +146,7 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
         
         {/* Audio Waveform for audio content */}
         {isAudio && (
-          <div className="py-2">
+          <div className="py-2" onClick={(e) => e.stopPropagation()}>
             <AudioWaveform
               audioUrl={meditation.media_url}
               isPlaying={isPlaying}
