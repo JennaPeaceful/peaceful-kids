@@ -120,7 +120,27 @@ const MeditationPlayer = () => {
     
     setIsLoading(false);
     const mediaType = isAudio ? 'audio' : 'video';
-    setError(`Failed to load ${mediaType}. The media file may be unavailable or blocked by CORS policy.`);
+    
+    // Try fallback demo content for development
+    if (meditation && !meditation.media_url.includes('demo-content')) {
+      console.log('Media file not found, trying demo content...');
+      const demoUrl = isAudio 
+        ? 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav'
+        : 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+      
+      const mediaElement = isAudio ? audioRef.current : videoRef.current;
+      if (mediaElement) {
+        mediaElement.src = demoUrl;
+        mediaElement.load();
+        toast({
+          title: "Using Demo Content",
+          description: `Original ${mediaType} file not found, playing demo content instead.`,
+        });
+        return;
+      }
+    }
+    
+    setError(`${mediaType} file not found (404). The content may not be uploaded to the CDN yet.`);
     setPlaying(false);
   };
 
