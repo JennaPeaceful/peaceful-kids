@@ -39,18 +39,30 @@ const MeditationPlayer = () => {
     }
   }, [meditations.length, fetchMeditations]);
 
+  // Test media URL accessibility
   useEffect(() => {
-    if (meditation) {
-      setCurrentMeditation(meditation);
-      setDuration(meditation.duration);
+    if (meditation?.media_url) {
+      console.log('Testing media URL accessibility:', meditation.media_url);
+      
+      // Test if we can access the media URL
+      fetch(meditation.media_url, { 
+        method: 'HEAD',
+        mode: 'no-cors' // Try no-cors first to avoid CORS issues
+      })
+      .then(() => console.log('Media URL is accessible'))
+      .catch((err) => {
+        console.error('Media URL test failed:', err);
+        console.log('This might indicate CORS issues or the file doesn\'t exist');
+      });
     }
-  }, [meditation, setCurrentMeditation]);
+  }, [meditation?.media_url]);
 
   // Media event handlers
   const handleLoadStart = () => {
     setIsLoading(true);
     setError(null);
     setCanPlay(false);
+    console.log(`Starting to load ${isAudio ? 'audio' : 'video'}:`, meditation?.media_url);
   };
 
   const handleCanPlay = () => {
@@ -96,9 +108,19 @@ const MeditationPlayer = () => {
   };
 
   const handleError = (e: any) => {
-    console.error('Media error:', e);
+    const errorDetails = {
+      type: e.target?.tagName,
+      error: e.target?.error,
+      networkState: e.target?.networkState,
+      readyState: e.target?.readyState,
+      src: e.target?.src,
+      currentSrc: e.target?.currentSrc
+    };
+    console.error('Media error details:', errorDetails);
+    
     setIsLoading(false);
-    setError('Failed to load meditation. Please check your internet connection and try again.');
+    const mediaType = isAudio ? 'audio' : 'video';
+    setError(`Failed to load ${mediaType}. The media file may be unavailable or blocked by CORS policy.`);
     setPlaying(false);
   };
 
@@ -248,7 +270,11 @@ const MeditationPlayer = () => {
         <audio
           ref={audioRef}
           src={meditation.media_url}
-          onLoadStart={handleLoadStart}
+          crossOrigin="anonymous"
+          onLoadStart={() => {
+            console.log('Loading audio from:', meditation.media_url);
+            handleLoadStart();
+          }}
           onCanPlay={handleCanPlay}
           onLoadedMetadata={handleLoadedMetadata}
           onTimeUpdate={handleTimeUpdate}
@@ -263,7 +289,11 @@ const MeditationPlayer = () => {
         <video
           ref={videoRef}
           src={meditation.media_url}
-          onLoadStart={handleLoadStart}
+          crossOrigin="anonymous"
+          onLoadStart={() => {
+            console.log('Loading video from:', meditation.media_url);
+            handleLoadStart();
+          }}
           onCanPlay={handleCanPlay}
           onLoadedMetadata={handleLoadedMetadata}
           onTimeUpdate={handleTimeUpdate}
@@ -302,9 +332,13 @@ const MeditationPlayer = () => {
         {/* Meditation Image */}
         <div className="relative w-80 h-80 mb-8">
           <img
-            src={meditation.thumbnail}
+            src={meditation.thumbnail || '/api/placeholder/300/300'}
             alt={meditation.title}
             className="w-full h-full object-cover rounded-3xl shadow-2xl"
+            onError={(e) => {
+              console.warn('Thumbnail failed to load, using placeholder');
+              e.currentTarget.src = '/api/placeholder/300/300';
+            }}
           />
           
           {/* Loading Overlay */}
