@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Play, Pause, SkipBack, SkipForward, ArrowLeft, Heart, Share, Lock } from 'lucide-react';
 import { useMeditationStore } from '../stores/meditationStore';
@@ -18,10 +18,13 @@ const MeditationPlayer = () => {
   
   const [localCurrentTime, setLocalCurrentTime] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const meditation = meditations.find(m => m.id === id);
   // Temporarily disabled for development
   const isLocked = false; // meditation && !meditation.is_free && !subscription?.is_active;
+  const isAudio = meditation?.media_type === 'audio';
 
   useEffect(() => {
     // Fetch meditations if not loaded yet
@@ -37,34 +40,30 @@ const MeditationPlayer = () => {
   }, [meditation, setCurrentMeditation]);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    
-    if (player.isPlaying && !isLocked) {
-      interval = setInterval(() => {
-        setLocalCurrentTime(prev => {
-          const newTime = prev + 1;
-          setCurrentTime(newTime);
-          
-          // Check if meditation is completed
-          if (newTime >= meditation!.duration && !isCompleted) {
-            setIsCompleted(true);
-            setPlaying(false);
-            completeSession(meditation!.id, newTime);
-            toast({
-              title: "Meditation Complete! 🎉",
-              description: "Great job! You've completed another mindful session.",
-            });
-          }
-          
-          return newTime;
-        });
-      }, 1000);
+    // Sync with actual media playback
+    const mediaElement = isAudio ? audioRef.current : videoRef.current;
+    if (mediaElement && player.isPlaying && !mediaElement.paused) {
+      const updateTime = () => {
+        const currentTime = mediaElement.currentTime;
+        setLocalCurrentTime(currentTime);
+        setCurrentTime(currentTime);
+        
+        // Check if meditation is completed
+        if (currentTime >= meditation!.duration && !isCompleted) {
+          setIsCompleted(true);
+          setPlaying(false);
+          completeSession(meditation!.id, currentTime);
+          toast({
+            title: "Meditation Complete! 🎉",
+            description: "Great job! You've completed another mindful session.",
+          });
+        }
+      };
+      
+      mediaElement.addEventListener('timeupdate', updateTime);
+      return () => mediaElement.removeEventListener('timeupdate', updateTime);
     }
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [player.isPlaying, isLocked, meditation, completeSession, setCurrentTime, setPlaying, isCompleted]);
+  }, [player.isPlaying, isAudio, meditation, completeSession, setCurrentTime, setPlaying, isCompleted]);
 
   if (!meditation) {
     return (
@@ -88,18 +87,36 @@ const MeditationPlayer = () => {
       });
       return;
     }
-    setPlaying(!player.isPlaying);
+    
+    const mediaElement = isAudio ? audioRef.current : videoRef.current;
+    if (!mediaElement) return;
+    
+    if (player.isPlaying) {
+      mediaElement.pause();
+      setPlaying(false);
+    } else {
+      mediaElement.play();
+      setPlaying(true);
+    }
   };
 
   const handleSkip = (seconds: number) => {
     if (isLocked) return;
-    const newTime = Math.max(0, Math.min(localCurrentTime + seconds, meditation.duration));
+    const mediaElement = isAudio ? audioRef.current : videoRef.current;
+    if (!mediaElement || !meditation) return;
+    
+    const newTime = Math.max(0, Math.min(mediaElement.currentTime + seconds, meditation.duration));
+    mediaElement.currentTime = newTime;
     setLocalCurrentTime(newTime);
     setCurrentTime(newTime);
   };
 
   const handleWaveformClick = (time: number) => {
     if (isLocked) return;
+    const mediaElement = isAudio ? audioRef.current : videoRef.current;
+    if (!mediaElement) return;
+    
+    mediaElement.currentTime = time;
     setLocalCurrentTime(time);
     setCurrentTime(time);
   };
@@ -142,6 +159,27 @@ const MeditationPlayer = () => {
           </Button>
         </div>
       </div>
+
+      {/* Hidden Media Elements */}
+      {isAudio ? (
+        <audio
+          ref={audioRef}
+          src={meditation.media_url}
+          onPlay={() => setPlaying(true)}
+          onPause={() => setPlaying(false)}
+          onEnded={() => setPlaying(false)}
+          className="hidden"
+        />
+      ) : (
+        <video
+          ref={videoRef}
+          src={meditation.media_url}
+          onPlay={() => setPlaying(true)}
+          onPause={() => setPlaying(false)}
+          onEnded={() => setPlaying(false)}
+          className="hidden"
+        />
+      )}
 
       {/* Main Content */}
       <div className="flex flex-col items-center px-6 pb-8">
@@ -205,7 +243,7 @@ const MeditationPlayer = () => {
             audioUrl={meditation.media_url}
             isPlaying={player.isPlaying && !isLocked}
             currentTime={localCurrentTime}
-            duration={meditation.duration}
+            duration={isAudio ? audioRef.current?.duration || meditation.duration : meditation.duration}
             height={60}
             barWidth={3}
             barGap={1}
