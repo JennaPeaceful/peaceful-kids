@@ -39,23 +39,13 @@ const MeditationPlayer = () => {
     }
   }, [meditations.length, fetchMeditations]);
 
-  // Test media URL accessibility
   useEffect(() => {
-    if (meditation?.media_url) {
-      console.log('Testing media URL accessibility:', meditation.media_url);
-      
-      // Test if we can access the media URL
-      fetch(meditation.media_url, { 
-        method: 'HEAD',
-        mode: 'no-cors' // Try no-cors first to avoid CORS issues
-      })
-      .then(() => console.log('Media URL is accessible'))
-      .catch((err) => {
-        console.error('Media URL test failed:', err);
-        console.log('This might indicate CORS issues or the file doesn\'t exist');
-      });
+    if (meditation) {
+      setCurrentMeditation(meditation);
+      // Handle null duration from database
+      setDuration(meditation.duration || 300); // Default to 5 minutes if duration is null
     }
-  }, [meditation?.media_url]);
+  }, [meditation]); // Removed setCurrentMeditation from dependencies to prevent infinite loop
 
   // Media event handlers
   const handleLoadStart = () => {
@@ -120,26 +110,6 @@ const MeditationPlayer = () => {
     
     setIsLoading(false);
     const mediaType = isAudio ? 'audio' : 'video';
-    
-    // Try fallback demo content for development
-    if (meditation && !meditation.media_url.includes('demo-content')) {
-      console.log('Media file not found, trying demo content...');
-      const demoUrl = isAudio 
-        ? 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav'
-        : 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
-      
-      const mediaElement = isAudio ? audioRef.current : videoRef.current;
-      if (mediaElement) {
-        mediaElement.src = demoUrl;
-        mediaElement.load();
-        toast({
-          title: "Using Demo Content",
-          description: `Original ${mediaType} file not found, playing demo content instead.`,
-        });
-        return;
-      }
-    }
-    
     setError(`${mediaType} file not found (404). The content may not be uploaded to the CDN yet.`);
     setPlaying(false);
   };
