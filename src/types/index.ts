@@ -5,6 +5,7 @@ export interface Meditation {
   title: string;
   description: string;
   thumbnail: string;
+  thumbnail_url?: string;
   duration: number; // in seconds
   media_url: string;
   media_type: 'audio' | 'video';

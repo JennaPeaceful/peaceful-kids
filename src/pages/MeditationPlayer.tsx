@@ -260,7 +260,6 @@ const MeditationPlayer = () => {
         <audio
           ref={audioRef}
           src={meditation.media_url}
-          crossOrigin="anonymous"
           onLoadStart={() => {
             console.log('Loading audio from:', meditation.media_url);
             handleLoadStart();
@@ -279,7 +278,6 @@ const MeditationPlayer = () => {
         <video
           ref={videoRef}
           src={meditation.media_url}
-          crossOrigin="anonymous"
           onLoadStart={() => {
             console.log('Loading video from:', meditation.media_url);
             handleLoadStart();
@@ -322,7 +320,7 @@ const MeditationPlayer = () => {
         {/* Meditation Image */}
         <div className="relative w-80 h-80 mb-8">
           <img
-            src={meditation.thumbnail}
+            src={meditation.thumbnail_url || meditation.thumbnail}
             alt={meditation.title}
             className="w-full h-full object-cover rounded-3xl shadow-2xl"
             onError={(e) => {

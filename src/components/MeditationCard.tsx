@@ -78,7 +78,7 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
         {isAudio ? (
           <div className="relative">
             <img 
-              src={meditation.thumbnail} 
+              src={meditation.thumbnail_url || meditation.thumbnail} 
               alt={meditation.title}
               className="w-full h-32 object-cover"
             />

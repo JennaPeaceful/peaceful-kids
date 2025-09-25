@@ -77,6 +77,7 @@ const transformMeditation = (dbMeditation: any): Meditation => ({
   title: dbMeditation.title,
   description: dbMeditation.description || '',
   thumbnail: dbMeditation.thumbnail_url || '/api/placeholder/300/200',
+  thumbnail_url: dbMeditation.thumbnail_url || '/api/placeholder/300/200',
   duration: dbMeditation.duration || 0,
   media_url: dbMeditation.media_url || '',
   media_type: (dbMeditation.media_type as 'audio' | 'video') || 'audio',
