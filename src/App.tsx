@@ -32,9 +32,9 @@ const App = () => (
         <AuthProvider>
           <Routes>
             <Route path="/auth" element={<Auth />} />
-            <Route path="/" element={<ProtectedRoute><AppLayout><Explore /></AppLayout></ProtectedRoute>} />
-            <Route path="/meditations" element={<ProtectedRoute><AppLayout><Meditations /></AppLayout></ProtectedRoute>} />
-            <Route path="/meditation/:id" element={<ProtectedRoute><MeditationPlayer /></ProtectedRoute>} />
+            <Route path="/" element={<AppLayout><Explore /></AppLayout>} />
+            <Route path="/meditations" element={<AppLayout><Meditations /></AppLayout>} />
+            <Route path="/meditation/:id" element={<MeditationPlayer />} />
             <Route path="/tracking" element={<ProtectedRoute><AppLayout><Tracking /></AppLayout></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><AppLayout><Profile /></AppLayout></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
