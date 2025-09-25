@@ -22,6 +22,51 @@ const Auth = () => {
   
   const navigate = useNavigate();
 
+  const handleDevLogin = async () => {
+    setIsLoading(true);
+    try {
+      // Create or sign in with a test account
+      const { error } = await supabase.auth.signInWithPassword({
+        email: 'test@peacefulkids.app',
+        password: 'testpass123',
+      });
+
+      if (error) {
+        // If login fails, try to create the test account
+        const { error: signUpError } = await supabase.auth.signUp({
+          email: 'test@peacefulkids.app',
+          password: 'testpass123',
+          options: {
+            emailRedirectTo: `${window.location.origin}/`,
+            data: {
+              display_name: 'Dev User',
+              age: 8,
+              category_preference: 'Kids'
+            }
+          }
+        });
+
+        if (signUpError) {
+          toast.error('Dev login failed: ' + signUpError.message);
+        } else {
+          toast.success('Dev account created! Signing you in...');
+          // Try to sign in again
+          await supabase.auth.signInWithPassword({
+            email: 'test@peacefulkids.app',
+            password: 'testpass123',
+          });
+        }
+      } else {
+        toast.success('Dev login successful!');
+        navigate('/');
+      }
+    } catch (error) {
+      toast.error('Dev login failed');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -199,7 +244,24 @@ const Auth = () => {
           </Button>
         </form>
 
-        <div className="mt-6 text-center">
+        {/* Dev Mode Section */}
+        <div className="mt-6 p-4 bg-muted/30 rounded-lg border border-dashed border-muted-foreground/30">
+          <h3 className="text-sm font-medium text-muted-foreground mb-2 text-center">
+            🚧 Developer Mode
+          </h3>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleDevLogin}
+            disabled={isLoading}
+            className="w-full text-xs"
+          >
+            Quick Dev Login (test@peacefulkids.app)
+          </Button>
+        </div>
+
+        <div className="mt-4 text-center">
           <button
             type="button"
             onClick={() => setIsSignUp(!isSignUp)}
