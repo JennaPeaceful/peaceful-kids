@@ -1,15 +1,20 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
 
-const Auth = () => {
-  const [isSignUp, setIsSignUp] = useState(false);
+interface AuthModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  initialMode?: 'signin' | 'signup';
+}
+
+const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModalProps) => {
+  const [isSignUp, setIsSignUp] = useState(initialMode === 'signup');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -19,8 +24,6 @@ const Auth = () => {
     age: '',
     categoryPreference: 'Kids' as 'Kids' | 'Adults'
   });
-  
-  const navigate = useNavigate();
 
   const handleDevLogin = async () => {
     setIsLoading(true);
@@ -58,7 +61,7 @@ const Auth = () => {
         }
       } else {
         toast.success('Dev login successful!');
-        navigate('/');
+        onClose();
       }
     } catch (error) {
       toast.error('Dev login failed');
@@ -94,6 +97,7 @@ const Auth = () => {
           }
         } else {
           toast.success('Account created! Please check your email for verification.');
+          onClose();
         }
       } else {
         const { error } = await supabase.auth.signInWithPassword({
@@ -109,7 +113,7 @@ const Auth = () => {
           }
         } else {
           toast.success('Welcome back!');
-          navigate('/');
+          onClose();
         }
       }
     } catch (error) {
@@ -120,19 +124,21 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/5 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md card-gradient p-8">
-        <div className="text-center mb-8">
-          <div className="text-4xl mb-4">🧘‍♂️</div>
-          <h1 className="text-2xl font-bold text-gradient-primary mb-2">
-            {isSignUp ? 'Join Peaceful Kids' : 'Welcome Back'}
-          </h1>
-          <p className="text-muted-foreground">
-            {isSignUp ? 'Create your meditation journey' : 'Continue your mindful journey'}
-          </p>
-        </div>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <div className="text-center mb-4">
+            <div className="text-4xl mb-4">🧘‍♂️</div>
+            <DialogTitle className="text-2xl font-bold text-gradient-primary mb-2">
+              {isSignUp ? 'Join Peaceful Kids' : 'Welcome Back'}
+            </DialogTitle>
+            <p className="text-muted-foreground text-sm">
+              {isSignUp ? 'Create your meditation journey' : 'Continue your mindful journey'}
+            </p>
+          </div>
+        </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
           {isSignUp && (
             <>
               <div className="space-y-2">
@@ -245,8 +251,8 @@ const Auth = () => {
         </form>
 
         {/* Dev Mode Section */}
-        <div className="mt-6 p-4 bg-muted/30 rounded-lg border border-dashed border-muted-foreground/30">
-          <h3 className="text-sm font-medium text-muted-foreground mb-2 text-center">
+        <div className="mt-4 p-3 bg-muted/30 rounded-lg border border-dashed border-muted-foreground/30">
+          <h3 className="text-xs font-medium text-muted-foreground mb-2 text-center">
             🚧 Developer Mode
           </h3>
           <Button
@@ -261,7 +267,7 @@ const Auth = () => {
           </Button>
         </div>
 
-        <div className="mt-4 text-center">
+        <div className="mt-3 text-center">
           <button
             type="button"
             onClick={() => setIsSignUp(!isSignUp)}
@@ -270,9 +276,9 @@ const Auth = () => {
             {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
           </button>
         </div>
-      </Card>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
-export default Auth;
+export default AuthModal;

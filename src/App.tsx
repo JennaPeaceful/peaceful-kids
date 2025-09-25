@@ -11,7 +11,6 @@ import Meditations from "./pages/Meditations";
 import Tracking from "./pages/Tracking";
 import Profile from "./pages/Profile";
 import MeditationPlayer from "./pages/MeditationPlayer";
-import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,12 +30,11 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
-            <Route path="/auth" element={<Auth />} />
             <Route path="/" element={<AppLayout><Explore /></AppLayout>} />
             <Route path="/meditations" element={<AppLayout><Meditations /></AppLayout>} />
             <Route path="/meditation/:id" element={<MeditationPlayer />} />
-            <Route path="/tracking" element={<ProtectedRoute><AppLayout><Tracking /></AppLayout></ProtectedRoute>} />
-            <Route path="/profile" element={<ProtectedRoute><AppLayout><Profile /></AppLayout></ProtectedRoute>} />
+            <Route path="/tracking" element={<AppLayout><Tracking /></AppLayout>} />
+            <Route path="/profile" element={<AppLayout><Profile /></AppLayout>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

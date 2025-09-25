@@ -1,10 +1,11 @@
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserStore } from '@/stores/userStore';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Crown, Lock, Sparkles } from 'lucide-react';
+import AuthModal from './AuthModal';
 
 interface PremiumGateProps {
   children: ReactNode;
@@ -16,6 +17,7 @@ const PremiumGate = ({ children, feature = "this content", showUpgrade = true }:
   const navigate = useNavigate();
   const { user } = useAuth();
   const { subscription } = useUserStore();
+  const [showAuthModal, setShowAuthModal] = useState(false);
   
   const isPremium = subscription?.is_active;
   const isLoggedIn = !!user;
@@ -72,7 +74,7 @@ const PremiumGate = ({ children, feature = "this content", showUpgrade = true }:
         {!isLoggedIn && (
           <Button 
             variant="outline" 
-            onClick={() => navigate('/auth')}
+            onClick={() => setShowAuthModal(true)}
             className="w-full"
           >
             Sign In to Continue
@@ -88,6 +90,12 @@ const PremiumGate = ({ children, feature = "this content", showUpgrade = true }:
           ← Go Back
         </Button>
       </div>
+      
+      <AuthModal 
+        isOpen={showAuthModal} 
+        onClose={() => setShowAuthModal(false)}
+        initialMode="signin"
+      />
     </div>
   );
 };
