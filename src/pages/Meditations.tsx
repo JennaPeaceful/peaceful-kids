@@ -181,7 +181,7 @@ const Meditations = () => {
           onThemeToggle={handleThemeToggle}
         />
 
-        {/* Progressive Filter Selection */}
+        {/* Filter Selection - Show all available filters */}
         {!filters.selectedCategory && (
           <div className="mb-6">
             <label className="text-sm font-medium text-muted-foreground mb-2 block">Category</label>
@@ -204,8 +204,8 @@ const Meditations = () => {
           </div>
         )}
 
-        {/* Content Categories - show when category is selected but no content categories selected */}
-        {filters.selectedCategory && filters.selectedContentCategories.length === 0 && availableContentCategories.length > 0 && (
+        {/* Content Categories */}
+        {filters.selectedCategory && availableContentCategories.length > 0 && (
           <div className="mb-6">
             <label className="text-sm font-medium text-muted-foreground mb-3 block">
               Content Categories
@@ -214,7 +214,7 @@ const Meditations = () => {
               {availableContentCategories.map((category) => (
                 <Badge
                   key={category}
-                  variant="outline"
+                  variant={filters.selectedContentCategories.includes(category) ? "default" : "outline"}
                   className="cursor-pointer"
                   onClick={() => handleContentCategoryToggle(category)}
                 >
@@ -225,8 +225,8 @@ const Meditations = () => {
           </div>
         )}
 
-        {/* Age Groups - show when Kids category and content categories selected but no age group selected */}
-        {filters.selectedCategory === 'Kids' && filters.selectedContentCategories.length > 0 && !filters.selectedAgeGroup && ageGroups.length > 0 && (
+        {/* Age Groups - show for Kids category */}
+        {filters.selectedCategory === 'Kids' && ageGroups.length > 0 && (
           <div className="mb-6">
             <label className="text-sm font-medium text-muted-foreground mb-3 block">
               Age Group
@@ -235,7 +235,7 @@ const Meditations = () => {
               {ageGroups.filter(ag => ag).map((ageGroup) => (
                 <Badge
                   key={ageGroup}
-                  variant="outline"
+                  variant={filters.selectedAgeGroup === ageGroup ? "default" : "outline"}
                   className="cursor-pointer"
                   onClick={() => handleAgeGroupSelect(ageGroup)}
                 >
@@ -246,10 +246,8 @@ const Meditations = () => {
           </div>
         )}
 
-        {/* Themes - show when appropriate selections are made and no themes selected */}
-        {filters.selectedCategory && filters.selectedContentCategories.length > 0 && 
-         (filters.selectedCategory === 'Adults' || (filters.selectedCategory === 'Kids' && filters.selectedAgeGroup)) && 
-         filters.selectedThemes.length === 0 && availableThemes.length > 0 && (
+        {/* Themes */}
+        {filters.selectedCategory && availableThemes.length > 0 && (
           <div className="mb-6">
             <label className="text-sm font-medium text-muted-foreground mb-3 block">
               Themes
@@ -258,7 +256,7 @@ const Meditations = () => {
               {availableThemes.map((theme) => (
                 <Badge
                   key={theme.id}
-                  variant="outline"
+                  variant={filters.selectedThemes.includes(theme.name) ? "default" : "outline"}
                   className="cursor-pointer"
                   onClick={() => handleThemeToggle(theme.name)}
                 >
