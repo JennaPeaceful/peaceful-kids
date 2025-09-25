@@ -181,92 +181,91 @@ const Meditations = () => {
           onThemeToggle={handleThemeToggle}
         />
 
-        {/* Category Selection Buttons */}
-        <div className="mb-6">
-          <label className="text-sm font-medium text-muted-foreground mb-2 block">Category</label>
-          <div className="flex gap-2">
-            <Button
-              variant={filters.selectedCategory === 'Kids' ? "default" : "outline"}
-              onClick={() => handleCategorySelect('Kids')}
-              className="flex-1"
-            >
-              Kids
-            </Button>
-            <Button
-              variant={filters.selectedCategory === 'Adults' ? "default" : "outline"}
-              onClick={() => handleCategorySelect('Adults')}
-              className="flex-1"
-            >
-              Adults
-            </Button>
+        {/* Progressive Filter Selection */}
+        {!filters.selectedCategory && (
+          <div className="mb-6">
+            <label className="text-sm font-medium text-muted-foreground mb-2 block">Category</label>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => handleCategorySelect('Kids')}
+                className="flex-1"
+              >
+                Kids
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => handleCategorySelect('Adults')}
+                className="flex-1"
+              >
+                Adults
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Filter Badges */}
-        {filters.selectedCategory && (
-          <div className="space-y-6 mb-6">
-            {/* Content Categories */}
-            {availableContentCategories.length > 0 && (
-              <div>
-                <label className="text-sm font-medium text-muted-foreground mb-3 block">
-                  Content Categories
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {availableContentCategories.map((category) => (
-                    <Badge
-                      key={category}
-                      variant={filters.selectedContentCategories.includes(category) ? "default" : "outline"}
-                      className="cursor-pointer"
-                      onClick={() => handleContentCategoryToggle(category)}
-                    >
-                      {category}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
+        {/* Content Categories - show when category is selected but no content categories selected */}
+        {filters.selectedCategory && filters.selectedContentCategories.length === 0 && availableContentCategories.length > 0 && (
+          <div className="mb-6">
+            <label className="text-sm font-medium text-muted-foreground mb-3 block">
+              Content Categories
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {availableContentCategories.map((category) => (
+                <Badge
+                  key={category}
+                  variant="outline"
+                  className="cursor-pointer"
+                  onClick={() => handleContentCategoryToggle(category)}
+                >
+                  {category}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
 
-            {/* Age Groups (Kids only) */}
-            {filters.selectedCategory === 'Kids' && ageGroups.length > 0 && (
-              <div>
-                <label className="text-sm font-medium text-muted-foreground mb-3 block">
-                  Age Group
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {ageGroups.filter(ag => ag).map((ageGroup) => (
-                    <Badge
-                      key={ageGroup}
-                      variant={filters.selectedAgeGroup === ageGroup ? "default" : "outline"}
-                      className="cursor-pointer"
-                      onClick={() => handleAgeGroupSelect(ageGroup === filters.selectedAgeGroup ? null : ageGroup)}
-                    >
-                      {ageGroup}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
+        {/* Age Groups - show when Kids category and content categories selected but no age group selected */}
+        {filters.selectedCategory === 'Kids' && filters.selectedContentCategories.length > 0 && !filters.selectedAgeGroup && ageGroups.length > 0 && (
+          <div className="mb-6">
+            <label className="text-sm font-medium text-muted-foreground mb-3 block">
+              Age Group
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {ageGroups.filter(ag => ag).map((ageGroup) => (
+                <Badge
+                  key={ageGroup}
+                  variant="outline"
+                  className="cursor-pointer"
+                  onClick={() => handleAgeGroupSelect(ageGroup)}
+                >
+                  {ageGroup}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
 
-            {/* Themes */}
-            {availableThemes.length > 0 && (
-              <div>
-                <label className="text-sm font-medium text-muted-foreground mb-3 block">
-                  Themes
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {availableThemes.map((theme) => (
-                    <Badge
-                      key={theme.id}
-                      variant={filters.selectedThemes.includes(theme.name) ? "default" : "outline"}
-                      className="cursor-pointer"
-                      onClick={() => handleThemeToggle(theme.name)}
-                    >
-                      {theme.name}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
+        {/* Themes - show when appropriate selections are made and no themes selected */}
+        {filters.selectedCategory && filters.selectedContentCategories.length > 0 && 
+         (filters.selectedCategory === 'Adults' || (filters.selectedCategory === 'Kids' && filters.selectedAgeGroup)) && 
+         filters.selectedThemes.length === 0 && availableThemes.length > 0 && (
+          <div className="mb-6">
+            <label className="text-sm font-medium text-muted-foreground mb-3 block">
+              Themes
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {availableThemes.map((theme) => (
+                <Badge
+                  key={theme.id}
+                  variant="outline"
+                  className="cursor-pointer"
+                  onClick={() => handleThemeToggle(theme.name)}
+                >
+                  {theme.name}
+                </Badge>
+              ))}
+            </div>
           </div>
         )}
       </div>
