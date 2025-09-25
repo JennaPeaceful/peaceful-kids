@@ -295,7 +295,7 @@ const Meditations = () => {
             
             {/* Results Grid */}
             <ScrollArea className="h-[60vh]" onScrollCapture={handleScroll}>
-              <div className="grid grid-cols-3 gap-4 pb-6">
+              <div className="grid grid-cols-2 gap-4 pb-6">
                 {displayedMeditations.map((meditation) => (
                   <MeditationCard key={meditation.id} meditation={meditation} />
                 ))}
