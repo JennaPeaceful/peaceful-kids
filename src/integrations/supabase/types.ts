@@ -17,48 +17,162 @@ export type Database = {
       meditations: {
         Row: {
           age_group: string | null
+          categories: string[] | null
           category: string | null
+          content_categories: string[] | null
           created_at: string | null
           description: string | null
           duration: number | null
+          google_drive_id: string | null
           id: string
           is_free: boolean | null
+          max_age: number | null
           media_type: string | null
           media_url: string | null
+          min_age: number | null
           sort_order: number | null
+          target_audience: string[] | null
           themes: string[] | null
           thumbnail_url: string | null
           title: string
         }
         Insert: {
           age_group?: string | null
+          categories?: string[] | null
           category?: string | null
+          content_categories?: string[] | null
           created_at?: string | null
           description?: string | null
           duration?: number | null
+          google_drive_id?: string | null
           id?: string
           is_free?: boolean | null
+          max_age?: number | null
           media_type?: string | null
           media_url?: string | null
+          min_age?: number | null
           sort_order?: number | null
+          target_audience?: string[] | null
           themes?: string[] | null
           thumbnail_url?: string | null
           title: string
         }
         Update: {
           age_group?: string | null
+          categories?: string[] | null
           category?: string | null
+          content_categories?: string[] | null
           created_at?: string | null
           description?: string | null
           duration?: number | null
+          google_drive_id?: string | null
           id?: string
           is_free?: boolean | null
+          max_age?: number | null
           media_type?: string | null
           media_url?: string | null
+          min_age?: number | null
           sort_order?: number | null
+          target_audience?: string[] | null
           themes?: string[] | null
           thumbnail_url?: string | null
           title?: string
+        }
+        Relationships: []
+      }
+      meditations_backup_before_dedupe: {
+        Row: {
+          age_group: string | null
+          categories: string[] | null
+          category: string | null
+          content_categories: string[] | null
+          created_at: string | null
+          description: string | null
+          duration: number | null
+          google_drive_id: string | null
+          id: string | null
+          is_free: boolean | null
+          max_age: number | null
+          media_type: string | null
+          media_url: string | null
+          min_age: number | null
+          sort_order: number | null
+          target_audience: string[] | null
+          themes: string[] | null
+          thumbnail_url: string | null
+          title: string | null
+        }
+        Insert: {
+          age_group?: string | null
+          categories?: string[] | null
+          category?: string | null
+          content_categories?: string[] | null
+          created_at?: string | null
+          description?: string | null
+          duration?: number | null
+          google_drive_id?: string | null
+          id?: string | null
+          is_free?: boolean | null
+          max_age?: number | null
+          media_type?: string | null
+          media_url?: string | null
+          min_age?: number | null
+          sort_order?: number | null
+          target_audience?: string[] | null
+          themes?: string[] | null
+          thumbnail_url?: string | null
+          title?: string | null
+        }
+        Update: {
+          age_group?: string | null
+          categories?: string[] | null
+          category?: string | null
+          content_categories?: string[] | null
+          created_at?: string | null
+          description?: string | null
+          duration?: number | null
+          google_drive_id?: string | null
+          id?: string | null
+          is_free?: boolean | null
+          max_age?: number | null
+          media_type?: string | null
+          media_url?: string | null
+          min_age?: number | null
+          sort_order?: number | null
+          target_audience?: string[] | null
+          themes?: string[] | null
+          thumbnail_url?: string | null
+          title?: string | null
+        }
+        Relationships: []
+      }
+      themes: {
+        Row: {
+          category: string[] | null
+          color: string | null
+          created_at: string | null
+          icon: string | null
+          id: string
+          name: string
+          sort_order: number | null
+        }
+        Insert: {
+          category?: string[] | null
+          color?: string | null
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          sort_order?: number | null
+        }
+        Update: {
+          category?: string[] | null
+          color?: string | null
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          sort_order?: number | null
         }
         Relationships: []
       }
@@ -125,6 +239,27 @@ export type Database = {
             referencedRelation: "meditations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "user_progress_meditation_id_fkey"
+            columns: ["meditation_id"]
+            isOneToOne: false
+            referencedRelation: "meditations_adults"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_progress_meditation_id_fkey"
+            columns: ["meditation_id"]
+            isOneToOne: false
+            referencedRelation: "meditations_by_age"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_progress_meditation_id_fkey"
+            columns: ["meditation_id"]
+            isOneToOne: false
+            referencedRelation: "meditations_kids"
+            referencedColumns: ["id"]
+          },
         ]
       }
       user_subscriptions: {
@@ -156,10 +291,293 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      adults_themes: {
+        Row: {
+          category: string[] | null
+          color: string | null
+          created_at: string | null
+          icon: string | null
+          id: string | null
+          name: string | null
+          sort_order: number | null
+        }
+        Insert: {
+          category?: string[] | null
+          color?: string | null
+          created_at?: string | null
+          icon?: string | null
+          id?: string | null
+          name?: string | null
+          sort_order?: number | null
+        }
+        Update: {
+          category?: string[] | null
+          color?: string | null
+          created_at?: string | null
+          icon?: string | null
+          id?: string | null
+          name?: string | null
+          sort_order?: number | null
+        }
+        Relationships: []
+      }
+      kids_themes: {
+        Row: {
+          category: string[] | null
+          color: string | null
+          created_at: string | null
+          icon: string | null
+          id: string | null
+          name: string | null
+          sort_order: number | null
+        }
+        Insert: {
+          category?: string[] | null
+          color?: string | null
+          created_at?: string | null
+          icon?: string | null
+          id?: string | null
+          name?: string | null
+          sort_order?: number | null
+        }
+        Update: {
+          category?: string[] | null
+          color?: string | null
+          created_at?: string | null
+          icon?: string | null
+          id?: string | null
+          name?: string | null
+          sort_order?: number | null
+        }
+        Relationships: []
+      }
+      meditations_adults: {
+        Row: {
+          age_group: string | null
+          categories: string[] | null
+          category: string | null
+          content_categories: string[] | null
+          created_at: string | null
+          description: string | null
+          duration: number | null
+          google_drive_id: string | null
+          id: string | null
+          is_free: boolean | null
+          max_age: number | null
+          media_type: string | null
+          media_url: string | null
+          min_age: number | null
+          sort_order: number | null
+          target_audience: string[] | null
+          themes: string[] | null
+          thumbnail_url: string | null
+          title: string | null
+        }
+        Insert: {
+          age_group?: string | null
+          categories?: string[] | null
+          category?: string | null
+          content_categories?: string[] | null
+          created_at?: string | null
+          description?: string | null
+          duration?: number | null
+          google_drive_id?: string | null
+          id?: string | null
+          is_free?: boolean | null
+          max_age?: number | null
+          media_type?: string | null
+          media_url?: string | null
+          min_age?: number | null
+          sort_order?: number | null
+          target_audience?: string[] | null
+          themes?: string[] | null
+          thumbnail_url?: string | null
+          title?: string | null
+        }
+        Update: {
+          age_group?: string | null
+          categories?: string[] | null
+          category?: string | null
+          content_categories?: string[] | null
+          created_at?: string | null
+          description?: string | null
+          duration?: number | null
+          google_drive_id?: string | null
+          id?: string | null
+          is_free?: boolean | null
+          max_age?: number | null
+          media_type?: string | null
+          media_url?: string | null
+          min_age?: number | null
+          sort_order?: number | null
+          target_audience?: string[] | null
+          themes?: string[] | null
+          thumbnail_url?: string | null
+          title?: string | null
+        }
+        Relationships: []
+      }
+      meditations_by_age: {
+        Row: {
+          age_display: string | null
+          age_group: string | null
+          categories: string[] | null
+          category: string | null
+          content_categories: string[] | null
+          created_at: string | null
+          description: string | null
+          duration: number | null
+          google_drive_id: string | null
+          id: string | null
+          is_free: boolean | null
+          max_age: number | null
+          media_type: string | null
+          media_url: string | null
+          min_age: number | null
+          sort_order: number | null
+          target_audience: string[] | null
+          themes: string[] | null
+          thumbnail_url: string | null
+          title: string | null
+        }
+        Insert: {
+          age_display?: never
+          age_group?: string | null
+          categories?: string[] | null
+          category?: string | null
+          content_categories?: string[] | null
+          created_at?: string | null
+          description?: string | null
+          duration?: number | null
+          google_drive_id?: string | null
+          id?: string | null
+          is_free?: boolean | null
+          max_age?: number | null
+          media_type?: string | null
+          media_url?: string | null
+          min_age?: number | null
+          sort_order?: number | null
+          target_audience?: string[] | null
+          themes?: string[] | null
+          thumbnail_url?: string | null
+          title?: string | null
+        }
+        Update: {
+          age_display?: never
+          age_group?: string | null
+          categories?: string[] | null
+          category?: string | null
+          content_categories?: string[] | null
+          created_at?: string | null
+          description?: string | null
+          duration?: number | null
+          google_drive_id?: string | null
+          id?: string | null
+          is_free?: boolean | null
+          max_age?: number | null
+          media_type?: string | null
+          media_url?: string | null
+          min_age?: number | null
+          sort_order?: number | null
+          target_audience?: string[] | null
+          themes?: string[] | null
+          thumbnail_url?: string | null
+          title?: string | null
+        }
+        Relationships: []
+      }
+      meditations_kids: {
+        Row: {
+          age_group: string | null
+          categories: string[] | null
+          category: string | null
+          content_categories: string[] | null
+          created_at: string | null
+          description: string | null
+          duration: number | null
+          google_drive_id: string | null
+          id: string | null
+          is_free: boolean | null
+          max_age: number | null
+          media_type: string | null
+          media_url: string | null
+          min_age: number | null
+          sort_order: number | null
+          target_audience: string[] | null
+          themes: string[] | null
+          thumbnail_url: string | null
+          title: string | null
+        }
+        Insert: {
+          age_group?: string | null
+          categories?: string[] | null
+          category?: string | null
+          content_categories?: string[] | null
+          created_at?: string | null
+          description?: string | null
+          duration?: number | null
+          google_drive_id?: string | null
+          id?: string | null
+          is_free?: boolean | null
+          max_age?: number | null
+          media_type?: string | null
+          media_url?: string | null
+          min_age?: number | null
+          sort_order?: number | null
+          target_audience?: string[] | null
+          themes?: string[] | null
+          thumbnail_url?: string | null
+          title?: string | null
+        }
+        Update: {
+          age_group?: string | null
+          categories?: string[] | null
+          category?: string | null
+          content_categories?: string[] | null
+          created_at?: string | null
+          description?: string | null
+          duration?: number | null
+          google_drive_id?: string | null
+          id?: string | null
+          is_free?: boolean | null
+          max_age?: number | null
+          media_type?: string | null
+          media_url?: string | null
+          min_age?: number | null
+          sort_order?: number | null
+          target_audience?: string[] | null
+          themes?: string[] | null
+          thumbnail_url?: string | null
+          title?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      [_ in never]: never
+      get_meditations_for_age: {
+        Args: { user_age: number }
+        Returns: {
+          age_group: string | null
+          categories: string[] | null
+          category: string | null
+          content_categories: string[] | null
+          created_at: string | null
+          description: string | null
+          duration: number | null
+          google_drive_id: string | null
+          id: string
+          is_free: boolean | null
+          max_age: number | null
+          media_type: string | null
+          media_url: string | null
+          min_age: number | null
+          sort_order: number | null
+          target_audience: string[] | null
+          themes: string[] | null
+          thumbnail_url: string | null
+          title: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
