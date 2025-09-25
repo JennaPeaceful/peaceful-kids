@@ -1,11 +1,13 @@
 import { User, Settings, Bell, Download, Heart, LogOut, Crown } from 'lucide-react';
 import { useUserStore } from '../stores/userStore';
+import { useAuth } from '../hooks/useAuth';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Switch } from '../components/ui/switch';
 
 const Profile = () => {
   const { profile, subscription, preferences } = useUserStore();
+  const { signOut } = useAuth();
 
   const menuItems = [
     { icon: Settings, label: 'Account Settings', action: () => {} },
@@ -148,6 +150,7 @@ const Profile = () => {
         <Button 
           variant="outline" 
           className="w-full text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
+          onClick={signOut}
         >
           <LogOut className="w-4 h-4 mr-2" />
           Sign Out
