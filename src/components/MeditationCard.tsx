@@ -1,10 +1,7 @@
-import { Lock, Play, Pause, Clock } from 'lucide-react';
+import { Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Meditation } from '../types';
 import { useUserStore } from '../stores/userStore';
-import { useMeditationStore } from '../stores/meditationStore';
-import AudioWaveform from './AudioWaveform';
-import { useState, useRef } from 'react';
 
 interface MeditationCardProps {
   meditation: Meditation;
@@ -14,55 +11,9 @@ interface MeditationCardProps {
 const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
   const navigate = useNavigate();
   const { subscription } = useUserStore();
-  const { setCurrentMeditation, updateRecentMeditations } = useMeditationStore();
-  
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
   
   // Temporarily disabled for development
   const isLocked = false; // !meditation.is_free && !subscription?.is_active;
-  const isAudio = meditation.media_type === 'audio';
-
-  const togglePlayback = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent card navigation
-    if (isLocked) return;
-    
-    const mediaElement = isAudio ? audioRef.current : videoRef.current;
-    if (!mediaElement) return;
-
-    if (isPlaying) {
-      mediaElement.pause();
-    } else {
-      mediaElement.play();
-      setCurrentMeditation(meditation);
-      updateRecentMeditations(meditation);
-    }
-    setIsPlaying(!isPlaying);
-    onPlay?.();
-  };
-
-  const handleTimeUpdate = () => {
-    const mediaElement = isAudio ? audioRef.current : videoRef.current;
-    if (mediaElement) {
-      setCurrentTime(mediaElement.currentTime);
-    }
-  };
-
-  const handleLoadedMetadata = () => {
-    const mediaElement = isAudio ? audioRef.current : videoRef.current;
-    if (mediaElement) {
-      setDuration(mediaElement.duration);
-    }
-  };
-
-  const handleWaveformClick = (time: number) => {
-    if (isLocked || !audioRef.current) return;
-    audioRef.current.currentTime = time;
-    setCurrentTime(time);
-  };
 
   const handleCardClick = () => {
     navigate(`/meditation/${meditation.id}`);
@@ -70,62 +21,34 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
 
   return (
     <div 
-      className={`relative card-gradient p-4 transition-all duration-300 hover:scale-105 cursor-pointer ${isLocked ? 'card-premium' : ''}`}
+      className={`relative card-gradient p-3 transition-all duration-300 hover:scale-[1.02] cursor-pointer aspect-square ${isLocked ? 'card-premium' : ''}`}
       onClick={handleCardClick}
     >
-      {/* Media Player */}
-      <div className="relative mb-3 rounded-xl overflow-hidden">
-        {isAudio ? (
-          <div className="relative">
-            <img 
-              src={meditation.thumbnail_url || meditation.thumbnail} 
-              alt={meditation.title}
-              className="w-full h-32 object-cover"
-            />
-            <audio
-              ref={audioRef}
-              src={meditation.media_url}
-              onTimeUpdate={handleTimeUpdate}
-              onLoadedMetadata={handleLoadedMetadata}
-              onPlay={() => setIsPlaying(true)}
-              onPause={() => setIsPlaying(false)}
-            />
-          </div>
-        ) : (
-          <video
-            ref={videoRef}
-            src={meditation.media_url}
-            className="w-full h-32 object-cover"
-            onTimeUpdate={handleTimeUpdate}
-            onLoadedMetadata={handleLoadedMetadata}
-            onPlay={() => setIsPlaying(true)}
-            onPause={() => setIsPlaying(false)}
-            controls={!isLocked}
-          />
-        )}
-        
-        {/* Play button overlay for audio */}
-        {isAudio && (
-          <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-            <button
-              onClick={togglePlayback}
-              className={`flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 ${
-                isLocked 
-                  ? 'bg-warning/80 text-warning-foreground' 
-                  : 'bg-primary/80 text-primary-foreground hover:bg-primary hover:scale-110'
-              }`}
-              disabled={isLocked}
-            >
-              {isLocked ? (
-                <Lock className="w-5 h-5" />
-              ) : isPlaying ? (
-                <Pause className="w-5 h-5" />
-              ) : (
-                <Play className="w-5 h-5" />
-              )}
-            </button>
-          </div>
-        )}
+      {/* Thumbnail Image - Static */}
+      <div className="relative mb-3 rounded-xl overflow-hidden aspect-square">
+        <img 
+          src={meditation.thumbnail_url || meditation.thumbnail} 
+          alt={meditation.title}
+          className="w-full h-full object-cover"
+          onError={(e) => {
+            // Show placeholder if image fails to load
+            const target = e.target as HTMLImageElement;
+            if (!target.src.includes('data:')) {
+              target.src = 'data:image/svg+xml;base64,' + btoa(`
+                <svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" style="stop-color:hsl(var(--primary));stop-opacity:0.2" />
+                      <stop offset="100%" style="stop-color:hsl(var(--secondary));stop-opacity:0.4" />
+                    </linearGradient>
+                  </defs>
+                  <rect width="200" height="200" fill="url(#grad)" />
+                  <text x="100" y="100" font-family="system-ui" font-size="20" fill="hsl(var(--muted-foreground))" text-anchor="middle" dy=".3em">🧘‍♀️</text>
+                </svg>
+              `);
+            }
+          }}
+        />
         
         {/* Premium badge */}
         {!meditation.is_free && (
@@ -136,38 +59,21 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
       </div>
 
       {/* Content */}
-      <div className="space-y-2">
-        <h3 className="font-bold text-base leading-tight line-clamp-2">
+      <div className="space-y-1.5">
+        <h3 className="font-bold text-sm leading-tight line-clamp-2 min-h-[2.5rem]">
           {meditation.title}
         </h3>
         
-        <p className="text-sm text-muted-foreground line-clamp-2">
+        <p className="text-xs text-muted-foreground line-clamp-2">
           {meditation.description}
         </p>
         
-        {/* Audio Waveform for audio content */}
-        {isAudio && (
-          <div className="py-2" onClick={(e) => e.stopPropagation()}>
-            <AudioWaveform
-              audioUrl={meditation.media_url}
-              isPlaying={isPlaying}
-              currentTime={currentTime}
-              duration={duration}
-              height={24}
-              barWidth={1}
-              barGap={1}
-              className="opacity-60"
-              onClick={handleWaveformClick}
-            />
-          </div>
-        )}
-        
         {/* Themes */}
-        <div className="flex gap-1 justify-end">
+        <div className="flex flex-wrap gap-1">
           {meditation.themes.slice(0, 2).map((theme) => (
             <span 
               key={theme}
-              className="bg-primary/10 text-primary px-2 py-1 rounded-full text-xs font-medium"
+              className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs font-medium"
             >
               {theme}
             </span>
