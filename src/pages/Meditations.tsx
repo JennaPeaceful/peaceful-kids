@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import { Search, X, ArrowUpDown } from 'lucide-react';
 import { useMeditationStore } from '../stores/meditationStore';
 import MeditationCard from '../components/MeditationCard';
+import FilterBreadcrumb from '../components/FilterBreadcrumb';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { ScrollArea } from '../components/ui/scroll-area';
-import { Badge } from '../components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 
 type SortOption = 'title' | 'duration' | 'created_at';
@@ -36,10 +36,12 @@ const Meditations = () => {
     setDisplayedItems(ITEMS_PER_LOAD);
   }, [filteredMeditations]);
 
-  const categories = ['Kids', 'Adults'] as const;
-
-  const handleCategorySelect = (category: 'Kids' | 'Adults') => {
-    setFilters({ selectedCategory: category });
+  const handleCategorySelect = (category: 'Kids' | 'Adults' | null) => {
+    if (category === null) {
+      clearFilters();
+    } else {
+      setFilters({ selectedCategory: category });
+    }
   };
 
   const handleContentCategoryToggle = (category: string) => {
@@ -49,8 +51,8 @@ const Meditations = () => {
     setFilters({ selectedContentCategories: newCategories });
   };
 
-  const handleAgeGroupToggle = (ageGroup: string) => {
-    setFilters({ selectedAgeGroup: filters.selectedAgeGroup === ageGroup ? null : ageGroup });
+  const handleAgeGroupSelect = (ageGroup: string | null) => {
+    setFilters({ selectedAgeGroup: ageGroup });
   };
 
   const handleThemeToggle = (theme: string) => {
@@ -163,91 +165,20 @@ const Meditations = () => {
           />
         </div>
 
-        {/* Category Selection */}
-        <div className="mb-6">
-          <label className="text-sm font-medium text-muted-foreground mb-2 block">Category</label>
-          <div className="flex gap-2">
-            {categories.map((category) => (
-              <Button
-                key={category}
-                variant={filters.selectedCategory === category ? "default" : "outline"}
-                onClick={() => handleCategorySelect(category)}
-                className="flex-1"
-              >
-                {category}
-              </Button>
-            ))}
-          </div>
-        </div>
-
-        {/* Filters */}
-        {filters.selectedCategory && (
-          <div className="space-y-6 mb-6">
-            {/* Content Categories */}
-            {availableContentCategories.length > 0 && (
-              <div>
-                <label className="text-sm font-medium text-muted-foreground mb-3 block">
-                  Content Categories
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {availableContentCategories.map((category) => (
-                    <Badge
-                      key={category}
-                      variant={filters.selectedContentCategories.includes(category) ? "default" : "outline"}
-                      className="cursor-pointer"
-                      onClick={() => handleContentCategoryToggle(category)}
-                    >
-                      {category}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Age Groups (Kids only) */}
-            {filters.selectedCategory === 'Kids' && ageGroups.length > 0 && (
-              <div>
-                <label className="text-sm font-medium text-muted-foreground mb-3 block">
-                  Age Group
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {ageGroups.filter(ag => ag).map((ageGroup) => (
-                    <Badge
-                      key={ageGroup}
-                      variant={filters.selectedAgeGroup === ageGroup ? "default" : "outline"}
-                      className="cursor-pointer"
-                      onClick={() => handleAgeGroupToggle(ageGroup)}
-                    >
-                      {ageGroup}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Themes */}
-            {availableThemes.length > 0 && (
-              <div>
-                <label className="text-sm font-medium text-muted-foreground mb-3 block">
-                  Themes
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {availableThemes.map((theme) => (
-                    <Badge
-                      key={theme.id}
-                      variant={filters.selectedThemes.includes(theme.name) ? "default" : "outline"}
-                      className="cursor-pointer"
-                      onClick={() => handleThemeToggle(theme.name)}
-                    >
-                      <span className="mr-1">{theme.icon}</span>
-                      {theme.name}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+        {/* Filter Breadcrumb */}
+        <FilterBreadcrumb
+          selectedCategory={filters.selectedCategory}
+          selectedContentCategories={filters.selectedContentCategories}
+          selectedAgeGroup={filters.selectedAgeGroup}
+          selectedThemes={filters.selectedThemes}
+          contentCategories={availableContentCategories}
+          ageGroups={ageGroups}
+          themes={availableThemes}
+          onCategorySelect={handleCategorySelect}
+          onContentCategoryToggle={handleContentCategoryToggle}
+          onAgeGroupSelect={handleAgeGroupSelect}
+          onThemeToggle={handleThemeToggle}
+        />
       </div>
 
       {/* Results */}
