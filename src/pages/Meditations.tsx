@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, X, ArrowUpDown } from 'lucide-react';
+import { Search, X, ArrowUpDown, ChevronDown } from 'lucide-react';
 import { useMeditationStore } from '../stores/meditationStore';
 import MeditationCard from '../components/MeditationCard';
 import FilterBreadcrumb from '../components/FilterBreadcrumb';
@@ -8,6 +8,7 @@ import { Input } from '../components/ui/input';
 import { ScrollArea } from '../components/ui/scroll-area';
 import { Badge } from '../components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../components/ui/dropdown-menu';
 
 type SortOption = 'title' | 'duration' | 'created_at';
 
@@ -92,6 +93,20 @@ const Meditations = () => {
   };
 
   const hasActiveFilters = filters.selectedCategory || filters.selectedContentCategories.length > 0 || filters.selectedAgeGroup || filters.selectedThemes.length > 0 || filters.searchQuery;
+  
+  // Age group color mapping
+  const getAgeGroupColor = (ageGroup: string) => {
+    const colorMap: { [key: string]: string } = {
+      'Ages 3-5': '#bc1823',
+      'Ages 3-8': '#ffff00', 
+      'Ages 6-8': '#25632d',
+      'Ages 9-12': '#274472',
+      'Ages 9-17': '#bfe5ef',
+      'Ages 13-17': '#800080',
+      'All Ages': '#ffa629'
+    };
+    return colorMap[ageGroup] || '#6b7280';
+  };
   
   // Get filtered themes that don't overlap with content categories
   const availableThemes = themes.filter(theme => 
@@ -210,18 +225,31 @@ const Meditations = () => {
             <label className="text-sm font-medium text-muted-foreground mb-3 block">
               Content Categories
             </label>
-            <div className="flex flex-wrap gap-2">
-              {availableContentCategories.map((category) => (
-                <Badge
-                  key={category}
-                  variant={filters.selectedContentCategories.includes(category) ? "default" : "outline"}
-                  className="cursor-pointer"
-                  onClick={() => handleContentCategoryToggle(category)}
-                >
-                  {category}
-                </Badge>
-              ))}
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-full justify-between">
+                  {filters.selectedContentCategories.length > 0 
+                    ? `${filters.selectedContentCategories.length} selected`
+                    : 'Select content categories'
+                  }
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-full max-h-60 overflow-y-auto">
+                {availableContentCategories.map((category) => (
+                  <DropdownMenuItem 
+                    key={category}
+                    onClick={() => handleContentCategoryToggle(category)}
+                    className={filters.selectedContentCategories.includes(category) ? 'bg-accent' : ''}
+                  >
+                    {category}
+                    {filters.selectedContentCategories.includes(category) && (
+                      <span className="ml-auto">✓</span>
+                    )}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         )}
 
@@ -231,18 +259,37 @@ const Meditations = () => {
             <label className="text-sm font-medium text-muted-foreground mb-3 block">
               Age Group
             </label>
-            <div className="flex flex-wrap gap-2">
-              {ageGroups.filter(ag => ag).map((ageGroup) => (
-                <Badge
-                  key={ageGroup}
-                  variant={filters.selectedAgeGroup === ageGroup ? "default" : "outline"}
-                  className="cursor-pointer"
-                  onClick={() => handleAgeGroupSelect(ageGroup)}
-                >
-                  {ageGroup}
-                </Badge>
-              ))}
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-full justify-between">
+                  {filters.selectedAgeGroup || 'Select age group'}
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-full">
+                {ageGroups.filter(ag => ag).map((ageGroup) => (
+                  <DropdownMenuItem 
+                    key={ageGroup}
+                    onClick={() => handleAgeGroupSelect(ageGroup)}
+                    className={`${filters.selectedAgeGroup === ageGroup ? 'bg-accent' : ''} flex items-center`}
+                  >
+                    <div 
+                      className="w-3 h-3 rounded-full mr-2"
+                      style={{ backgroundColor: getAgeGroupColor(ageGroup) }}
+                    />
+                    {ageGroup}
+                  </DropdownMenuItem>
+                ))}
+                {filters.selectedAgeGroup && (
+                  <DropdownMenuItem 
+                    onClick={() => handleAgeGroupSelect(null)} 
+                    className="text-destructive"
+                  >
+                    Clear selection
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         )}
 
@@ -252,18 +299,38 @@ const Meditations = () => {
             <label className="text-sm font-medium text-muted-foreground mb-3 block">
               Themes
             </label>
-            <div className="flex flex-wrap gap-2">
-              {availableThemes.map((theme) => (
-                <Badge
-                  key={theme.id}
-                  variant={filters.selectedThemes.includes(theme.name) ? "default" : "outline"}
-                  className="cursor-pointer"
-                  onClick={() => handleThemeToggle(theme.name)}
-                >
-                  {theme.name}
-                </Badge>
-              ))}
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-full justify-between">
+                  {filters.selectedThemes.length > 0 
+                    ? `${filters.selectedThemes.length} selected`
+                    : 'Select themes'
+                  }
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-full max-h-60 overflow-y-auto">
+                {availableThemes.map((theme) => (
+                  <DropdownMenuItem 
+                    key={theme.id}
+                    onClick={() => handleThemeToggle(theme.name)}
+                    className={`${filters.selectedThemes.includes(theme.name) ? 'bg-accent' : ''} flex items-center`}
+                  >
+                    {theme.icon_svg_url && (
+                      <img 
+                        src={theme.icon_svg_url} 
+                        alt={theme.name}
+                        className="w-4 h-4 mr-2"
+                      />
+                    )}
+                    {theme.name}
+                    {filters.selectedThemes.includes(theme.name) && (
+                      <span className="ml-auto">✓</span>
+                    )}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         )}
       </div>

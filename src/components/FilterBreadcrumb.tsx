@@ -10,7 +10,7 @@ interface FilterBreadcrumbProps {
   selectedThemes: string[];
   contentCategories: string[];
   ageGroups: string[];
-  themes: Array<{ id: string; name: string; icon: string; category: string[] }>;
+  themes: Array<{ id: string; name: string; icon: string; category: string[]; icon_svg_url?: string }>;
   onCategorySelect: (category: 'Kids' | 'Adults' | null) => void;
   onContentCategoryToggle: (category: string) => void;
   onAgeGroupSelect: (ageGroup: string | null) => void;
@@ -43,31 +43,30 @@ const FilterBreadcrumb = ({
 
   return (
     <div className="flex items-center gap-2 mb-6 flex-wrap">
-      {/* Category */}
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 px-3 text-sm">
-            {selectedCategory || 'Select Category'}
-            <ChevronDown className="w-3 h-3 ml-1" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuItem onClick={() => onCategorySelect('Kids')}>
-            Kids
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onCategorySelect('Adults')}>
-            Adults
-          </DropdownMenuItem>
-          {selectedCategory && (
-            <DropdownMenuItem onClick={() => onCategorySelect(null)} className="text-destructive">
-              Clear
-            </DropdownMenuItem>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
-
+      {/* Only show breadcrumb if category is selected */}
       {selectedCategory && (
         <>
+          {/* Category */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 px-3 text-sm">
+                {selectedCategory}
+                <ChevronDown className="w-3 h-3 ml-1" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => onCategorySelect('Kids')}>
+                Kids
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onCategorySelect('Adults')}>
+                Adults
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onCategorySelect(null)} className="text-destructive">
+                Clear
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <ChevronRight className="w-3 h-3 text-muted-foreground" />
           
           {/* Content Categories */}
@@ -101,7 +100,7 @@ const FilterBreadcrumb = ({
         </>
       )}
 
-      {selectedCategory === 'Kids' && selectedContentCategories.length > 0 && (
+      {selectedCategory === 'Kids' && (
         <>
           <ChevronRight className="w-3 h-3 text-muted-foreground" />
           
@@ -133,8 +132,7 @@ const FilterBreadcrumb = ({
         </>
       )}
 
-      {((selectedCategory === 'Adults' && selectedContentCategories.length > 0) || 
-        (selectedCategory === 'Kids' && selectedAgeGroup)) && (
+      {selectedCategory && (
         <>
           <ChevronRight className="w-3 h-3 text-muted-foreground" />
           
@@ -156,8 +154,15 @@ const FilterBreadcrumb = ({
                 <DropdownMenuItem 
                   key={theme.id}
                   onClick={() => onThemeToggle(theme.name)}
-                  className={selectedThemes.includes(theme.name) ? 'bg-accent' : ''}
+                  className={`${selectedThemes.includes(theme.name) ? 'bg-accent' : ''} flex items-center`}
                 >
+                  {theme.icon_svg_url && (
+                    <img 
+                      src={theme.icon_svg_url} 
+                      alt={theme.name}
+                      className="w-4 h-4 mr-2"
+                    />
+                  )}
                   {theme.name}
                   {selectedThemes.includes(theme.name) && (
                     <span className="ml-auto">✓</span>

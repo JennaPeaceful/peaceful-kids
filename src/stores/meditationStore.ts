@@ -8,7 +8,7 @@ interface MeditationState {
   recentMeditations: Meditation[];
   recommendedMeditations: Meditation[];
   contentCategories: string[];
-  themes: Array<{id: string; name: string; icon: string; color: string; category: string[];}>;
+  themes: Array<{id: string; name: string; icon: string; color: string; category: string[]; icon_svg_url?: string; icon_png_url?: string; sort_order?: number}>;
   ageGroups: string[];
   filters: FilterState;
   player: PlayerState;
@@ -121,13 +121,21 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
         isLoading: false 
       });
       
-      // Extract unique age groups from meditations
-      const ageGroups = [...new Set(meditations.map(m => m.age_group).filter(Boolean))];
-      set({ ageGroups });
+      // Extract unique age groups from meditations and sort them
+      const uniqueAgeGroups = [...new Set(meditations.map(m => m.age_group).filter(Boolean))];
+      const sortedAgeGroups = uniqueAgeGroups.sort((a, b) => {
+        // Define age order priority
+        const ageOrder = [
+          'Ages 3-5', 'Ages 3-8', 'Ages 6-8', 'Ages 9-12', 
+          'Ages 9-17', 'Ages 13-17', 'All Ages'
+        ];
+        return ageOrder.indexOf(a) - ageOrder.indexOf(b);
+      });
+      set({ ageGroups: sortedAgeGroups });
       
       // Fetch additional data
       await get().fetchContentCategories();
-      get().initializeThemes();
+      await get().initializeThemes();
       
       // Apply current filters if any
       get().applyFilters();
@@ -167,8 +175,20 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
     }
   },
 
-  initializeThemes: () => {
-    set({ themes: staticThemes });
+  initializeThemes: async () => {
+    try {
+      const { data, error } = await supabase
+        .from('themes')
+        .select('*')
+        .order('sort_order', { ascending: true });
+
+      if (error) throw error;
+      set({ themes: data || [] });
+    } catch (error) {
+      console.error('Error fetching themes:', error);
+      // Fallback to static themes if database fetch fails
+      set({ themes: staticThemes });
+    }
   },
 
   applyFilters: () => {

@@ -36,6 +36,11 @@ export interface Theme {
   id: string;
   name: string;
   icon: string;
+  color?: string;
+  category?: string[];
+  icon_svg_url?: string;
+  icon_png_url?: string;
+  sort_order?: number;
 }
 
 export interface UserProfile {
