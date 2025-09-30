@@ -100,21 +100,17 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
         {/* Themes - Icon Grid */}
         <div className="flex flex-wrap gap-1">
           {meditationThemes.map((theme) => (
-            theme && (
+            theme && theme.icon_svg_url && (
               <div
                 key={theme.id}
                 className="w-6 h-6 bg-primary/10 rounded-lg flex items-center justify-center"
                 title={theme.name}
               >
-                {theme.icon_svg_url ? (
-                  <img 
-                    src={theme.icon_svg_url} 
-                    alt={theme.name}
-                    className="w-4 h-4"
-                  />
-                ) : (
-                  <span className="text-xs">🧘</span>
-                )}
+                <img 
+                  src={theme.icon_svg_url} 
+                  alt={theme.name}
+                  className="w-4 h-4"
+                />
               </div>
             )
           ))}

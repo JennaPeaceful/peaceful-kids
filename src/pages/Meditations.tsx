@@ -361,17 +361,6 @@ const Meditations = () => {
             {/* Header with Filter Summary */}
             <div className="sticky top-0 bg-background/95 backdrop-blur-sm border-b border-border z-10 pb-4">
               <div className="px-4 pt-4">
-                {/* Collapse Arrow */}
-                <div className="flex justify-center mb-4">
-                  <button
-                    onClick={() => setResultsExpanded(false)}
-                    className="text-primary hover:text-primary/80 transition-colors"
-                    aria-label="Collapse results"
-                  >
-                    <ChevronsDown className="w-8 h-8" />
-                  </button>
-                </div>
-
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-bold text-gradient-primary">
                     {sortedMeditations.length} Results
@@ -415,11 +404,22 @@ const Meditations = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-card z-50">
-                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="all">Media Type</SelectItem>
                     <SelectItem value="audio">Audio Only</SelectItem>
                     <SelectItem value="video">Video Only</SelectItem>
                   </SelectContent>
                 </Select>
+
+                {/* Collapse Arrow */}
+                <div className="flex justify-center mt-4">
+                  <button
+                    onClick={() => setResultsExpanded(false)}
+                    className="text-primary hover:text-primary/80 transition-colors"
+                    aria-label="Collapse results"
+                  >
+                    <ChevronsDown className="w-8 h-8" />
+                  </button>
+                </div>
               </div>
             </div>
 
