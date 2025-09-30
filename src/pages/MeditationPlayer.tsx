@@ -130,7 +130,7 @@ const MeditationPlayer = () => {
 
   // Auto-hide controls for video
   useEffect(() => {
-    if (!isAudio && player.isPlaying) {
+    if (!isAudio && player.isPlaying && showControls) {
       // Hide controls after 3 seconds of inactivity
       if (controlsTimeoutRef.current) {
         clearTimeout(controlsTimeoutRef.current);
@@ -138,8 +138,6 @@ const MeditationPlayer = () => {
       controlsTimeoutRef.current = setTimeout(() => {
         setShowControls(false);
       }, 3000);
-    } else {
-      setShowControls(true);
     }
     
     return () => {
@@ -293,11 +291,7 @@ const MeditationPlayer = () => {
 
   const handleVideoClick = () => {
     if (!isAudio) {
-      setShowControls(true);
-      // Reset the auto-hide timer
-      if (controlsTimeoutRef.current) {
-        clearTimeout(controlsTimeoutRef.current);
-      }
+      setShowControls(prev => !prev);
     }
   };
 
@@ -477,9 +471,10 @@ const MeditationPlayer = () => {
               {/* Video Controls Overlay */}
               <div 
                 className={`absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 via-black/50 to-transparent rounded-b-3xl transition-opacity duration-300 ${
-                  showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                  showControls ? 'opacity-100' : 'opacity-0'
                 }`}
                 onClick={(e) => e.stopPropagation()}
+                onMouseEnter={() => !isAudio && setShowControls(true)}
               >
                 {/* Seek Bar */}
                 <div className="mb-3">
