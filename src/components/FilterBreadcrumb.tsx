@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { X } from 'lucide-react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
+import { formatCategoryName } from '@/lib/utils';
 
 interface FilterBreadcrumbProps {
   selectedCategory: string | null;
@@ -69,7 +70,7 @@ const FilterBreadcrumb = ({
           onClick={() => toggleExpand('category')}
         >
           <span className="text-sm font-medium">
-            {expandedPills.has('category') ? selectedCategory : truncateText(selectedCategory, 10)}
+            {expandedPills.has('category') ? formatCategoryName(selectedCategory) : truncateText(formatCategoryName(selectedCategory), 10)}
           </span>
           <Button
             variant="ghost"

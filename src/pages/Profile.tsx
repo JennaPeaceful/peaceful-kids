@@ -5,6 +5,7 @@ import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Switch } from '../components/ui/switch';
 import logo from '@/assets/logo.svg';
+import { formatCategoryName } from '@/lib/utils';
 
 const Profile = () => {
   const { profile, subscription, preferences } = useUserStore();
@@ -39,7 +40,7 @@ const Profile = () => {
             <div className="flex-1">
               <h2 className="text-xl font-bold">{profile?.display_name}</h2>
               <p className="text-muted-foreground">
-                Age: {profile?.age} • {profile?.category_preference} content
+                Age: {profile?.age} • {formatCategoryName(profile?.category_preference)} content
               </p>
               <div className="flex items-center gap-2 mt-2">
                 {subscription?.is_active ? (
