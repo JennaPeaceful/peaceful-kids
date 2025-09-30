@@ -1,6 +1,7 @@
 import { TrendingUp, Target, Flame, Clock } from 'lucide-react';
 import { useProgressStats } from '../hooks/useProgressStats';
 import { Card } from '../components/ui/card';
+import { Button } from '../components/ui/button';
 
 const Tracking = () => {
   const { data: stats, isLoading } = useProgressStats();
@@ -11,6 +12,41 @@ const Tracking = () => {
         <div className="text-center py-12">
           <div className="text-4xl mb-4">🧘‍♂️</div>
           <p className="text-muted-foreground">Loading your progress...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const hasNoData = stats.currentStreak === 0 && stats.totalMeditations === 0 && stats.totalMinutes === 0;
+
+  if (hasNoData) {
+    return (
+      <div className="pb-24 pt-6">
+        {/* Header */}
+        <div className="px-4 mb-8">
+          <h1 className="text-2xl font-bold text-gradient-primary mb-2">
+            Your Journey
+          </h1>
+          <p className="text-muted-foreground">
+            Track your progress and mindfulness
+          </p>
+        </div>
+
+        {/* Empty State */}
+        <div className="px-4">
+          <Card className="card-gradient p-8 text-center">
+            <div className="text-6xl mb-6">🌱</div>
+            <h2 className="text-2xl font-bold mb-4">Your Journey Begins Here</h2>
+            <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+              Every mindful moment starts with a single breath. Ready to begin your meditation practice?
+            </p>
+            <Button 
+              onClick={() => window.location.href = '/meditations'}
+              className="btn-hero"
+            >
+              Start Your First Session
+            </Button>
+          </Card>
         </div>
       </div>
     );
@@ -58,7 +94,7 @@ const Tracking = () => {
               {stats.weeklyActivity.reduce((sum, day) => sum + day.minutes, 0)} minutes this week
             </div>
             <div className="text-sm text-muted-foreground">
-              Keep up the great work! 🌟
+              Keep up the great work!
             </div>
           </div>
         </Card>
@@ -106,7 +142,7 @@ const Tracking = () => {
             Mindful Minutes
           </div>
           <div className="text-sm text-muted-foreground mt-1">
-            That's {Math.round(stats.totalMinutes / 60 * 10) / 10} hours of peace! 🌸
+            That's {Math.round(stats.totalMinutes / 60 * 10) / 10} hours of peace
           </div>
         </Card>
       </div>
