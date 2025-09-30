@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { 
   User, Settings, Bell, Download, Heart, LogOut, Crown, 
-  Globe, Shield, FileText, HelpCircle, Trash2, Database,
+  Shield, FileText, HelpCircle, Trash2, Database,
   ChevronRight, Lock, RefreshCw, ExternalLink, Baby
 } from 'lucide-react';
 import { useUserStore } from '../stores/userStore';
@@ -30,16 +30,8 @@ const Profile = () => {
   const { profile, subscription, preferences, setPreferences } = useUserStore();
   const { signOut, user } = useAuth();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [language, setLanguage] = useState(preferences?.language || 'en');
   const [childMode, setChildMode] = useState(false);
   const { t, i18n } = useTranslation();
-
-  useEffect(() => {
-    if (preferences?.language) {
-      setLanguage(preferences.language);
-      i18n.changeLanguage(preferences.language);
-    }
-  }, [preferences, i18n]);
 
   const handleRestorePurchases = () => {
     toast({
@@ -60,52 +52,6 @@ const Profile = () => {
       description: "Your data will be sent to your email within 24 hours.",
     });
     // TODO: Implement data export
-  };
-
-  const handleLanguageChange = async (newLanguage: string) => {
-    setLanguage(newLanguage);
-    i18n.changeLanguage(newLanguage);
-    
-    if (!user?.id) return;
-    
-    try {
-      const { error } = await supabase
-        .from('user_preferences')
-        .upsert({
-          user_id: user.id,
-          language: newLanguage,
-          preferred_age_group: preferences?.preferred_age_group || '6-8 years',
-          notification_settings: preferences?.notification_settings || {
-            daily_reminder: true,
-            streak_celebration: true,
-            new_content: true,
-          }
-        }, {
-          onConflict: 'user_id'
-        });
-
-      if (error) throw error;
-
-      // Update local store
-      if (preferences) {
-        setPreferences({
-          ...preferences,
-          language: newLanguage
-        });
-      }
-
-      toast({
-        title: "Language Updated",
-        description: `Language set to ${newLanguage === 'en' ? 'English' : newLanguage === 'es' ? 'Español' : 'Français'}`,
-      });
-    } catch (error) {
-      console.error('Error updating language:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update language preference",
-        variant: "destructive",
-      });
-    }
   };
 
   const handleDeleteAccount = () => {
@@ -180,27 +126,6 @@ const Profile = () => {
           {t('profile.settings')}
         </h3>
         <Card className="card-gradient p-6 space-y-4">
-          {/* Language */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Globe className="w-5 h-5 text-primary" />
-              <div>
-                <h4 className="font-semibold">{t('profile.language')}</h4>
-                <p className="text-sm text-muted-foreground">{t('profile.appLanguage')}</p>
-              </div>
-            </div>
-            <Select value={language} onValueChange={handleLanguageChange}>
-              <SelectTrigger className="w-32">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-card">
-                <SelectItem value="en">English</SelectItem>
-                <SelectItem value="es">Español</SelectItem>
-                <SelectItem value="fr">Français</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
           {/* Content Level */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
