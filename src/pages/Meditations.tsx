@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, X, ArrowUpDown, ChevronDown } from 'lucide-react';
+import { Search, X, ChevronDown } from 'lucide-react';
 import { useMeditationStore } from '../stores/meditationStore';
 import MeditationCard from '../components/MeditationCard';
 import FilterBreadcrumb from '../components/FilterBreadcrumb';
@@ -10,7 +10,7 @@ import { Badge } from '../components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../components/ui/dropdown-menu';
 
-type SortOption = 'title' | 'duration' | 'created_at';
+type MediaType = 'all' | 'audio' | 'video';
 
 const ITEMS_PER_LOAD = 15;
 
@@ -28,8 +28,7 @@ const Meditations = () => {
     isLoading 
   } = useMeditationStore();
   const [displayedItems, setDisplayedItems] = useState(ITEMS_PER_LOAD);
-  const [sortBy, setSortBy] = useState<SortOption>('title');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [mediaType, setMediaType] = useState<MediaType>('all');
 
   useEffect(() => {
     fetchMeditations();
@@ -71,15 +70,7 @@ const Meditations = () => {
 
   const handleClearAll = () => {
     clearFilters();
-  };
-
-  const handleSort = (option: SortOption) => {
-    if (sortBy === option) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortBy(option);
-      setSortOrder('asc');
-    }
+    setMediaType('all');
   };
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -125,27 +116,15 @@ const Meditations = () => {
       })
     : contentCategories;
 
-  // Sort meditations
-  const sortedMeditations = [...filteredMeditations].sort((a, b) => {
-    let aValue: any = a[sortBy];
-    let bValue: any = b[sortBy];
-    
-    if (sortBy === 'duration') {
-      aValue = a.duration || 0;
-      bValue = b.duration || 0;
-    } else if (sortBy === 'created_at') {
-      aValue = new Date(a.created_at || '').getTime();
-      bValue = new Date(b.created_at || '').getTime();
-    } else {
-      aValue = (a.title || '').toLowerCase();
-      bValue = (b.title || '').toLowerCase();
-    }
-    
-    if (sortOrder === 'asc') {
-      return aValue > bValue ? 1 : -1;
-    } else {
-      return aValue < bValue ? 1 : -1;
-    }
+  // Sort meditations and filter by media type
+  const filteredByMediaType = mediaType === 'all' 
+    ? filteredMeditations 
+    : filteredMeditations.filter(m => m.media_type === mediaType);
+
+  const sortedMeditations = [...filteredByMediaType].sort((a, b) => {
+    const aTitle = (a.title || '').toLowerCase();
+    const bTitle = (b.title || '').toLowerCase();
+    return aTitle > bTitle ? 1 : -1;
   });
 
   const displayedMeditations = sortedMeditations.slice(0, displayedItems);
@@ -325,44 +304,41 @@ const Meditations = () => {
           </div>
         )}
 
-        {/* Themes */}
+        {/* Themes - Icon Grid */}
         {filters.selectedCategory && availableThemes.length > 0 && (
           <div className="mb-6">
             <label className="text-sm font-medium text-muted-foreground mb-3 block">
               Themes
             </label>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-full justify-between">
-                  {filters.selectedThemes.length > 0 
-                    ? `${filters.selectedThemes.length} selected`
-                    : 'Select themes'
-                  }
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-full max-h-60 overflow-y-auto z-50 bg-card">
-                {availableThemes.map((theme) => (
-                  <DropdownMenuItem 
+            <div className="grid grid-cols-4 gap-3">
+              {availableThemes.map((theme) => {
+                const isSelected = filters.selectedThemes.includes(theme.name);
+                return (
+                  <button
                     key={theme.id}
                     onClick={() => handleThemeToggle(theme.name)}
-                    className={`${filters.selectedThemes.includes(theme.name) ? 'bg-accent' : ''} flex items-center`}
+                    className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all ${
+                      isSelected 
+                        ? 'bg-primary/20 border-2 border-primary' 
+                        : 'bg-card border-2 border-border hover:border-primary/50'
+                    }`}
                   >
                     {theme.icon_svg_url && (
                       <img 
                         src={theme.icon_svg_url} 
                         alt={theme.name}
-                        className="w-4 h-4 mr-2"
+                        className="w-8 h-8"
                       />
                     )}
-                    {theme.name}
-                    {filters.selectedThemes.includes(theme.name) && (
-                      <span className="ml-auto">✓</span>
+                    {isSelected && (
+                      <span className="text-xs font-medium text-center leading-tight">
+                        {theme.name}
+                      </span>
                     )}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>
@@ -384,30 +360,20 @@ const Meditations = () => {
             {/* Results Header */}
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm text-muted-foreground">
-                {filteredMeditations.length} meditation{filteredMeditations.length !== 1 ? 's' : ''} found
+                {sortedMeditations.length} meditation{sortedMeditations.length !== 1 ? 's' : ''} found
               </p>
               
-              {/* Sort Options */}
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Sort by:</span>
-                <Select value={sortBy} onValueChange={(value: SortOption) => handleSort(value)}>
-                  <SelectTrigger className="w-32">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="title">Title</SelectItem>
-                    <SelectItem value="duration">Duration</SelectItem>
-                    <SelectItem value="created_at">Date</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-                >
-                  <ArrowUpDown className="w-4 h-4" />
-                </Button>
-              </div>
+              {/* Media Type Filter */}
+              <Select value={mediaType} onValueChange={(value: MediaType) => setMediaType(value)}>
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-card z-50">
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="audio">Audio</SelectItem>
+                  <SelectItem value="video">Video</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             
             {/* Results Grid */}

@@ -1,5 +1,4 @@
 import { Lock, Heart } from 'lucide-react';
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Meditation } from '../types';
 import { useUserStore } from '../stores/userStore';
@@ -14,19 +13,13 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
   const navigate = useNavigate();
   const { subscription } = useUserStore();
   const { toggleFavorite, isFavorite } = useFavorites();
-  const [isExpanded, setIsExpanded] = useState(false);
   
   // Temporarily disabled for development
   const isLocked = false; // !meditation.is_free && !subscription?.is_active;
   const isFav = isFavorite(meditation.id);
 
-  const handleCardClick = (e: React.MouseEvent) => {
-    if (!isExpanded) {
-      e.stopPropagation();
-      setIsExpanded(true);
-    } else {
-      navigate(`/meditation/${meditation.id}`);
-    }
+  const handleCardClick = () => {
+    navigate(`/meditation/${meditation.id}`);
   };
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
@@ -36,15 +29,11 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
 
   return (
     <div 
-      className={`relative card-gradient transition-all duration-300 hover:scale-[1.02] cursor-pointer ${
-        isExpanded ? 'p-3 aspect-square' : 'p-2 aspect-square'
-      } ${isLocked ? 'card-premium' : ''}`}
+      className={`relative card-gradient p-3 transition-all duration-300 hover:scale-[1.02] cursor-pointer aspect-square ${isLocked ? 'card-premium' : ''}`}
       onClick={handleCardClick}
     >
-      {/* Thumbnail Image - Icon Only or Full */}
-      <div className={`relative rounded-xl overflow-hidden transition-all duration-300 ${
-        isExpanded ? 'mb-3 aspect-square' : 'aspect-square'
-      }`}>
+      {/* Thumbnail Image */}
+      <div className="relative mb-3 rounded-xl overflow-hidden aspect-square">
         <img 
           src={meditation.thumbnail_url || meditation.thumbnail} 
           alt={meditation.title}
@@ -90,30 +79,28 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
         )}
       </div>
 
-      {/* Content - Only visible when expanded */}
-      {isExpanded && (
-        <div className="space-y-1.5">
-          <h3 className="font-bold text-sm leading-tight line-clamp-2 min-h-[2.5rem]">
-            {meditation.public_title || meditation.title}
-          </h3>
-          
-          <p className="text-xs text-muted-foreground line-clamp-2">
-            {meditation.description}
-          </p>
-          
-          {/* Themes */}
-          <div className="flex flex-wrap gap-1">
-            {meditation.themes.slice(0, 2).map((theme) => (
-              <span 
-                key={theme}
-                className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs font-medium"
-              >
-                {theme}
-              </span>
-            ))}
-          </div>
+      {/* Content */}
+      <div className="space-y-1.5">
+        <h3 className="font-bold text-sm leading-tight line-clamp-2 min-h-[2.5rem]">
+          {meditation.public_title || meditation.title}
+        </h3>
+        
+        <p className="text-xs text-muted-foreground line-clamp-2">
+          {meditation.description}
+        </p>
+        
+        {/* Themes */}
+        <div className="flex flex-wrap gap-1">
+          {meditation.themes.slice(0, 2).map((theme) => (
+            <span 
+              key={theme}
+              className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs font-medium"
+            >
+              {theme}
+            </span>
+          ))}
         </div>
-      )}
+      </div>
       
       {/* Lock overlay for locked content */}
       {isLocked && (
