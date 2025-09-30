@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Meditation } from '../types';
 import { useUserStore } from '../stores/userStore';
 import { useMeditationStore } from '../stores/meditationStore';
+import logo from '../assets/logo.svg';
 
 interface MeditationCardProps {
   meditation: Meditation;
@@ -39,21 +40,9 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
           alt={meditation.title}
           className="w-full h-full object-cover"
           onError={(e) => {
-            // Show placeholder if image fails to load
             const target = e.target as HTMLImageElement;
-            if (!target.src.includes('data:')) {
-              target.src = 'data:image/svg+xml;base64,' + btoa(`
-                <svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
-                  <defs>
-                    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" style="stop-color:hsl(var(--primary));stop-opacity:0.2" />
-                      <stop offset="100%" style="stop-color:hsl(var(--secondary));stop-opacity:0.4" />
-                    </linearGradient>
-                  </defs>
-                  <rect width="200" height="200" fill="url(#grad)" />
-                  <text x="100" y="100" font-family="system-ui" font-size="20" fill="hsl(var(--muted-foreground))" text-anchor="middle" dy=".3em">🧘‍♀️</text>
-                </svg>
-              `);
+            if (!target.src.includes(logo)) {
+              target.src = logo;
             }
           }}
         />
