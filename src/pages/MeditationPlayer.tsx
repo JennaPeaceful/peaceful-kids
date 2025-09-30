@@ -131,7 +131,6 @@ const MeditationPlayer = () => {
   // Auto-hide controls for video
   useEffect(() => {
     if (!isAudio && player.isPlaying && showControls) {
-      // Hide controls after 3 seconds of inactivity
       if (controlsTimeoutRef.current) {
         clearTimeout(controlsTimeoutRef.current);
       }
@@ -139,7 +138,7 @@ const MeditationPlayer = () => {
         setShowControls(false);
       }, 3000);
     }
-    
+
     return () => {
       if (controlsTimeoutRef.current) {
         clearTimeout(controlsTimeoutRef.current);
@@ -260,6 +259,7 @@ const MeditationPlayer = () => {
       mediaElement.volume = vol;
       setIsMuted(vol === 0);
     }
+    revealControls();
   };
 
   const toggleMute = () => {
@@ -273,6 +273,7 @@ const MeditationPlayer = () => {
       mediaElement.volume = 0;
       setIsMuted(true);
     }
+    revealControls();
   };
 
   const handleSeek = (newTime: number[]) => {
@@ -281,6 +282,7 @@ const MeditationPlayer = () => {
     if (mediaElement && canPlay) {
       mediaElement.currentTime = time;
     }
+    revealControls();
   };
 
   const handleFavoriteClick = () => {
@@ -291,7 +293,33 @@ const MeditationPlayer = () => {
 
   const handleVideoClick = () => {
     if (!isAudio) {
-      setShowControls(prev => !prev);
+      setShowControls((prev) => {
+        const next = !prev;
+        if (next) {
+          // reveal and reset hide timer
+          if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
+          setShowControls(true);
+          if (player.isPlaying) {
+            controlsTimeoutRef.current = setTimeout(() => setShowControls(false), 3000);
+          }
+        } else {
+          if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
+        }
+        return next;
+      });
+    }
+  };
+
+  const revealControls = () => {
+    if (isAudio) return;
+    setShowControls(true);
+    if (controlsTimeoutRef.current) {
+      clearTimeout(controlsTimeoutRef.current);
+    }
+    if (player.isPlaying) {
+      controlsTimeoutRef.current = setTimeout(() => {
+        setShowControls(false);
+      }, 3000);
     }
   };
 
@@ -306,6 +334,7 @@ const MeditationPlayer = () => {
         await document.exitFullscreen();
         setIsFullscreen(false);
       }
+      revealControls();
     } catch (err) {
       console.error('Fullscreen error:', err);
     }
@@ -450,6 +479,8 @@ const MeditationPlayer = () => {
               ref={videoContainerRef}
               className="relative w-full h-full"
               onClick={handleVideoClick}
+              onMouseMove={revealControls}
+              onTouchStart={revealControls}
             >
               <video
                 ref={videoRef}
@@ -471,7 +502,7 @@ const MeditationPlayer = () => {
               {/* Video Controls Overlay */}
               <div 
                 className={`absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 via-black/50 to-transparent rounded-b-3xl transition-opacity duration-300 ${
-                  showControls ? 'opacity-100' : 'opacity-0'
+                  showControls ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
                 }`}
                 onClick={(e) => e.stopPropagation()}
                 onMouseEnter={() => !isAudio && setShowControls(true)}
