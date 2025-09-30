@@ -238,36 +238,8 @@ const Meditations = () => {
           </div>
         )}
 
-        {/* Content Categories - Grid View when category is selected */}
-        {filters.selectedCategory && !filters.selectedContentCategories.length && availableContentCategories.length > 0 && (
-          <div className="mb-6">
-            <label className="text-sm font-medium text-muted-foreground mb-3 block">
-              Content Category
-            </label>
-            <div className="grid grid-cols-2 gap-3">
-              {availableContentCategories.map((category) => (
-                <Button
-                  key={category}
-                  variant="outline"
-                  onClick={() => handleContentCategoryToggle(category)}
-                  className="flex flex-col items-center gap-2 h-auto py-4 hover:shadow-primary transition-all"
-                >
-                  <div className="relative w-16 h-16 rounded-xl bg-gradient-to-br from-secondary via-primary to-accent p-3 flex items-center justify-center">
-                    <div className="text-white font-bold text-lg">
-                      {category.split(' ').slice(0, 2).map(word => word[0]).join('').toUpperCase()}
-                    </div>
-                  </div>
-                  <span className="text-xs font-medium text-center leading-tight px-2">{category}</span>
-                </Button>
-              ))}
-            </div>
-          </div>
-        )}
-
-
-
-        {/* Age Groups - show for Kid category after content category is selected */}
-        {filters.selectedCategory === 'Kid' && !filters.selectedAgeGroup && filters.selectedContentCategories.length > 0 && ageGroups.length > 0 && (
+        {/* Age Groups - show for Kid category immediately after Kids is selected */}
+        {filters.selectedCategory === 'Kid' && !filters.selectedAgeGroup && ageGroups.length > 0 && (
           <div className="mb-6">
             <label className="text-sm font-medium text-muted-foreground mb-3 block">
               Age Group
@@ -296,6 +268,35 @@ const Meditations = () => {
                   </Button>
                 );
               })}
+            </div>
+          </div>
+        )}
+
+        {/* Content Categories - For Kids after age group, for Adults immediately */}
+        {filters.selectedCategory && 
+         ((filters.selectedCategory === 'Kid' && filters.selectedAgeGroup && !filters.selectedContentCategories.length) ||
+          (filters.selectedCategory === 'Adult' && !filters.selectedContentCategories.length)) &&
+         availableContentCategories.length > 0 && (
+          <div className="mb-6">
+            <label className="text-sm font-medium text-muted-foreground mb-3 block">
+              Content Category
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              {availableContentCategories.map((category) => (
+                <Button
+                  key={category}
+                  variant="outline"
+                  onClick={() => handleContentCategoryToggle(category)}
+                  className="flex flex-col items-center gap-2 h-auto py-4 hover:shadow-primary transition-all"
+                >
+                  <div className="relative w-16 h-16 rounded-xl bg-gradient-to-br from-secondary via-primary to-accent p-3 flex items-center justify-center">
+                    <div className="text-white font-bold text-lg">
+                      {category.split(' ').slice(0, 2).map(word => word[0]).join('').toUpperCase()}
+                    </div>
+                  </div>
+                  <span className="text-xs font-medium text-center leading-tight px-2">{category}</span>
+                </Button>
+              ))}
             </div>
           </div>
         )}
