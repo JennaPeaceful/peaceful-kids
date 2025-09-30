@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Play, Pause, SkipBack, SkipForward, ArrowLeft, Heart, Share, Lock, AlertCircle, Volume2, VolumeX } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, ArrowLeft, Heart, Lock, AlertCircle, Volume2, VolumeX } from 'lucide-react';
 import { useMeditationStore } from '../stores/meditationStore';
 import { useProgressStore } from '../stores/progressStore';
 import { useUserStore } from '../stores/userStore';
@@ -280,23 +280,14 @@ const MeditationPlayer = () => {
           <ArrowLeft className="w-5 h-5" />
         </Button>
         
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleFavoriteClick}
-            className="w-10 h-10 rounded-full"
-          >
-            <Heart className={`w-5 h-5 ${isFav ? 'fill-primary text-primary' : ''}`} />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="w-10 h-10 rounded-full"
-          >
-            <Share className="w-5 h-5" />
-          </Button>
-        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleFavoriteClick}
+          className="w-10 h-10 rounded-full"
+        >
+          <Heart className={`w-5 h-5 ${isFav ? 'fill-primary text-primary' : ''}`} />
+        </Button>
       </div>
 
       {/* Audio Element (hidden, audio only) */}
