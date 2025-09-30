@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Meditation } from '../types';
 import { useUserStore } from '../stores/userStore';
 import { useFavorites } from '../hooks/useFavorites';
+import { useMeditationStore } from '../stores/meditationStore';
 
 interface MeditationCardProps {
   meditation: Meditation;
@@ -13,10 +14,17 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
   const navigate = useNavigate();
   const { subscription } = useUserStore();
   const { toggleFavorite, isFavorite } = useFavorites();
+  const { themes } = useMeditationStore();
   
   // Temporarily disabled for development
   const isLocked = false; // !meditation.is_free && !subscription?.is_active;
   const isFav = isFavorite(meditation.id);
+
+  // Get theme objects with icons for this meditation
+  const meditationThemes = meditation.themes
+    .map(themeName => themes.find(t => t.name === themeName))
+    .filter(Boolean)
+    .slice(0, 3);
 
   const handleCardClick = () => {
     navigate(`/meditation/${meditation.id}`);
@@ -91,14 +99,24 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
         
         {/* Themes - Icon Grid */}
         <div className="flex flex-wrap gap-1">
-          {meditation.themes.slice(0, 3).map((theme) => (
-            <span 
-              key={theme}
-              className="bg-primary/10 text-primary p-1.5 rounded-lg text-xs font-medium inline-flex items-center"
-              title={theme}
-            >
-              🧘
-            </span>
+          {meditationThemes.map((theme) => (
+            theme && (
+              <div
+                key={theme.id}
+                className="w-6 h-6 bg-primary/10 rounded-lg flex items-center justify-center"
+                title={theme.name}
+              >
+                {theme.icon_svg_url ? (
+                  <img 
+                    src={theme.icon_svg_url} 
+                    alt={theme.name}
+                    className="w-4 h-4"
+                  />
+                ) : (
+                  <span className="text-xs">🧘</span>
+                )}
+              </div>
+            )
           ))}
         </div>
       </div>
