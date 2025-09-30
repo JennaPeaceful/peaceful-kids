@@ -371,21 +371,23 @@ const MeditationPlayer = () => {
                 }}
               />
               {/* Waveform Overlay */}
-              <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 via-black/50 to-transparent rounded-b-3xl">
-                <AudioWaveform
-                  audioUrl={meditation.media_url}
-                  isPlaying={player.isPlaying && !isLocked && canPlay}
-                  currentTime={localCurrentTime}
-                  duration={duration}
-                  height={60}
-                  barWidth={3}
-                  barGap={1}
-                  onClick={handleWaveformClick}
-                  className="mb-2"
-                />
-                <div className="flex justify-between text-xs text-white/90">
-                  <span>{formatTime(localCurrentTime)}</span>
-                  <span>{formatTime(duration)}</span>
+              <div className="absolute inset-0 flex flex-col items-center justify-center p-6">
+                <div className="w-full bg-black/60 backdrop-blur-sm rounded-2xl p-4">
+                  <AudioWaveform
+                    audioUrl={meditation.media_url}
+                    isPlaying={player.isPlaying && !isLocked && canPlay}
+                    currentTime={localCurrentTime}
+                    duration={duration}
+                    height={60}
+                    barWidth={3}
+                    barGap={1}
+                    onClick={handleWaveformClick}
+                    className="mb-2"
+                  />
+                  <div className="flex justify-between text-xs text-white/90">
+                    <span>{formatTime(localCurrentTime)}</span>
+                    <span>{formatTime(duration)}</span>
+                  </div>
                 </div>
               </div>
             </div>
