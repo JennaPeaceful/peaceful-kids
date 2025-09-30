@@ -265,8 +265,11 @@ const Meditations = () => {
           </div>
         )}
 
-        {/* Themes - Icon Grid */}
-        {filters.selectedCategory && availableThemes.length > 0 && (
+        {/* Themes - Icon Grid - Show after age group for Kids, or after content category for Adults */}
+        {filters.selectedCategory && 
+         filters.selectedContentCategories.length > 0 &&
+         (filters.selectedCategory !== 'Kid' || filters.selectedAgeGroup) &&
+         availableThemes.length > 0 && (
           <div className="mb-6">
             <label className="text-sm font-medium text-muted-foreground mb-3 block">
               Themes
@@ -291,11 +294,9 @@ const Meditations = () => {
                         className="w-8 h-8"
                       />
                     )}
-                    {isSelected && (
-                      <span className="text-xs font-medium text-center leading-tight">
-                        {theme.name}
-                      </span>
-                    )}
+                    <span className="text-xs font-medium text-center leading-tight">
+                      {theme.name}
+                    </span>
                   </button>
                 );
               })}
