@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Switch } from '../components/ui/switch';
+import logo from '@/assets/logo.svg';
 
 const Profile = () => {
   const { profile, subscription, preferences } = useUserStore();
@@ -130,7 +131,9 @@ const Profile = () => {
       {/* App Info */}
       <div className="px-4 mb-8">
         <Card className="card-gradient p-6 text-center">
-          <div className="text-4xl mb-3">🧘‍♂️</div>
+          <div className="flex justify-center mb-3">
+            <img src={logo} alt="Peaceful Kids" className="w-16 h-16" />
+          </div>
           <h3 className="font-bold text-lg mb-2">Peaceful Kids</h3>
           <p className="text-sm text-muted-foreground mb-4">
             Version 1.0.0 • Made with 💜 for mindful families

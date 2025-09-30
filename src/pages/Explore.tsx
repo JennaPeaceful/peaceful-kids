@@ -1,6 +1,7 @@
-import { Check, Sparkles } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
+import logo from '@/assets/logo.svg';
 
 const Explore = () => {
   const handleSelectPlan = (plan: string) => {
@@ -14,9 +15,7 @@ const Explore = () => {
       <div className="px-4 mb-8">
         <div className="text-center mb-8">
           <div className="inline-block mb-4">
-            <div className="w-20 h-20 bg-gradient-to-br from-primary via-secondary to-accent rounded-full flex items-center justify-center animate-float">
-              <Sparkles className="w-10 h-10 text-white" />
-            </div>
+            <img src={logo} alt="Peaceful Kids" className="w-32 h-32 animate-float" />
           </div>
           <h1 className="text-4xl font-bold mb-3">
             <span className="text-gradient-primary">Welcome to Peaceful</span>
