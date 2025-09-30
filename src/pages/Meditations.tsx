@@ -225,8 +225,34 @@ const Meditations = () => {
           </div>
         )}
 
-        {/* Content Categories */}
-        {filters.selectedCategory && availableContentCategories.length > 0 && (
+        {/* Content Categories - Grid View when category is selected */}
+        {filters.selectedCategory && !filters.selectedContentCategories.length && availableContentCategories.length > 0 && (
+          <div className="mb-6">
+            <label className="text-sm font-medium text-muted-foreground mb-3 block">
+              Select Content Type
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              {availableContentCategories.map((category) => (
+                <Button
+                  key={category}
+                  variant="outline"
+                  onClick={() => handleContentCategoryToggle(category)}
+                  className="flex flex-col items-center gap-2 h-auto py-4 hover:shadow-primary transition-all"
+                >
+                  <div className="relative w-16 h-16 rounded-xl bg-gradient-to-br from-secondary via-primary to-accent p-3 flex items-center justify-center">
+                    <div className="text-white font-bold text-lg">
+                      {category.split(' ').slice(0, 2).map(word => word[0]).join('').toUpperCase()}
+                    </div>
+                  </div>
+                  <span className="text-xs font-medium text-center leading-tight px-2">{category}</span>
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Content Categories - Dropdown when already selected */}
+        {filters.selectedCategory && filters.selectedContentCategories.length > 0 && availableContentCategories.length > 0 && (
           <div className="mb-6">
             <label className="text-sm font-medium text-muted-foreground mb-3 block">
               Content Categories
@@ -241,7 +267,7 @@ const Meditations = () => {
                   <ChevronDown className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-full max-h-60 overflow-y-auto">
+              <DropdownMenuContent className="w-full max-h-60 overflow-y-auto z-50 bg-card">
                 {availableContentCategories.map((category) => (
                   <DropdownMenuItem 
                     key={category}
@@ -272,7 +298,7 @@ const Meditations = () => {
                   <ChevronDown className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-full">
+              <DropdownMenuContent className="w-full z-50 bg-card">
                 {ageGroups.filter(ag => ag).map((ageGroup) => (
                   <DropdownMenuItem 
                     key={ageGroup}
@@ -315,7 +341,7 @@ const Meditations = () => {
                   <ChevronDown className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-full max-h-60 overflow-y-auto">
+              <DropdownMenuContent className="w-full max-h-60 overflow-y-auto z-50 bg-card">
                 {availableThemes.map((theme) => (
                   <DropdownMenuItem 
                     key={theme.id}
