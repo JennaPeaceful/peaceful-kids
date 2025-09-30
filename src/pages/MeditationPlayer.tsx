@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Play, Pause, SkipBack, SkipForward, ArrowLeft, Heart, Lock, AlertCircle, Volume2, VolumeX } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, ArrowLeft, Heart, Lock, AlertCircle, Volume2, VolumeX, Maximize, Minimize } from 'lucide-react';
 import { useMeditationStore } from '../stores/meditationStore';
 import { useProgressStore } from '../stores/progressStore';
 import { useUserStore } from '../stores/userStore';
@@ -28,9 +28,13 @@ const MeditationPlayer = () => {
   const [canPlay, setCanPlay] = useState(false);
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
+  const [showControls, setShowControls] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   
   const audioRef = useRef<HTMLAudioElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const videoContainerRef = useRef<HTMLDivElement>(null);
+  const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const meditation = meditations.find(m => m.id === id);
   const isFav = meditation ? isFavorite(meditation.id) : false;
@@ -124,6 +128,27 @@ const MeditationPlayer = () => {
     handleMediaComplete();
   };
 
+  // Auto-hide controls for video
+  useEffect(() => {
+    if (!isAudio && player.isPlaying) {
+      // Hide controls after 3 seconds of inactivity
+      if (controlsTimeoutRef.current) {
+        clearTimeout(controlsTimeoutRef.current);
+      }
+      controlsTimeoutRef.current = setTimeout(() => {
+        setShowControls(false);
+      }, 3000);
+    } else {
+      setShowControls(true);
+    }
+    
+    return () => {
+      if (controlsTimeoutRef.current) {
+        clearTimeout(controlsTimeoutRef.current);
+      }
+    };
+  }, [player.isPlaying, isAudio, showControls]);
+
   // Cleanup function
   useEffect(() => {
     return () => {
@@ -140,6 +165,11 @@ const MeditationPlayer = () => {
         videoEl.src = '';
       }
       setPlaying(false);
+      
+      // Exit fullscreen if active
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      }
     };
   }, []);
 
@@ -260,6 +290,44 @@ const MeditationPlayer = () => {
       toggleFavorite(meditation.id);
     }
   };
+
+  const handleVideoClick = () => {
+    if (!isAudio) {
+      setShowControls(true);
+      // Reset the auto-hide timer
+      if (controlsTimeoutRef.current) {
+        clearTimeout(controlsTimeoutRef.current);
+      }
+    }
+  };
+
+  const toggleFullscreen = async () => {
+    if (!videoContainerRef.current) return;
+    
+    try {
+      if (!document.fullscreenElement) {
+        await videoContainerRef.current.requestFullscreen();
+        setIsFullscreen(true);
+      } else {
+        await document.exitFullscreen();
+        setIsFullscreen(false);
+      }
+    } catch (err) {
+      console.error('Fullscreen error:', err);
+    }
+  };
+
+  // Listen for fullscreen changes
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, []);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -384,7 +452,11 @@ const MeditationPlayer = () => {
             </div>
           ) : (
             /* Video player with controls */
-            <div className="relative w-full h-full">
+            <div 
+              ref={videoContainerRef}
+              className="relative w-full h-full"
+              onClick={handleVideoClick}
+            >
               <video
                 ref={videoRef}
                 src={meditation.media_url}
@@ -400,11 +472,15 @@ const MeditationPlayer = () => {
                 onEnded={handleEnded}
                 onError={handleError}
                 preload="metadata"
-                className="w-full h-full object-cover rounded-3xl shadow-2xl cursor-pointer"
-                onClick={handlePlayPause}
+                className="w-full h-full object-cover rounded-3xl shadow-2xl"
               />
               {/* Video Controls Overlay */}
-              <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 via-black/50 to-transparent rounded-b-3xl">
+              <div 
+                className={`absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 via-black/50 to-transparent rounded-b-3xl transition-opacity duration-300 ${
+                  showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                }`}
+                onClick={(e) => e.stopPropagation()}
+              >
                 {/* Seek Bar */}
                 <div className="mb-3">
                   <Slider
@@ -420,24 +496,63 @@ const MeditationPlayer = () => {
                     <span>{formatTime(duration)}</span>
                   </div>
                 </div>
-                {/* Volume Control */}
-                <div className="flex items-center gap-2">
+                {/* Volume and Fullscreen Controls */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 flex-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleMute();
+                      }}
+                      className="text-white hover:bg-white/20"
+                    >
+                      {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                    </Button>
+                    <Slider
+                      value={[isMuted ? 0 : volume]}
+                      max={1}
+                      step={0.1}
+                      onValueChange={handleVolumeChange}
+                      className="w-24 cursor-pointer"
+                    />
+                  </div>
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={toggleMute}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleFullscreen();
+                    }}
                     className="text-white hover:bg-white/20"
                   >
-                    {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                    {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
                   </Button>
-                  <Slider
-                    value={[isMuted ? 0 : volume]}
-                    max={1}
-                    step={0.1}
-                    onValueChange={handleVolumeChange}
-                    className="w-24 cursor-pointer"
-                  />
                 </div>
+              </div>
+              
+              {/* Center Play/Pause Button Overlay */}
+              <div 
+                className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
+                  showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                }`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePlayPause();
+                }}
+              >
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  className="w-20 h-20 rounded-full bg-black/60 hover:bg-black/80 text-white backdrop-blur-sm"
+                >
+                  {player.isPlaying ? (
+                    <Pause className="w-10 h-10" />
+                  ) : (
+                    <Play className="w-10 h-10 ml-1" />
+                  )}
+                </Button>
               </div>
             </div>
           )}
