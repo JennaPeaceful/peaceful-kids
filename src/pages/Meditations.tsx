@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, X, ChevronUp, ChevronDown } from 'lucide-react';
+import { Search, X, ChevronsUp, ChevronsDown } from 'lucide-react';
 import { useMeditationStore } from '../stores/meditationStore';
 import MeditationCard from '../components/MeditationCard';
 import FilterBreadcrumb from '../components/FilterBreadcrumb';
@@ -342,18 +342,16 @@ const Meditations = () => {
 
       {/* Results Section with Expand/Collapse */}
       <div className="relative">
-        {/* Expand/Collapse Button */}
+        {/* Expand Arrow */}
         {filteredMeditations.length > 0 && !resultsExpanded && (
-          <div className="px-4 mb-4">
-            <Button
+          <div className="px-4 mb-4 flex justify-center">
+            <button
               onClick={() => setResultsExpanded(true)}
-              className="w-full py-6 bg-gradient-to-r from-primary via-secondary to-accent text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all"
+              className="text-primary hover:text-primary/80 transition-colors"
+              aria-label="Expand results"
             >
-              <div className="flex flex-col items-center gap-1">
-                <ChevronUp className="w-6 h-6 animate-bounce" />
-                <span>Browse {sortedMeditations.length} Results</span>
-              </div>
-            </Button>
+              <ChevronsUp className="w-8 h-8" />
+            </button>
           </div>
         )}
 
@@ -363,18 +361,21 @@ const Meditations = () => {
             {/* Header with Filter Summary */}
             <div className="sticky top-0 bg-background/95 backdrop-blur-sm border-b border-border z-10 pb-4">
               <div className="px-4 pt-4">
+                {/* Collapse Arrow */}
+                <div className="flex justify-center mb-4">
+                  <button
+                    onClick={() => setResultsExpanded(false)}
+                    className="text-primary hover:text-primary/80 transition-colors"
+                    aria-label="Collapse results"
+                  >
+                    <ChevronsDown className="w-8 h-8" />
+                  </button>
+                </div>
+
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-bold text-gradient-primary">
                     {sortedMeditations.length} Results
                   </h2>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setResultsExpanded(false)}
-                    className="rounded-full"
-                  >
-                    <ChevronDown className="w-5 h-5" />
-                  </Button>
                 </div>
 
                 {/* Filter Summary Pills */}
