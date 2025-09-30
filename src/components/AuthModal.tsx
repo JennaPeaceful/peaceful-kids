@@ -30,14 +30,14 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModalProps) 
     try {
       // Create or sign in with a test account
       const { error } = await supabase.auth.signInWithPassword({
-        email: 'test@peacefulkids.app',
+        email: 'dev@peacefulkids.app',
         password: 'testpass123',
       });
 
       if (error) {
         // If login fails, try to create the test account
         const { error: signUpError } = await supabase.auth.signUp({
-          email: 'test@peacefulkids.app',
+          email: 'dev@peacefulkids.app',
           password: 'testpass123',
           options: {
             emailRedirectTo: `${window.location.origin}/`,
@@ -55,7 +55,7 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModalProps) 
           toast.success('Dev account created! Signing you in...');
           // Try to sign in again
           await supabase.auth.signInWithPassword({
-            email: 'test@peacefulkids.app',
+            email: 'dev@peacefulkids.app',
             password: 'testpass123',
           });
         }
@@ -263,7 +263,7 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModalProps) 
             disabled={isLoading}
             className="w-full text-xs"
           >
-            Quick Dev Login (test@peacefulkids.app)
+            Quick Dev Login (dev@peacefulkids.app)
           </Button>
         </div>
 
