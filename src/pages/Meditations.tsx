@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Search, X, ChevronsUp, ChevronsDown } from 'lucide-react';
+import { Search, X, ChevronsUp, ChevronsDown, Heart } from 'lucide-react';
 import { useMeditationStore } from '../stores/meditationStore';
+import { useFavorites } from '../hooks/useFavorites';
 import MeditationCard from '../components/MeditationCard';
 import FilterBreadcrumb from '../components/FilterBreadcrumb';
 import { Button } from '../components/ui/button';
@@ -27,9 +28,11 @@ const Meditations = () => {
     fetchMeditations, 
     isLoading 
   } = useMeditationStore();
+  const { favorites } = useFavorites();
   const [displayedItems, setDisplayedItems] = useState(ITEMS_PER_LOAD);
   const [mediaType, setMediaType] = useState<MediaType>('all');
   const [resultsExpanded, setResultsExpanded] = useState(false);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
   useEffect(() => {
     fetchMeditations();
@@ -92,6 +95,7 @@ const Meditations = () => {
   const handleClearAll = () => {
     clearFilters();
     setMediaType('all');
+    setShowFavoritesOnly(false);
   };
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -118,7 +122,7 @@ const Meditations = () => {
     }
   };
 
-  const hasActiveFilters = filters.selectedCategory || filters.selectedContentCategories.length > 0 || filters.selectedAgeGroup || filters.selectedThemes.length > 0 || filters.searchQuery;
+  const hasActiveFilters = filters.selectedCategory || filters.selectedContentCategories.length > 0 || filters.selectedAgeGroup || filters.selectedThemes.length > 0 || filters.searchQuery || showFavoritesOnly;
   
   // Age group color mapping
   const getAgeGroupColor = (ageGroup: string) => {
@@ -150,12 +154,16 @@ const Meditations = () => {
       })
     : contentCategories;
 
-  // Sort meditations and filter by media type
+  // Sort meditations and filter by media type and favorites
   const filteredByMediaType = mediaType === 'all' 
     ? filteredMeditations 
     : filteredMeditations.filter(m => m.media_type === mediaType);
 
-  const sortedMeditations = [...filteredByMediaType].sort((a, b) => {
+  const filteredByFavorites = showFavoritesOnly
+    ? filteredByMediaType.filter(m => favorites.includes(m.id))
+    : filteredByMediaType;
+
+  const sortedMeditations = [...filteredByFavorites].sort((a, b) => {
     const aTitle = (a.title || '').toLowerCase();
     const bTitle = (b.title || '').toLowerCase();
     return aTitle > bTitle ? 1 : -1;
@@ -185,7 +193,7 @@ const Meditations = () => {
         </div>
 
         {/* Search */}
-        <div className="relative mb-6">
+        <div className="relative mb-4">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Search meditations..."
@@ -193,6 +201,18 @@ const Meditations = () => {
             onChange={(e) => handleSearchChange(e.target.value)}
             className="pl-10 pr-4 py-3 bg-card border-border rounded-xl"
           />
+        </div>
+
+        {/* Favorites Filter Toggle */}
+        <div className="mb-6">
+          <Button
+            variant={showFavoritesOnly ? "default" : "outline"}
+            onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+            className="w-full"
+          >
+            <Heart className={`w-4 h-4 mr-2 ${showFavoritesOnly ? 'fill-current' : ''}`} />
+            {showFavoritesOnly ? 'Showing Favorites' : 'Show Favorites Only'}
+          </Button>
         </div>
 
         {/* Filter Breadcrumb */}

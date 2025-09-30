@@ -1,8 +1,7 @@
-import { Lock, Heart } from 'lucide-react';
+import { Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Meditation } from '../types';
 import { useUserStore } from '../stores/userStore';
-import { useFavorites } from '../hooks/useFavorites';
 import { useMeditationStore } from '../stores/meditationStore';
 
 interface MeditationCardProps {
@@ -13,12 +12,10 @@ interface MeditationCardProps {
 const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
   const navigate = useNavigate();
   const { subscription } = useUserStore();
-  const { toggleFavorite, isFavorite } = useFavorites();
   const { themes } = useMeditationStore();
   
   // Temporarily disabled for development
   const isLocked = false; // !meditation.is_free && !subscription?.is_active;
-  const isFav = isFavorite(meditation.id);
 
   // Get theme objects with icons for this meditation
   const meditationThemes = meditation.themes
@@ -28,11 +25,6 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
 
   const handleCardClick = () => {
     navigate(`/meditation/${meditation.id}`);
-  };
-
-  const handleFavoriteClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    toggleFavorite(meditation.id);
   };
 
   return (
@@ -65,19 +57,6 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
             }
           }}
         />
-        
-        {/* Favorite button */}
-        <button
-          onClick={handleFavoriteClick}
-          className="absolute top-2 left-2 w-8 h-8 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-background transition-colors z-10"
-          aria-label={isFav ? 'Remove from favorites' : 'Add to favorites'}
-        >
-          <Heart 
-            className={`w-4 h-4 transition-colors ${
-              isFav ? 'fill-primary text-primary' : 'text-muted-foreground'
-            }`}
-          />
-        </button>
 
         {/* Premium badge */}
         {!meditation.is_free && (
