@@ -75,6 +75,7 @@ const staticThemes = [
 const transformMeditation = (dbMeditation: any): Meditation => ({
   id: dbMeditation.id,
   title: dbMeditation.title,
+  public_title: dbMeditation.public_title,
   description: dbMeditation.description || '',
   thumbnail: dbMeditation.thumbnail_url || '/api/placeholder/300/200',
   thumbnail_url: dbMeditation.thumbnail_url || '/api/placeholder/300/200',

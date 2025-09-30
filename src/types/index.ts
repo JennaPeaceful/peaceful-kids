@@ -3,6 +3,7 @@
 export interface Meditation {
   id: string;
   title: string;
+  public_title?: string;
   description: string;
   thumbnail: string;
   thumbnail_url?: string;
