@@ -246,28 +246,18 @@ const Meditations = () => {
                     key={ageGroup}
                     variant="outline"
                     onClick={() => handleAgeGroupSelect(isSelected ? null : ageGroup)}
-                    className={`flex flex-col items-center gap-2 h-auto py-4 transition-all ${
+                    className={`flex items-center justify-center h-auto py-6 transition-all ${
                       isSelected 
-                        ? 'border-2 shadow-lg' 
-                        : 'hover:shadow-primary'
+                        ? 'border-2 shadow-lg scale-105' 
+                        : 'hover:shadow-primary hover:scale-102'
                     }`}
-                    style={isSelected ? {
+                    style={{
                       background: `linear-gradient(135deg, ${color}dd, ${color})`,
-                      borderColor: color,
+                      borderColor: isSelected ? color : `${color}88`,
                       color: color === '#ffff00' ? '#000' : '#fff'
-                    } : {
-                      borderColor: color
                     }}
                   >
-                    <div 
-                      className="w-12 h-12 rounded-xl flex items-center justify-center"
-                      style={{ backgroundColor: color }}
-                    >
-                      <span className={`font-bold text-lg ${color === '#ffff00' ? 'text-black' : 'text-white'}`}>
-                        {ageGroup.split(' ')[1]}
-                      </span>
-                    </div>
-                    <span className="text-xs font-medium text-center leading-tight">{ageGroup}</span>
+                    <span className="font-semibold text-sm">{ageGroup}</span>
                   </Button>
                 );
               })}
