@@ -24,6 +24,7 @@ import {
 import { toast } from '../hooks/use-toast';
 import logo from '@/assets/logo.svg';
 import { formatCategoryName } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 const Profile = () => {
   const { profile, subscription, preferences, setPreferences } = useUserStore();
@@ -31,12 +32,14 @@ const Profile = () => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [language, setLanguage] = useState(preferences?.language || 'en');
   const [childMode, setChildMode] = useState(false);
+  const { t, i18n } = useTranslation();
 
   useEffect(() => {
     if (preferences?.language) {
       setLanguage(preferences.language);
+      i18n.changeLanguage(preferences.language);
     }
-  }, [preferences]);
+  }, [preferences, i18n]);
 
   const handleRestorePurchases = () => {
     toast({
@@ -61,6 +64,7 @@ const Profile = () => {
 
   const handleLanguageChange = async (newLanguage: string) => {
     setLanguage(newLanguage);
+    i18n.changeLanguage(newLanguage);
     
     if (!user?.id) return;
     
@@ -128,10 +132,10 @@ const Profile = () => {
       {/* Header */}
       <div className="px-4 mb-8">
         <h1 className="text-2xl font-bold text-gradient-primary mb-2">
-          Profile
+          {t('profile.title')}
         </h1>
         <p className="text-muted-foreground">
-          Manage your account and preferences
+          {t('profile.subtitle')}
         </p>
       </div>
 
@@ -173,7 +177,7 @@ const Profile = () => {
       <div className="px-4 mb-8">
         <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
           <Settings className="w-5 h-5" />
-          Profile Settings
+          {t('profile.settings')}
         </h3>
         <Card className="card-gradient p-6 space-y-4">
           {/* Language */}
@@ -181,8 +185,8 @@ const Profile = () => {
             <div className="flex items-center gap-3">
               <Globe className="w-5 h-5 text-primary" />
               <div>
-                <h4 className="font-semibold">Language</h4>
-                <p className="text-sm text-muted-foreground">App language</p>
+                <h4 className="font-semibold">{t('profile.language')}</h4>
+                <p className="text-sm text-muted-foreground">{t('profile.appLanguage')}</p>
               </div>
             </div>
             <Select value={language} onValueChange={handleLanguageChange}>
@@ -251,7 +255,7 @@ const Profile = () => {
       <div className="px-4 mb-8">
         <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
           <Crown className="w-5 h-5" />
-          Purchases & Subscription
+          {t('profile.purchases')}
         </h3>
         <Card className="card-gradient p-6 space-y-4">
           {/* Subscription Status */}
@@ -314,7 +318,7 @@ const Profile = () => {
       <div className="px-4 mb-8">
         <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
           <Bell className="w-5 h-5" />
-          Notifications
+          {t('profile.notifications')}
         </h3>
         <Card className="card-gradient p-6 space-y-4">
           <div className="flex items-center justify-between">
@@ -362,7 +366,7 @@ const Profile = () => {
       <div className="px-4 mb-8">
         <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
           <FileText className="w-5 h-5" />
-          Legal & Support
+          {t('profile.legal')}
         </h3>
         <Card className="card-gradient p-6 space-y-2">
           <Button 
@@ -434,7 +438,7 @@ const Profile = () => {
       <div className="px-4 mb-8">
         <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
           <Lock className="w-5 h-5" />
-          Account & Data
+          {t('profile.account')}
         </h3>
         <Card className="card-gradient p-6 space-y-2">
           <Button 
@@ -483,7 +487,7 @@ const Profile = () => {
           onClick={signOut}
         >
           <LogOut className="w-4 h-4 mr-2" />
-          Sign Out
+          {t('profile.signOut')}
         </Button>
       </div>
 
