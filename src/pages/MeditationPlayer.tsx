@@ -12,7 +12,7 @@ import AudioWaveform from '../components/AudioWaveform';
 const MeditationPlayer = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { meditations, player, setCurrentMeditation, setPlaying, setCurrentTime, fetchMeditations } = useMeditationStore();
+  const { meditations, themes, player, setCurrentMeditation, setPlaying, setCurrentTime, fetchMeditations } = useMeditationStore();
   const { completeSession } = useProgressStore();
   const { subscription } = useUserStore();
   
@@ -391,14 +391,24 @@ const MeditationPlayer = () => {
           
           {/* Themes */}
           <div className="flex flex-wrap justify-center gap-2 mb-4">
-            {meditation.themes.map((theme) => (
-              <span 
-                key={theme}
-                className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium"
-              >
-                {theme}
-              </span>
-            ))}
+            {meditation.themes.map((themeName) => {
+              const themeData = themes.find(t => t.name === themeName);
+              return (
+                <span 
+                  key={themeName}
+                  className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1.5"
+                >
+                  {themeData?.icon_svg_url && (
+                    <img 
+                      src={themeData.icon_svg_url} 
+                      alt={themeName}
+                      className="w-4 h-4"
+                    />
+                  )}
+                  {themeName}
+                </span>
+              );
+            })}
           </div>
         </div>
 
