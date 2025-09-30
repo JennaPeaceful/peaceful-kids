@@ -255,31 +255,13 @@ const MeditationPlayer = () => {
         </div>
       </div>
 
-      {/* Media Elements */}
-      {isAudio ? (
+      {/* Audio Element (hidden, audio only) */}
+      {isAudio && (
         <audio
           ref={audioRef}
           src={meditation.media_url}
           onLoadStart={() => {
             console.log('Loading audio from:', meditation.media_url);
-            handleLoadStart();
-          }}
-          onCanPlay={handleCanPlay}
-          onLoadedMetadata={handleLoadedMetadata}
-          onTimeUpdate={handleTimeUpdate}
-          onPlay={() => setPlaying(true)}
-          onPause={() => setPlaying(false)}
-          onEnded={handleEnded}
-          onError={handleError}
-          preload="metadata"
-          className="hidden"
-        />
-      ) : (
-        <video
-          ref={videoRef}
-          src={meditation.media_url}
-          onLoadStart={() => {
-            console.log('Loading video from:', meditation.media_url);
             handleLoadStart();
           }}
           onCanPlay={handleCanPlay}
@@ -317,32 +299,52 @@ const MeditationPlayer = () => {
 
       {/* Main Content */}
       <div className="flex flex-col items-center px-6 pb-8">
-        {/* Meditation Image */}
+        {/* Media Display */}
         <div className="relative w-80 h-80 mb-8">
-          <img
-            src={meditation.thumbnail_url || meditation.thumbnail}
-            alt={meditation.title}
-            className="w-full h-full object-cover rounded-3xl shadow-2xl"
-            onError={(e) => {
-              // Prevent infinite loop by checking if we're already showing fallback
-              if (!e.currentTarget.src.includes('data:')) {
-                console.warn('Thumbnail failed to load, using placeholder');
-                // Use a simple colored gradient as fallback to prevent 404 loops
-                e.currentTarget.src = 'data:image/svg+xml;base64,' + btoa(`
-                  <svg width="300" height="300" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                      <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" style="stop-color:hsl(var(--primary));stop-opacity:0.3" />
-                        <stop offset="100%" style="stop-color:hsl(var(--secondary));stop-opacity:0.6" />
-                      </linearGradient>
-                    </defs>
-                    <rect width="300" height="300" fill="url(#grad)" />
-                    <text x="150" y="150" font-family="system-ui" font-size="16" fill="hsl(var(--foreground))" text-anchor="middle" dy=".3em">🧘‍♀️</text>
-                  </svg>
-                `);
-              }
-            }}
-          />
+          {isAudio ? (
+            /* Thumbnail for audio meditations */
+            <img
+              src={meditation.thumbnail_url || meditation.thumbnail}
+              alt={meditation.title}
+              className="w-full h-full object-cover rounded-3xl shadow-2xl"
+              onError={(e) => {
+                if (!e.currentTarget.src.includes('data:')) {
+                  console.warn('Thumbnail failed to load, using placeholder');
+                  e.currentTarget.src = 'data:image/svg+xml;base64,' + btoa(`
+                    <svg width="300" height="300" xmlns="http://www.w3.org/2000/svg">
+                      <defs>
+                        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" style="stop-color:hsl(var(--primary));stop-opacity:0.3" />
+                          <stop offset="100%" style="stop-color:hsl(var(--secondary));stop-opacity:0.6" />
+                        </linearGradient>
+                      </defs>
+                      <rect width="300" height="300" fill="url(#grad)" />
+                      <text x="150" y="150" font-family="system-ui" font-size="16" fill="hsl(var(--foreground))" text-anchor="middle" dy=".3em">🧘‍♀️</text>
+                    </svg>
+                  `);
+                }
+              }}
+            />
+          ) : (
+            /* Video player for video meditations */
+            <video
+              ref={videoRef}
+              src={meditation.media_url}
+              onLoadStart={() => {
+                console.log('Loading video from:', meditation.media_url);
+                handleLoadStart();
+              }}
+              onCanPlay={handleCanPlay}
+              onLoadedMetadata={handleLoadedMetadata}
+              onTimeUpdate={handleTimeUpdate}
+              onPlay={() => setPlaying(true)}
+              onPause={() => setPlaying(false)}
+              onEnded={handleEnded}
+              onError={handleError}
+              preload="metadata"
+              className="w-full h-full object-cover rounded-3xl shadow-2xl"
+            />
+          )}
           
           {/* Loading Overlay */}
           {isLoading && (
