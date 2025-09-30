@@ -7,6 +7,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { ScrollArea } from '../components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import { Badge } from '../components/ui/badge';
 
 type MediaType = 'all' | 'audio' | 'video';
 
@@ -241,12 +242,10 @@ const Meditations = () => {
                 const isSelected = filters.selectedAgeGroup === ageGroup;
                 const color = getAgeGroupColor(ageGroup);
                 return (
-                  <Button
+                  <Badge
                     key={ageGroup}
                     variant={isSelected ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => handleAgeGroupSelect(isSelected ? null : ageGroup)}
-                    className={`transition-all ${
+                    className={`cursor-pointer transition-all px-3 py-2 text-sm ${
                       isSelected 
                         ? 'border-2 shadow-lg' 
                         : 'hover:shadow-md'
@@ -259,13 +258,14 @@ const Meditations = () => {
                       borderColor: color,
                       color: 'inherit'
                     }}
+                    onClick={() => handleAgeGroupSelect(isSelected ? null : ageGroup)}
                   >
                     <div 
-                      className="w-2 h-2 rounded-full mr-2"
+                      className="w-2 h-2 rounded-full mr-2 inline-block"
                       style={{ backgroundColor: color }}
                     />
                     {ageGroup}
-                  </Button>
+                  </Badge>
                 );
               })}
             </div>
