@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Meditation, FilterState, PlayerState } from '../types';
+import { Meditation, FilterState, PlayerState, Category } from '../types';
 import { supabase } from '@/integrations/supabase/client';
 
 interface MeditationState {
@@ -7,6 +7,7 @@ interface MeditationState {
   filteredMeditations: Meditation[];
   recentMeditations: Meditation[];
   recommendedMeditations: Meditation[];
+  categories: Category[];
   contentCategories: string[];
   themes: Array<{id: string; name: string; icon: string; color: string; category: string[]; icon_svg_url?: string; icon_png_url?: string; sort_order?: number}>;
   ageGroups: string[];
@@ -16,6 +17,7 @@ interface MeditationState {
   
   // Actions
   fetchMeditations: () => Promise<void>;
+  fetchCategories: () => Promise<void>;
   fetchContentCategories: () => Promise<void>;
   initializeThemes: () => void;
   setMeditations: (meditations: Meditation[]) => void;
@@ -83,7 +85,7 @@ const transformMeditation = (dbMeditation: any): Meditation => ({
   media_url: dbMeditation.media_url || '',
   media_type: (dbMeditation.media_type as 'audio' | 'video') || 'audio',
   is_free: dbMeditation.is_free || false,
-  category: (dbMeditation.category as 'Kids' | 'Adults') || 'Kids',
+  category: dbMeditation.category || 'Kid',
   age_group: dbMeditation.age_group || '',
   themes: dbMeditation.themes || [],
   content_categories: dbMeditation.content_categories || [],
@@ -96,6 +98,7 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
   filteredMeditations: [],
   recentMeditations: [],
   recommendedMeditations: [],
+  categories: [],
   contentCategories: [],
   themes: [],
   ageGroups: [],
@@ -118,7 +121,7 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
         meditations,
         filteredMeditations: meditations,
         recentMeditations: meditations.slice(0, 3),
-        recommendedMeditations: meditations.filter(m => m.category === 'Kids' && m.age_group === '6-8 years').slice(0, 4),
+        recommendedMeditations: meditations.filter(m => m.category === 'Kid' && m.age_group === 'Ages 6-8').slice(0, 4),
         isLoading: false 
       });
       
@@ -135,6 +138,7 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
       set({ ageGroups: sortedAgeGroups });
       
       // Fetch additional data
+      await get().fetchCategories();
       await get().fetchContentCategories();
       await get().initializeThemes();
       
@@ -158,6 +162,31 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
   clearFilters: () => {
     set({ filters: initialFilters });
     get().applyFilters();
+  },
+
+  fetchCategories: async () => {
+    try {
+      const { data, error } = await supabase
+        .from('categories' as any)
+        .select('*')
+        .order('sort_order', { ascending: true });
+
+      if (error) throw error;
+      
+      const categories = (data || []).map((cat: any) => ({
+        id: cat.id,
+        name: cat.name,
+        display_name: cat.display_name,
+        thumbnail_png_url: cat.thumbnail_png_url,
+        thumbnail_svg_url: cat.thumbnail_svg_url,
+        sort_order: cat.sort_order,
+        created_at: cat.created_at,
+      }));
+      
+      set({ categories });
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
   },
   
   fetchContentCategories: async () => {

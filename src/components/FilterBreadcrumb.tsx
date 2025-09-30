@@ -4,14 +4,14 @@ import { Badge } from './ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
 
 interface FilterBreadcrumbProps {
-  selectedCategory: 'Kids' | 'Adults' | null;
+  selectedCategory: string | null;
   selectedContentCategories: string[];
   selectedAgeGroup: string | null;
   selectedThemes: string[];
   contentCategories: string[];
   ageGroups: string[];
   themes: Array<{ id: string; name: string; icon: string; category: string[]; icon_svg_url?: string }>;
-  onCategorySelect: (category: 'Kids' | 'Adults' | null) => void;
+  onCategorySelect: (category: string | null) => void;
   onContentCategoryToggle: (category: string) => void;
   onAgeGroupSelect: (ageGroup: string | null) => void;
   onThemeToggle: (theme: string) => void;
@@ -32,7 +32,7 @@ const FilterBreadcrumb = ({
 }: FilterBreadcrumbProps) => {
   const availableContentCategories = selectedCategory 
     ? contentCategories.filter(category => {
-        if (selectedCategory === 'Adults') return true;
+        if (selectedCategory === 'Adult') return true;
         return true; // Show all for now, can be filtered based on actual data
       })
     : [];
@@ -55,10 +55,10 @@ const FilterBreadcrumb = ({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => onCategorySelect('Kids')}>
+              <DropdownMenuItem onClick={() => onCategorySelect('Kid')}>
                 Kids
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onCategorySelect('Adults')}>
+              <DropdownMenuItem onClick={() => onCategorySelect('Adult')}>
                 Adults
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onCategorySelect(null)} className="text-destructive">
@@ -100,7 +100,7 @@ const FilterBreadcrumb = ({
         </>
       )}
 
-      {selectedCategory === 'Kids' && (
+      {selectedCategory === 'Kid' && (
         <>
           <ChevronRight className="w-3 h-3 text-muted-foreground" />
           

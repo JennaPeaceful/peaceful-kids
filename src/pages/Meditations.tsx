@@ -18,6 +18,7 @@ const Meditations = () => {
   const { 
     filteredMeditations, 
     filters, 
+    categories,
     contentCategories, 
     themes, 
     ageGroups, 
@@ -38,7 +39,7 @@ const Meditations = () => {
     setDisplayedItems(ITEMS_PER_LOAD);
   }, [filteredMeditations]);
 
-  const handleCategorySelect = (category: 'Kids' | 'Adults' | null) => {
+  const handleCategorySelect = (category: string | null) => {
     if (category === null) {
       clearFilters();
     } else {
@@ -118,7 +119,7 @@ const Meditations = () => {
   const availableContentCategories = filters.selectedCategory 
     ? contentCategories.filter(category => {
         // For adults, show all content categories
-        if (filters.selectedCategory === 'Adults') return true;
+        if (filters.selectedCategory === 'Adult') return true;
         // For kids, show content categories that have meditations
         return filteredMeditations.some(m => m.content_categories?.includes(category));
       })
@@ -197,24 +198,27 @@ const Meditations = () => {
         />
 
         {/* Filter Selection - Show all available filters */}
-        {!filters.selectedCategory && (
+        {!filters.selectedCategory && categories.length > 0 && (
           <div className="mb-6">
             <label className="text-sm font-medium text-muted-foreground mb-2 block">Category</label>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={() => handleCategorySelect('Kids')}
-                className="flex-1"
-              >
-                Kids
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => handleCategorySelect('Adults')}
-                className="flex-1"
-              >
-                Adults
-              </Button>
+            <div className="grid grid-cols-2 gap-3">
+              {categories.map((category) => (
+                <Button
+                  key={category.id}
+                  variant="outline"
+                  onClick={() => handleCategorySelect(category.name)}
+                  className="flex flex-col items-center gap-2 h-auto py-4"
+                >
+                  {category.thumbnail_svg_url && (
+                    <img 
+                      src={category.thumbnail_svg_url} 
+                      alt={category.display_name}
+                      className="w-12 h-12"
+                    />
+                  )}
+                  <span className="text-sm font-medium">{category.display_name}</span>
+                </Button>
+              ))}
             </div>
           </div>
         )}
@@ -253,8 +257,8 @@ const Meditations = () => {
           </div>
         )}
 
-        {/* Age Groups - show for Kids category */}
-        {filters.selectedCategory === 'Kids' && ageGroups.length > 0 && (
+        {/* Age Groups - show for Kid category */}
+        {filters.selectedCategory === 'Kid' && ageGroups.length > 0 && (
           <div className="mb-6">
             <label className="text-sm font-medium text-muted-foreground mb-3 block">
               Age Group

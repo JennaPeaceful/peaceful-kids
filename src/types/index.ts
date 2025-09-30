@@ -11,7 +11,7 @@ export interface Meditation {
   media_url: string;
   media_type: 'audio' | 'video';
   is_free: boolean;
-  category: 'Kids' | 'Adults';
+  category: string;
   age_group: string;
   themes: string[];
   content_categories?: string[];
@@ -22,7 +22,11 @@ export interface Meditation {
 export interface Category {
   id: string;
   name: string;
-  type: 'Kids' | 'Adults';
+  display_name: string;
+  thumbnail_png_url?: string;
+  thumbnail_svg_url?: string;
+  sort_order?: number;
+  created_at?: string;
 }
 
 export interface AgeGroup {
@@ -49,7 +53,7 @@ export interface UserProfile {
   user_id: string;
   display_name: string;
   age: number;
-  category_preference: 'Kids' | 'Adults';
+  category_preference: string;
   avatar_url?: string;
   created_at: string;
 }
@@ -84,7 +88,7 @@ export interface UserSubscription {
 
 // UI State types
 export interface FilterState {
-  selectedCategory: 'Kids' | 'Adults' | null;
+  selectedCategory: string | null;
   selectedContentCategories: string[];
   selectedAgeGroup: string | null;
   selectedThemes: string[];

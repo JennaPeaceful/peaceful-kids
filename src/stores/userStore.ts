@@ -21,7 +21,7 @@ export const useUserStore = create<UserState>((set) => ({
     user_id: '1',
     display_name: 'Alex',
     age: 8,
-    category_preference: 'Kids',
+    category_preference: 'Kid',
     avatar_url: undefined,
     created_at: new Date().toISOString(),
   },
