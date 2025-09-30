@@ -207,14 +207,16 @@ const Meditations = () => {
                   key={category.id}
                   variant="outline"
                   onClick={() => handleCategorySelect(category.name)}
-                  className="flex flex-col items-center gap-2 h-auto py-4"
+                  className="flex flex-col items-center gap-2 h-auto py-4 hover:shadow-primary transition-all"
                 >
                   {category.thumbnail_svg_url && (
-                    <img 
-                      src={category.thumbnail_svg_url} 
-                      alt={category.display_name}
-                      className="w-12 h-12"
-                    />
+                    <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-primary via-secondary to-accent p-2">
+                      <img 
+                        src={category.thumbnail_svg_url} 
+                        alt={category.display_name}
+                        className="w-full h-full object-contain filter brightness-0 invert"
+                      />
+                    </div>
                   )}
                   <span className="text-sm font-medium">{category.display_name}</span>
                 </Button>
