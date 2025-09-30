@@ -286,6 +286,56 @@ export type Database = {
         }
         Relationships: []
       }
+      user_favorites: {
+        Row: {
+          created_at: string
+          id: string
+          meditation_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          meditation_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          meditation_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_favorites_meditation_id_fkey"
+            columns: ["meditation_id"]
+            isOneToOne: false
+            referencedRelation: "meditations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_favorites_meditation_id_fkey"
+            columns: ["meditation_id"]
+            isOneToOne: false
+            referencedRelation: "meditations_adults"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_favorites_meditation_id_fkey"
+            columns: ["meditation_id"]
+            isOneToOne: false
+            referencedRelation: "meditations_by_age"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_favorites_meditation_id_fkey"
+            columns: ["meditation_id"]
+            isOneToOne: false
+            referencedRelation: "meditations_kids"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_flags: {
         Row: {
           created_at: string | null

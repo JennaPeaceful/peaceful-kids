@@ -1,8 +1,9 @@
-import { Lock } from 'lucide-react';
+import { Lock, Heart } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Meditation } from '../types';
 import { useUserStore } from '../stores/userStore';
+import { useFavorites } from '../hooks/useFavorites';
 
 interface MeditationCardProps {
   meditation: Meditation;
@@ -12,10 +13,12 @@ interface MeditationCardProps {
 const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
   const navigate = useNavigate();
   const { subscription } = useUserStore();
+  const { toggleFavorite, isFavorite } = useFavorites();
   const [isExpanded, setIsExpanded] = useState(false);
   
   // Temporarily disabled for development
   const isLocked = false; // !meditation.is_free && !subscription?.is_active;
+  const isFav = isFavorite(meditation.id);
 
   const handleCardClick = (e: React.MouseEvent) => {
     if (!isExpanded) {
@@ -24,6 +27,11 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
     } else {
       navigate(`/meditation/${meditation.id}`);
     }
+  };
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toggleFavorite(meditation.id);
   };
 
   return (
@@ -61,6 +69,19 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
           }}
         />
         
+        {/* Favorite button */}
+        <button
+          onClick={handleFavoriteClick}
+          className="absolute top-2 left-2 w-8 h-8 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-background transition-colors z-10"
+          aria-label={isFav ? 'Remove from favorites' : 'Add to favorites'}
+        >
+          <Heart 
+            className={`w-4 h-4 transition-colors ${
+              isFav ? 'fill-primary text-primary' : 'text-muted-foreground'
+            }`}
+          />
+        </button>
+
         {/* Premium badge */}
         {!meditation.is_free && (
           <div className="absolute top-2 right-2 bg-warning text-warning-foreground px-2 py-1 rounded-full text-xs font-bold">
