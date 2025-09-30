@@ -501,7 +501,7 @@ const MeditationPlayer = () => {
               />
               {/* Video Controls Overlay */}
               <div 
-                className={`absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 via-black/50 to-transparent rounded-b-3xl transition-opacity duration-300 ${
+                className={`absolute z-20 bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 via-black/50 to-transparent rounded-b-3xl transition-opacity duration-300 ${
                   showControls ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
                 }`}
                 onClick={(e) => e.stopPropagation()}
@@ -560,18 +560,18 @@ const MeditationPlayer = () => {
               
               {/* Center Play/Pause Button Overlay */}
               <div 
-                className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
-                  showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                className={`absolute z-10 inset-0 flex items-center justify-center transition-opacity duration-300 ${
+                  showControls ? 'opacity-100 pointer-events-none' : 'opacity-0 pointer-events-none'
                 }`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handlePlayPause();
-                }}
               >
                 <Button
                   variant="ghost"
                   size="lg"
-                  className="w-20 h-20 rounded-full bg-black/60 hover:bg-black/80 text-white backdrop-blur-sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handlePlayPause();
+                  }}
+                  className="w-20 h-20 rounded-full bg-black/60 hover:bg-black/80 text-white backdrop-blur-sm pointer-events-auto"
                 >
                   {player.isPlaying ? (
                     <Pause className="w-10 h-10" />
