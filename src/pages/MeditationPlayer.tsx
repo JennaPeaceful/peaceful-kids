@@ -402,24 +402,26 @@ const MeditationPlayer = () => {
           </div>
         </div>
 
-        {/* Audio Waveform */}
-        <div className="w-full max-w-md mb-6">
-          <AudioWaveform
-            audioUrl={meditation.media_url}
-            isPlaying={player.isPlaying && !isLocked && canPlay}
-            currentTime={localCurrentTime}
-            duration={duration}
-            height={60}
-            barWidth={3}
-            barGap={1}
-            onClick={handleWaveformClick}
-            className="mb-2"
-          />
-          <div className="flex justify-between text-sm text-muted-foreground">
-            <span>{formatTime(localCurrentTime)}</span>
-            <span>{formatTime(duration)}</span>
+        {/* Audio Waveform - Only for audio meditations */}
+        {isAudio && (
+          <div className="w-full max-w-md mb-6">
+            <AudioWaveform
+              audioUrl={meditation.media_url}
+              isPlaying={player.isPlaying && !isLocked && canPlay}
+              currentTime={localCurrentTime}
+              duration={duration}
+              height={60}
+              barWidth={3}
+              barGap={1}
+              onClick={handleWaveformClick}
+              className="mb-2"
+            />
+            <div className="flex justify-between text-sm text-muted-foreground">
+              <span>{formatTime(localCurrentTime)}</span>
+              <span>{formatTime(duration)}</span>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Controls */}
         <div className="flex items-center justify-center gap-6 mb-8">
