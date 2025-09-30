@@ -1,14 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Search, X, ChevronDown } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import { useMeditationStore } from '../stores/meditationStore';
 import MeditationCard from '../components/MeditationCard';
 import FilterBreadcrumb from '../components/FilterBreadcrumb';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { ScrollArea } from '../components/ui/scroll-area';
-import { Badge } from '../components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../components/ui/dropdown-menu';
 
 type MediaType = 'all' | 'audio' | 'video';
 
@@ -230,79 +228,6 @@ const Meditations = () => {
           </div>
         )}
 
-        {/* Content Categories - Dropdown when already selected */}
-        {filters.selectedCategory && filters.selectedContentCategories.length > 0 && availableContentCategories.length > 0 && (
-          <div className="mb-6">
-            <label className="text-sm font-medium text-muted-foreground mb-3 block">
-              Content Categories
-            </label>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-full justify-between">
-                  {filters.selectedContentCategories.length > 0 
-                    ? `${filters.selectedContentCategories.length} selected`
-                    : 'Select content categories'
-                  }
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-full max-h-60 overflow-y-auto z-50 bg-card">
-                {availableContentCategories.map((category) => (
-                  <DropdownMenuItem 
-                    key={category}
-                    onClick={() => handleContentCategoryToggle(category)}
-                    className={filters.selectedContentCategories.includes(category) ? 'bg-accent' : ''}
-                  >
-                    {category}
-                    {filters.selectedContentCategories.includes(category) && (
-                      <span className="ml-auto">✓</span>
-                    )}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        )}
-
-        {/* Age Groups - show for Kid category */}
-        {filters.selectedCategory === 'Kid' && ageGroups.length > 0 && (
-          <div className="mb-6">
-            <label className="text-sm font-medium text-muted-foreground mb-3 block">
-              Age Group
-            </label>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-full justify-between">
-                  {filters.selectedAgeGroup || 'Select age group'}
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-full z-50 bg-card">
-                {ageGroups.filter(ag => ag).map((ageGroup) => (
-                  <DropdownMenuItem 
-                    key={ageGroup}
-                    onClick={() => handleAgeGroupSelect(ageGroup)}
-                    className={`${filters.selectedAgeGroup === ageGroup ? 'bg-accent' : ''} flex items-center`}
-                  >
-                    <div 
-                      className="w-3 h-3 rounded-full mr-2"
-                      style={{ backgroundColor: getAgeGroupColor(ageGroup) }}
-                    />
-                    {ageGroup}
-                  </DropdownMenuItem>
-                ))}
-                {filters.selectedAgeGroup && (
-                  <DropdownMenuItem 
-                    onClick={() => handleAgeGroupSelect(null)} 
-                    className="text-destructive"
-                  >
-                    Clear selection
-                  </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        )}
 
         {/* Themes - Icon Grid */}
         {filters.selectedCategory && availableThemes.length > 0 && (
