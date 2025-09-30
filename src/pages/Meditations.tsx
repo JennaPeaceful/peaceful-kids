@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Search, X, ChevronsUp, ChevronsDown, Heart } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useMeditationStore } from '../stores/meditationStore';
 import { useFavorites } from '../hooks/useFavorites';
 import MeditationCard from '../components/MeditationCard';
@@ -16,6 +17,7 @@ type MediaType = 'all' | 'audio' | 'video';
 const ITEMS_PER_LOAD = 15;
 
 const Meditations = () => {
+  const { t } = useTranslation();
   const { 
     filteredMeditations, 
     filters, 
@@ -177,7 +179,7 @@ const Meditations = () => {
       <div className="px-4 mb-6">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl font-bold text-gradient-primary">
-            Meditations
+            {t('meditations.title')}
           </h1>
           {hasActiveFilters && (
             <Button
@@ -187,7 +189,7 @@ const Meditations = () => {
               size="sm"
             >
               <X className="w-4 h-4 mr-2" />
-              Clear All
+              {t('meditations.clearAll')}
             </Button>
           )}
         </div>
@@ -196,7 +198,7 @@ const Meditations = () => {
         <div className="relative mb-4">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Search meditations..."
+            placeholder={t('meditations.searchPlaceholder')}
             value={filters.searchQuery}
             onChange={(e) => handleSearchChange(e.target.value)}
             className="pl-10 pr-4 py-3 bg-card border-border rounded-xl"
@@ -211,7 +213,7 @@ const Meditations = () => {
             className="w-full"
           >
             <Heart className={`w-4 h-4 mr-2 ${showFavoritesOnly ? 'fill-current' : ''}`} />
-            {showFavoritesOnly ? 'Showing Favorites' : 'Show Favorites Only'}
+            {showFavoritesOnly ? t('meditations.showingFavorites') : t('meditations.showFavorites')}
           </Button>
         </div>
 

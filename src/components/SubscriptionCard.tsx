@@ -1,13 +1,16 @@
 import { Star, CheckCircle, Sparkles } from 'lucide-react';
 import { Button } from './ui/button';
+import { useTranslation } from 'react-i18next';
 
 const SubscriptionCard = () => {
+  const { t } = useTranslation();
+  
   const benefits = [
-    'Unlimited access to all meditations',
-    'New content added weekly',
-    'Offline download capability',
-    'Progress tracking & insights',
-    'No ads during sessions',
+    t('subscription.unlimitedAccess'),
+    t('subscription.newContent'),
+    t('subscription.offlineDownload'),
+    t('subscription.progressTracking'),
+    t('subscription.noAds'),
   ];
 
   return (
@@ -17,10 +20,10 @@ const SubscriptionCard = () => {
           <Sparkles className="w-8 h-8 text-accent-foreground" />
         </div>
         <h3 className="text-xl font-bold text-gradient-premium mb-2">
-          Unlock Premium
+          {t('subscription.unlockPremium')}
         </h3>
         <p className="text-sm text-muted-foreground">
-          Get full access to our complete meditation library
+          {t('subscription.fullAccessDesc')}
         </p>
       </div>
 
@@ -37,18 +40,18 @@ const SubscriptionCard = () => {
         <div className="text-center">
           <div className="text-2xl font-bold text-gradient-premium">
             $9.99
-            <span className="text-sm font-normal text-muted-foreground">/month</span>
+            <span className="text-sm font-normal text-muted-foreground">/{t('explore.perMonth').replace('per ', '')}</span>
           </div>
-          <p className="text-xs text-muted-foreground">Cancel anytime</p>
+          <p className="text-xs text-muted-foreground">{t('subscription.cancelAnytime')}</p>
         </div>
 
         <Button className="btn-premium w-full">
           <Star className="w-4 h-4 mr-2" />
-          Start Free Trial
+          {t('subscription.startFreeTrial')}
         </Button>
         
         <p className="text-xs text-muted-foreground">
-          7-day free trial, then $9.99/month
+          {t('subscription.freeTrial')}
         </p>
       </div>
     </div>
