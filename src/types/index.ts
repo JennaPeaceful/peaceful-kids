@@ -71,6 +71,7 @@ export interface UserPreferences {
   id: string;
   user_id: string;
   preferred_age_group: string;
+  language?: string;
   notification_settings: {
     daily_reminder: boolean;
     streak_celebration: boolean;

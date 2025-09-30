@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   User, Settings, Bell, Download, Heart, LogOut, Crown, 
   Globe, Shield, FileText, HelpCircle, Trash2, Database,
@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { useUserStore } from '../stores/userStore';
 import { useAuth } from '../hooks/useAuth';
+import { supabase } from '../integrations/supabase/client';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Switch } from '../components/ui/switch';
@@ -25,11 +26,17 @@ import logo from '@/assets/logo.svg';
 import { formatCategoryName } from '@/lib/utils';
 
 const Profile = () => {
-  const { profile, subscription, preferences } = useUserStore();
-  const { signOut } = useAuth();
+  const { profile, subscription, preferences, setPreferences } = useUserStore();
+  const { signOut, user } = useAuth();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [language, setLanguage] = useState('en');
+  const [language, setLanguage] = useState(preferences?.language || 'en');
   const [childMode, setChildMode] = useState(false);
+
+  useEffect(() => {
+    if (preferences?.language) {
+      setLanguage(preferences.language);
+    }
+  }, [preferences]);
 
   const handleRestorePurchases = () => {
     toast({
@@ -50,6 +57,51 @@ const Profile = () => {
       description: "Your data will be sent to your email within 24 hours.",
     });
     // TODO: Implement data export
+  };
+
+  const handleLanguageChange = async (newLanguage: string) => {
+    setLanguage(newLanguage);
+    
+    if (!user?.id) return;
+    
+    try {
+      const { error } = await supabase
+        .from('user_preferences')
+        .upsert({
+          user_id: user.id,
+          language: newLanguage,
+          preferred_age_group: preferences?.preferred_age_group || '6-8 years',
+          notification_settings: preferences?.notification_settings || {
+            daily_reminder: true,
+            streak_celebration: true,
+            new_content: true,
+          }
+        }, {
+          onConflict: 'user_id'
+        });
+
+      if (error) throw error;
+
+      // Update local store
+      if (preferences) {
+        setPreferences({
+          ...preferences,
+          language: newLanguage
+        });
+      }
+
+      toast({
+        title: "Language Updated",
+        description: `Language set to ${newLanguage === 'en' ? 'English' : newLanguage === 'es' ? 'Español' : 'Français'}`,
+      });
+    } catch (error) {
+      console.error('Error updating language:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update language preference",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleDeleteAccount = () => {
@@ -133,7 +185,7 @@ const Profile = () => {
                 <p className="text-sm text-muted-foreground">App language</p>
               </div>
             </div>
-            <Select value={language} onValueChange={setLanguage}>
+            <Select value={language} onValueChange={handleLanguageChange}>
               <SelectTrigger className="w-32">
                 <SelectValue />
               </SelectTrigger>
