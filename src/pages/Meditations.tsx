@@ -237,35 +237,38 @@ const Meditations = () => {
             <label className="text-sm font-medium text-muted-foreground mb-3 block">
               Age Group
             </label>
-            <div className="flex flex-wrap gap-2">
+            <div className="grid grid-cols-2 gap-3">
               {ageGroups.filter(ag => ag).map((ageGroup) => {
                 const isSelected = filters.selectedAgeGroup === ageGroup;
                 const color = getAgeGroupColor(ageGroup);
                 return (
-                  <Badge
+                  <Button
                     key={ageGroup}
-                    variant={isSelected ? "default" : "outline"}
-                    className={`cursor-pointer transition-all px-3 py-2 text-sm ${
+                    variant="outline"
+                    onClick={() => handleAgeGroupSelect(isSelected ? null : ageGroup)}
+                    className={`flex flex-col items-center gap-2 h-auto py-4 transition-all ${
                       isSelected 
                         ? 'border-2 shadow-lg' 
-                        : 'hover:shadow-md'
+                        : 'hover:shadow-primary'
                     }`}
                     style={isSelected ? {
                       background: `linear-gradient(135deg, ${color}dd, ${color})`,
                       borderColor: color,
                       color: color === '#ffff00' ? '#000' : '#fff'
                     } : {
-                      borderColor: color,
-                      color: 'inherit'
+                      borderColor: color
                     }}
-                    onClick={() => handleAgeGroupSelect(isSelected ? null : ageGroup)}
                   >
                     <div 
-                      className="w-2 h-2 rounded-full mr-2 inline-block"
+                      className="w-12 h-12 rounded-xl flex items-center justify-center"
                       style={{ backgroundColor: color }}
-                    />
-                    {ageGroup}
-                  </Badge>
+                    >
+                      <span className={`font-bold text-lg ${color === '#ffff00' ? 'text-black' : 'text-white'}`}>
+                        {ageGroup.split(' ')[1]}
+                      </span>
+                    </div>
+                    <span className="text-xs font-medium text-center leading-tight">{ageGroup}</span>
+                  </Button>
                 );
               })}
             </div>
