@@ -136,7 +136,7 @@ const Meditations = () => {
   
   // Get filtered themes that don't overlap with content categories
   const availableThemes = themes.filter(theme => 
-    !filters.selectedCategory || theme.category.includes(filters.selectedCategory) &&
+    (!filters.selectedCategory || theme.category?.includes(filters.selectedCategory)) &&
     !filters.selectedContentCategories.includes(theme.name)
   );
 
