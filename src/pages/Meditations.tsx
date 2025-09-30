@@ -229,6 +229,49 @@ const Meditations = () => {
         )}
 
 
+
+        {/* Age Groups - show for Kid category after content category is selected */}
+        {filters.selectedCategory === 'Kid' && filters.selectedContentCategories.length > 0 && ageGroups.length > 0 && (
+          <div className="mb-6">
+            <label className="text-sm font-medium text-muted-foreground mb-3 block">
+              Age Group
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {ageGroups.filter(ag => ag).map((ageGroup) => {
+                const isSelected = filters.selectedAgeGroup === ageGroup;
+                const color = getAgeGroupColor(ageGroup);
+                return (
+                  <Button
+                    key={ageGroup}
+                    variant={isSelected ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handleAgeGroupSelect(isSelected ? null : ageGroup)}
+                    className={`transition-all ${
+                      isSelected 
+                        ? 'border-2 shadow-lg' 
+                        : 'hover:shadow-md'
+                    }`}
+                    style={isSelected ? {
+                      background: `linear-gradient(135deg, ${color}dd, ${color})`,
+                      borderColor: color,
+                      color: color === '#ffff00' ? '#000' : '#fff'
+                    } : {
+                      borderColor: color,
+                      color: 'inherit'
+                    }}
+                  >
+                    <div 
+                      className="w-2 h-2 rounded-full mr-2"
+                      style={{ backgroundColor: color }}
+                    />
+                    {ageGroup}
+                  </Button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Themes - Icon Grid */}
         {filters.selectedCategory && availableThemes.length > 0 && (
           <div className="mb-6">
