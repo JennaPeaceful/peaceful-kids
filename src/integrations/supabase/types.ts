@@ -14,12 +14,108 @@ export type Database = {
   }
   public: {
     Tables: {
+      categories: {
+        Row: {
+          created_at: string | null
+          display_name: string
+          id: string
+          name: string
+          sort_order: number | null
+          thumbnail_png_url: string | null
+          thumbnail_svg_url: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          display_name: string
+          id?: string
+          name: string
+          sort_order?: number | null
+          thumbnail_png_url?: string | null
+          thumbnail_svg_url?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          display_name?: string
+          id?: string
+          name?: string
+          sort_order?: number | null
+          thumbnail_png_url?: string | null
+          thumbnail_svg_url?: string | null
+        }
+        Relationships: []
+      }
+      meditation_usage: {
+        Row: {
+          completed: boolean | null
+          created_at: string | null
+          device_type: string | null
+          duration_seconds: number | null
+          id: string
+          meditation_id: string | null
+          started_at: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          completed?: boolean | null
+          created_at?: string | null
+          device_type?: string | null
+          duration_seconds?: number | null
+          id?: string
+          meditation_id?: string | null
+          started_at?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          completed?: boolean | null
+          created_at?: string | null
+          device_type?: string | null
+          duration_seconds?: number | null
+          id?: string
+          meditation_id?: string | null
+          started_at?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meditation_usage_meditation_id_fkey"
+            columns: ["meditation_id"]
+            isOneToOne: false
+            referencedRelation: "meditations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meditation_usage_meditation_id_fkey"
+            columns: ["meditation_id"]
+            isOneToOne: false
+            referencedRelation: "meditations_adults"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meditation_usage_meditation_id_fkey"
+            columns: ["meditation_id"]
+            isOneToOne: false
+            referencedRelation: "meditations_by_age"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meditation_usage_meditation_id_fkey"
+            columns: ["meditation_id"]
+            isOneToOne: false
+            referencedRelation: "meditations_kids"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       meditations: {
         Row: {
           age_group: string | null
           categories: string[] | null
           category: string | null
           content_categories: string[] | null
+          courses: string | null
           created_at: string | null
           description: string | null
           duration: number | null
@@ -30,6 +126,8 @@ export type Database = {
           media_type: string | null
           media_url: string | null
           min_age: number | null
+          primary_content_category: string | null
+          public_title: string | null
           sort_order: number | null
           target_audience: string[] | null
           themes: string[] | null
@@ -41,6 +139,7 @@ export type Database = {
           categories?: string[] | null
           category?: string | null
           content_categories?: string[] | null
+          courses?: string | null
           created_at?: string | null
           description?: string | null
           duration?: number | null
@@ -51,6 +150,8 @@ export type Database = {
           media_type?: string | null
           media_url?: string | null
           min_age?: number | null
+          primary_content_category?: string | null
+          public_title?: string | null
           sort_order?: number | null
           target_audience?: string[] | null
           themes?: string[] | null
@@ -62,6 +163,7 @@ export type Database = {
           categories?: string[] | null
           category?: string | null
           content_categories?: string[] | null
+          courses?: string | null
           created_at?: string | null
           description?: string | null
           duration?: number | null
@@ -72,6 +174,8 @@ export type Database = {
           media_type?: string | null
           media_url?: string | null
           min_age?: number | null
+          primary_content_category?: string | null
+          public_title?: string | null
           sort_order?: number | null
           target_audience?: string[] | null
           themes?: string[] | null
@@ -152,6 +256,8 @@ export type Database = {
           color: string | null
           created_at: string | null
           icon: string | null
+          icon_png_url: string | null
+          icon_svg_url: string | null
           id: string
           name: string
           sort_order: number | null
@@ -161,6 +267,8 @@ export type Database = {
           color?: string | null
           created_at?: string | null
           icon?: string | null
+          icon_png_url?: string | null
+          icon_svg_url?: string | null
           id?: string
           name: string
           sort_order?: number | null
@@ -170,6 +278,8 @@ export type Database = {
           color?: string | null
           created_at?: string | null
           icon?: string | null
+          icon_png_url?: string | null
+          icon_svg_url?: string | null
           id?: string
           name?: string
           sort_order?: number | null
@@ -561,6 +671,7 @@ export type Database = {
           categories: string[] | null
           category: string | null
           content_categories: string[] | null
+          courses: string | null
           created_at: string | null
           description: string | null
           duration: number | null
@@ -571,6 +682,8 @@ export type Database = {
           media_type: string | null
           media_url: string | null
           min_age: number | null
+          primary_content_category: string | null
+          public_title: string | null
           sort_order: number | null
           target_audience: string[] | null
           themes: string[] | null
