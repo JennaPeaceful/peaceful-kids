@@ -89,14 +89,15 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
           {meditation.description}
         </p>
         
-        {/* Themes */}
+        {/* Themes - Icon Grid */}
         <div className="flex flex-wrap gap-1">
-          {meditation.themes.slice(0, 2).map((theme) => (
+          {meditation.themes.slice(0, 3).map((theme) => (
             <span 
               key={theme}
-              className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs font-medium"
+              className="bg-primary/10 text-primary p-1.5 rounded-lg text-xs font-medium inline-flex items-center"
+              title={theme}
             >
-              {theme}
+              🧘
             </span>
           ))}
         </div>

@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Play, Pause, SkipBack, SkipForward, ArrowLeft, Heart, Share, Lock, AlertCircle } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, ArrowLeft, Heart, Share, Lock, AlertCircle, Volume2, VolumeX } from 'lucide-react';
 import { useMeditationStore } from '../stores/meditationStore';
 import { useProgressStore } from '../stores/progressStore';
 import { useUserStore } from '../stores/userStore';
+import { useFavorites } from '../hooks/useFavorites';
 import { Button } from '../components/ui/button';
 import { Progress } from '../components/ui/progress';
+import { Slider } from '../components/ui/slider';
 import { toast } from '../hooks/use-toast';
 import AudioWaveform from '../components/AudioWaveform';
 
@@ -15,6 +17,7 @@ const MeditationPlayer = () => {
   const { meditations, themes, player, setCurrentMeditation, setPlaying, setCurrentTime, fetchMeditations } = useMeditationStore();
   const { completeSession } = useProgressStore();
   const { subscription } = useUserStore();
+  const { toggleFavorite, isFavorite } = useFavorites();
   
   // Media state
   const [localCurrentTime, setLocalCurrentTime] = useState(0);
@@ -23,11 +26,14 @@ const MeditationPlayer = () => {
   const [isCompleted, setIsCompleted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [canPlay, setCanPlay] = useState(false);
+  const [volume, setVolume] = useState(1);
+  const [isMuted, setIsMuted] = useState(false);
   
   const audioRef = useRef<HTMLAudioElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const meditation = meditations.find(m => m.id === id);
+  const isFav = meditation ? isFavorite(meditation.id) : false;
   // Temporarily disabled for development
   const isLocked = false; // meditation && !meditation.is_free && !subscription?.is_active;
   const isAudio = meditation?.media_type === 'audio';
@@ -218,6 +224,43 @@ const MeditationPlayer = () => {
     mediaElement.currentTime = time;
   };
 
+  const handleVolumeChange = (newVolume: number[]) => {
+    const vol = newVolume[0];
+    setVolume(vol);
+    const mediaElement = isAudio ? audioRef.current : videoRef.current;
+    if (mediaElement) {
+      mediaElement.volume = vol;
+      setIsMuted(vol === 0);
+    }
+  };
+
+  const toggleMute = () => {
+    const mediaElement = isAudio ? audioRef.current : videoRef.current;
+    if (!mediaElement) return;
+    
+    if (isMuted) {
+      mediaElement.volume = volume || 0.5;
+      setIsMuted(false);
+    } else {
+      mediaElement.volume = 0;
+      setIsMuted(true);
+    }
+  };
+
+  const handleSeek = (newTime: number[]) => {
+    const time = newTime[0];
+    const mediaElement = isAudio ? audioRef.current : videoRef.current;
+    if (mediaElement && canPlay) {
+      mediaElement.currentTime = time;
+    }
+  };
+
+  const handleFavoriteClick = () => {
+    if (meditation) {
+      toggleFavorite(meditation.id);
+    }
+  };
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
@@ -241,9 +284,10 @@ const MeditationPlayer = () => {
           <Button
             variant="ghost"
             size="sm"
+            onClick={handleFavoriteClick}
             className="w-10 h-10 rounded-full"
           >
-            <Heart className="w-5 h-5" />
+            <Heart className={`w-5 h-5 ${isFav ? 'fill-primary text-primary' : ''}`} />
           </Button>
           <Button
             variant="ghost"
@@ -302,48 +346,107 @@ const MeditationPlayer = () => {
         {/* Media Display */}
         <div className="relative w-80 h-80 mb-8">
           {isAudio ? (
-            /* Thumbnail for audio meditations */
-            <img
-              src={meditation.thumbnail_url || meditation.thumbnail}
-              alt={meditation.title}
-              className="w-full h-full object-cover rounded-3xl shadow-2xl"
-              onError={(e) => {
-                if (!e.currentTarget.src.includes('data:')) {
-                  console.warn('Thumbnail failed to load, using placeholder');
-                  e.currentTarget.src = 'data:image/svg+xml;base64,' + btoa(`
-                    <svg width="300" height="300" xmlns="http://www.w3.org/2000/svg">
-                      <defs>
-                        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" style="stop-color:hsl(var(--primary));stop-opacity:0.3" />
-                          <stop offset="100%" style="stop-color:hsl(var(--secondary));stop-opacity:0.6" />
-                        </linearGradient>
-                      </defs>
-                      <rect width="300" height="300" fill="url(#grad)" />
-                      <text x="150" y="150" font-family="system-ui" font-size="16" fill="hsl(var(--foreground))" text-anchor="middle" dy=".3em">🧘‍♀️</text>
-                    </svg>
-                  `);
-                }
-              }}
-            />
+            /* Thumbnail with overlay waveform for audio meditations */
+            <div className="relative w-full h-full">
+              <img
+                src={meditation.thumbnail_url || meditation.thumbnail}
+                alt={meditation.title}
+                className="w-full h-full object-cover rounded-3xl shadow-2xl"
+                onError={(e) => {
+                  if (!e.currentTarget.src.includes('data:')) {
+                    console.warn('Thumbnail failed to load, using placeholder');
+                    e.currentTarget.src = 'data:image/svg+xml;base64,' + btoa(`
+                      <svg width="300" height="300" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                          <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:hsl(var(--primary));stop-opacity:0.3" />
+                            <stop offset="100%" style="stop-color:hsl(var(--secondary));stop-opacity:0.6" />
+                          </linearGradient>
+                        </defs>
+                        <rect width="300" height="300" fill="url(#grad)" />
+                        <text x="150" y="150" font-family="system-ui" font-size="16" fill="hsl(var(--foreground))" text-anchor="middle" dy=".3em">🧘‍♀️</text>
+                      </svg>
+                    `);
+                  }
+                }}
+              />
+              {/* Waveform Overlay */}
+              <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 via-black/50 to-transparent rounded-b-3xl">
+                <AudioWaveform
+                  audioUrl={meditation.media_url}
+                  isPlaying={player.isPlaying && !isLocked && canPlay}
+                  currentTime={localCurrentTime}
+                  duration={duration}
+                  height={60}
+                  barWidth={3}
+                  barGap={1}
+                  onClick={handleWaveformClick}
+                  className="mb-2"
+                />
+                <div className="flex justify-between text-xs text-white/90">
+                  <span>{formatTime(localCurrentTime)}</span>
+                  <span>{formatTime(duration)}</span>
+                </div>
+              </div>
+            </div>
           ) : (
-            /* Video player for video meditations */
-            <video
-              ref={videoRef}
-              src={meditation.media_url}
-              onLoadStart={() => {
-                console.log('Loading video from:', meditation.media_url);
-                handleLoadStart();
-              }}
-              onCanPlay={handleCanPlay}
-              onLoadedMetadata={handleLoadedMetadata}
-              onTimeUpdate={handleTimeUpdate}
-              onPlay={() => setPlaying(true)}
-              onPause={() => setPlaying(false)}
-              onEnded={handleEnded}
-              onError={handleError}
-              preload="metadata"
-              className="w-full h-full object-cover rounded-3xl shadow-2xl"
-            />
+            /* Video player with controls */
+            <div className="relative w-full h-full">
+              <video
+                ref={videoRef}
+                src={meditation.media_url}
+                onLoadStart={() => {
+                  console.log('Loading video from:', meditation.media_url);
+                  handleLoadStart();
+                }}
+                onCanPlay={handleCanPlay}
+                onLoadedMetadata={handleLoadedMetadata}
+                onTimeUpdate={handleTimeUpdate}
+                onPlay={() => setPlaying(true)}
+                onPause={() => setPlaying(false)}
+                onEnded={handleEnded}
+                onError={handleError}
+                preload="metadata"
+                className="w-full h-full object-cover rounded-3xl shadow-2xl cursor-pointer"
+                onClick={handlePlayPause}
+              />
+              {/* Video Controls Overlay */}
+              <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 via-black/50 to-transparent rounded-b-3xl">
+                {/* Seek Bar */}
+                <div className="mb-3">
+                  <Slider
+                    value={[localCurrentTime]}
+                    max={duration}
+                    step={1}
+                    onValueChange={handleSeek}
+                    className="cursor-pointer"
+                    disabled={!canPlay}
+                  />
+                  <div className="flex justify-between text-xs text-white/90 mt-1">
+                    <span>{formatTime(localCurrentTime)}</span>
+                    <span>{formatTime(duration)}</span>
+                  </div>
+                </div>
+                {/* Volume Control */}
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={toggleMute}
+                    className="text-white hover:bg-white/20"
+                  >
+                    {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                  </Button>
+                  <Slider
+                    value={[isMuted ? 0 : volume]}
+                    max={1}
+                    step={0.1}
+                    onValueChange={handleVolumeChange}
+                    className="w-24 cursor-pointer"
+                  />
+                </div>
+              </div>
+            </div>
           )}
           
           {/* Loading Overlay */}
@@ -412,26 +515,7 @@ const MeditationPlayer = () => {
           </div>
         </div>
 
-        {/* Audio Waveform - Only for audio meditations */}
-        {isAudio && (
-          <div className="w-full max-w-md mb-6">
-            <AudioWaveform
-              audioUrl={meditation.media_url}
-              isPlaying={player.isPlaying && !isLocked && canPlay}
-              currentTime={localCurrentTime}
-              duration={duration}
-              height={60}
-              barWidth={3}
-              barGap={1}
-              onClick={handleWaveformClick}
-              className="mb-2"
-            />
-            <div className="flex justify-between text-sm text-muted-foreground">
-              <span>{formatTime(localCurrentTime)}</span>
-              <span>{formatTime(duration)}</span>
-            </div>
-          </div>
-        )}
+        {/* Audio Waveform - Removed (now overlaid on thumbnail) */}
 
         {/* Controls */}
         <div className="flex items-center justify-center gap-6 mb-8">
