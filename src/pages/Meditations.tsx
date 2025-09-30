@@ -267,7 +267,7 @@ const Meditations = () => {
 
 
         {/* Age Groups - show for Kid category after content category is selected */}
-        {filters.selectedCategory === 'Kid' && filters.selectedContentCategories.length > 0 && ageGroups.length > 0 && (
+        {filters.selectedCategory === 'Kid' && !filters.selectedAgeGroup && filters.selectedContentCategories.length > 0 && ageGroups.length > 0 && (
           <div className="mb-6">
             <label className="text-sm font-medium text-muted-foreground mb-3 block">
               Age Group
