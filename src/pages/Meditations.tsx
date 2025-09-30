@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, X } from 'lucide-react';
+import { Search, X, ChevronUp, ChevronDown } from 'lucide-react';
 import { useMeditationStore } from '../stores/meditationStore';
 import MeditationCard from '../components/MeditationCard';
 import FilterBreadcrumb from '../components/FilterBreadcrumb';
@@ -8,6 +8,7 @@ import { Input } from '../components/ui/input';
 import { ScrollArea } from '../components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Badge } from '../components/ui/badge';
+import { formatCategoryName } from '@/lib/utils';
 
 type MediaType = 'all' | 'audio' | 'video';
 
@@ -28,6 +29,7 @@ const Meditations = () => {
   } = useMeditationStore();
   const [displayedItems, setDisplayedItems] = useState(ITEMS_PER_LOAD);
   const [mediaType, setMediaType] = useState<MediaType>('all');
+  const [resultsExpanded, setResultsExpanded] = useState(false);
 
   useEffect(() => {
     fetchMeditations();
@@ -36,6 +38,26 @@ const Meditations = () => {
   useEffect(() => {
     setDisplayedItems(ITEMS_PER_LOAD);
   }, [filteredMeditations]);
+
+  useEffect(() => {
+    if (resultsExpanded) {
+      const handleWindowScroll = () => {
+        const scrollTop = window.scrollY;
+        const scrollHeight = document.documentElement.scrollHeight;
+        const clientHeight = window.innerHeight;
+        
+        if (scrollHeight - scrollTop <= clientHeight + 100) {
+          setDisplayedItems(prev => {
+            const total = filteredMeditations.length;
+            return prev < total ? Math.min(prev + ITEMS_PER_LOAD, total) : prev;
+          });
+        }
+      };
+
+      window.addEventListener('scroll', handleWindowScroll);
+      return () => window.removeEventListener('scroll', handleWindowScroll);
+    }
+  }, [resultsExpanded, filteredMeditations.length]);
 
   const handleCategorySelect = (category: string | null) => {
     if (category === null) {
@@ -73,12 +95,25 @@ const Meditations = () => {
   };
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
-    
-    // Load more when user scrolls to bottom
-    if (scrollHeight - scrollTop <= clientHeight + 100) {
-      if (displayedItems < sortedMeditations.length) {
-        setDisplayedItems(prev => Math.min(prev + ITEMS_PER_LOAD, sortedMeditations.length));
+    if (resultsExpanded) {
+      // For expanded view, handle window scroll
+      const scrollTop = window.scrollY;
+      const scrollHeight = document.documentElement.scrollHeight;
+      const clientHeight = window.innerHeight;
+      
+      if (scrollHeight - scrollTop <= clientHeight + 100) {
+        if (displayedItems < sortedMeditations.length) {
+          setDisplayedItems(prev => Math.min(prev + ITEMS_PER_LOAD, sortedMeditations.length));
+        }
+      }
+    } else {
+      // For collapsed view, handle ScrollArea scroll
+      const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+      
+      if (scrollHeight - scrollTop <= clientHeight + 100) {
+        if (displayedItems < sortedMeditations.length) {
+          setDisplayedItems(prev => Math.min(prev + ITEMS_PER_LOAD, sortedMeditations.length));
+        }
       }
     }
   };
@@ -305,41 +340,90 @@ const Meditations = () => {
         )}
       </div>
 
-      {/* Results */}
-      <div className="px-4">
-        {filteredMeditations.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-              <Search className="w-8 h-8 text-muted-foreground" />
-            </div>
-            <h3 className="text-lg font-semibold mb-2">No meditations found</h3>
-            <p className="text-muted-foreground mb-4">
-              Try adjusting your filters or search query
-            </p>
+      {/* Results Section with Expand/Collapse */}
+      <div className="relative">
+        {/* Expand/Collapse Button */}
+        {filteredMeditations.length > 0 && !resultsExpanded && (
+          <div className="px-4 mb-4">
+            <Button
+              onClick={() => setResultsExpanded(true)}
+              className="w-full py-6 bg-gradient-to-r from-primary via-secondary to-accent text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all"
+            >
+              <div className="flex flex-col items-center gap-1">
+                <ChevronUp className="w-6 h-6 animate-bounce" />
+                <span>Browse {sortedMeditations.length} Results</span>
+              </div>
+            </Button>
           </div>
-        ) : (
-          <>
-            {/* Results Header */}
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm text-muted-foreground">
-                {sortedMeditations.length} meditation{sortedMeditations.length !== 1 ? 's' : ''} found
-              </p>
-              
-              {/* Media Type Filter */}
-              <Select value={mediaType} onValueChange={(value: MediaType) => setMediaType(value)}>
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-card z-50">
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="audio">Audio</SelectItem>
-                  <SelectItem value="video">Video</SelectItem>
-                </SelectContent>
-              </Select>
+        )}
+
+        {/* Expanded Results View */}
+        {resultsExpanded && (
+          <div className="fixed inset-0 bg-background z-50 overflow-y-auto pb-24 animate-slide-in-up">
+            {/* Header with Filter Summary */}
+            <div className="sticky top-0 bg-background/95 backdrop-blur-sm border-b border-border z-10 pb-4">
+              <div className="px-4 pt-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-bold text-gradient-primary">
+                    {sortedMeditations.length} Results
+                  </h2>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setResultsExpanded(false)}
+                    className="rounded-full"
+                  >
+                    <ChevronDown className="w-5 h-5" />
+                  </Button>
+                </div>
+
+                {/* Filter Summary Pills */}
+                {hasActiveFilters && (
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {filters.selectedCategory && (
+                      <Badge variant="secondary" className="text-xs">
+                        {formatCategoryName(filters.selectedCategory)}
+                      </Badge>
+                    )}
+                    {filters.selectedContentCategories.map(cat => (
+                      <Badge key={cat} variant="secondary" className="text-xs">
+                        {cat}
+                      </Badge>
+                    ))}
+                    {filters.selectedAgeGroup && (
+                      <Badge variant="secondary" className="text-xs">
+                        {filters.selectedAgeGroup}
+                      </Badge>
+                    )}
+                    {filters.selectedThemes.map(theme => (
+                      <Badge key={theme} variant="secondary" className="text-xs">
+                        {theme}
+                      </Badge>
+                    ))}
+                    {filters.searchQuery && (
+                      <Badge variant="secondary" className="text-xs">
+                        "{filters.searchQuery}"
+                      </Badge>
+                    )}
+                  </div>
+                )}
+
+                {/* Media Type Filter */}
+                <Select value={mediaType} onValueChange={(value: MediaType) => setMediaType(value)}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-card z-50">
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="audio">Audio Only</SelectItem>
+                    <SelectItem value="video">Video Only</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            
+
             {/* Results Grid */}
-            <ScrollArea className="h-[60vh]" onScrollCapture={handleScroll}>
+            <div className="px-4 pt-4">
               <div className="grid grid-cols-2 gap-4 pb-6">
                 {displayedMeditations.map((meditation) => (
                   <MeditationCard key={meditation.id} meditation={meditation} />
@@ -351,8 +435,34 @@ const Meditations = () => {
                   Loading more...
                 </div>
               )}
-            </ScrollArea>
-          </>
+            </div>
+          </div>
+        )}
+
+        {/* Collapsed Results Preview */}
+        {!resultsExpanded && filteredMeditations.length > 0 && (
+          <div className="px-4">
+            <div className="grid grid-cols-2 gap-4 pb-6">
+              {displayedMeditations.slice(0, 4).map((meditation) => (
+                <MeditationCard key={meditation.id} meditation={meditation} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* No Results */}
+        {filteredMeditations.length === 0 && (
+          <div className="px-4">
+            <div className="text-center py-12">
+              <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                <Search className="w-8 h-8 text-muted-foreground" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">No meditations found</h3>
+              <p className="text-muted-foreground mb-4">
+                Try adjusting your filters or search query
+              </p>
+            </div>
+          </div>
         )}
       </div>
     </div>
