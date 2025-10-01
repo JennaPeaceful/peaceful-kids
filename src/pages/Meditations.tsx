@@ -170,6 +170,13 @@ const Meditations = () => {
     : filteredByMediaType;
 
   const sortedMeditations = [...filteredByFavorites].sort((a, b) => {
+    // If user is not authenticated, prioritize free meditations
+    if (!user) {
+      if (a.is_free && !b.is_free) return -1;
+      if (!a.is_free && b.is_free) return 1;
+    }
+    
+    // Then sort alphabetically
     const aTitle = (a.title || '').toLowerCase();
     const bTitle = (b.title || '').toLowerCase();
     return aTitle > bTitle ? 1 : -1;

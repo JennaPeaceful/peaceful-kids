@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Meditation } from '../types';
 import { useUserStore } from '../stores/userStore';
 import { useMeditationStore } from '../stores/meditationStore';
+import { useAuth } from '../hooks/useAuth';
 import logo from '../assets/logo.svg';
 
 interface MeditationCardProps {
@@ -14,6 +15,7 @@ interface MeditationCardProps {
 const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { user } = useAuth();
   const { subscription } = useUserStore();
   const { themes } = useMeditationStore();
   
@@ -27,6 +29,20 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
     .slice(0, 3);
 
   const handleCardClick = () => {
+    // If meditation is not free
+    if (!meditation.is_free) {
+      if (!user) {
+        // Not signed in -> redirect to profile
+        navigate('/profile');
+        return;
+      } else {
+        // Signed in -> redirect to explore
+        navigate('/');
+        return;
+      }
+    }
+    
+    // Free meditation -> go to player
     navigate(`/meditation/${meditation.id}`);
   };
 
