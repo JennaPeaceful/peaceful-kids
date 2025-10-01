@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Search, X, ChevronsUp, ChevronsDown, Heart } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { useMeditationStore } from '../stores/meditationStore';
 import { useFavorites } from '../hooks/useFavorites';
+import { useAuth } from '../hooks/useAuth';
 import MeditationCard from '../components/MeditationCard';
 import FilterBreadcrumb from '../components/FilterBreadcrumb';
 import { Button } from '../components/ui/button';
@@ -18,6 +20,8 @@ const ITEMS_PER_LOAD = 15;
 
 const Meditations = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const { 
     filteredMeditations, 
     filters, 
@@ -209,11 +213,22 @@ const Meditations = () => {
         <div className="mb-6">
           <Button
             variant={showFavoritesOnly ? "default" : "outline"}
-            onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+            onClick={() => {
+              if (!user) {
+                navigate('/profile');
+              } else {
+                setShowFavoritesOnly(!showFavoritesOnly);
+              }
+            }}
             className="w-full"
           >
             <Heart className={`w-4 h-4 mr-2 ${showFavoritesOnly ? 'fill-current' : ''}`} />
-            {showFavoritesOnly ? t('meditations.showingFavorites') : t('meditations.showFavorites')}
+            {!user 
+              ? 'Sign in to set favorites'
+              : showFavoritesOnly 
+                ? t('meditations.showingFavorites') 
+                : t('meditations.showFavorites')
+            }
           </Button>
         </div>
 
