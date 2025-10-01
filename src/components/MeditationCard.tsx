@@ -1,4 +1,4 @@
-import { Lock } from 'lucide-react';
+import { Lock, Video, Music } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Meditation } from '../types';
@@ -83,23 +83,35 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
           {meditation.description}
         </p>
         
-        {/* Themes - Icon Grid */}
-        <div className="flex flex-wrap gap-1">
-          {meditationThemes.map((theme) => (
-            theme && theme.icon_svg_url && (
-              <div
-                key={theme.id}
-                className="w-6 h-6 bg-primary/10 rounded-lg flex items-center justify-center"
-                title={theme.name}
-              >
-                <img 
-                  src={theme.icon_svg_url} 
-                  alt={theme.name}
-                  className="w-4 h-4"
-                />
-              </div>
-            )
-          ))}
+        {/* Themes and Media Type Icons */}
+        <div className="flex items-center justify-between gap-1">
+          {/* Theme Icons - limited to prevent overflow */}
+          <div className="flex flex-wrap gap-1 flex-1 min-w-0">
+            {meditationThemes.map((theme) => (
+              theme && theme.icon_svg_url && (
+                <div
+                  key={theme.id}
+                  className="w-6 h-6 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0"
+                  title={theme.name}
+                >
+                  <img 
+                    src={theme.icon_svg_url} 
+                    alt={theme.name}
+                    className="w-4 h-4"
+                  />
+                </div>
+              )
+            ))}
+          </div>
+          
+          {/* Media Type Icon */}
+          <div className="flex-shrink-0">
+            {meditation.media_type === 'video' ? (
+              <Video className="w-5 h-5 text-primary/70" />
+            ) : (
+              <Music className="w-5 h-5 text-primary/70" />
+            )}
+          </div>
         </div>
       </div>
       

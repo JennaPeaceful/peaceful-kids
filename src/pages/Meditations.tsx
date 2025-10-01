@@ -443,18 +443,6 @@ const Meditations = () => {
                   </div>
                 )}
 
-                {/* Media Type Filter */}
-                <Select value={mediaType} onValueChange={(value: MediaType) => setMediaType(value)}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-card z-50">
-                    <SelectItem value="all">Media Type</SelectItem>
-                    <SelectItem value="audio">Audio Only</SelectItem>
-                    <SelectItem value="video">Video Only</SelectItem>
-                  </SelectContent>
-                </Select>
-
                 {/* Collapse Arrow */}
                 <div className="flex justify-center mt-4">
                   <button
