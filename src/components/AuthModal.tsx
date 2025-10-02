@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,6 +15,7 @@ interface AuthModalProps {
 }
 
 const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModalProps) => {
+  const { t } = useTranslation();
   const [isSignUp, setIsSignUp] = useState(initialMode === 'signup');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -30,14 +32,14 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModalProps) 
     try {
       // Create or sign in with a test account
       const { error } = await supabase.auth.signInWithPassword({
-        email: 'test@peacefulkids.app',
+        email: 'dev@peacefulkids.app',
         password: 'testpass123',
       });
 
       if (error) {
         // If login fails, try to create the test account
         const { error: signUpError } = await supabase.auth.signUp({
-          email: 'test@peacefulkids.app',
+          email: 'dev@peacefulkids.app',
           password: 'testpass123',
           options: {
             emailRedirectTo: `${window.location.origin}/`,
@@ -55,7 +57,7 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModalProps) 
           toast.success('Dev account created! Signing you in...');
           // Try to sign in again
           await supabase.auth.signInWithPassword({
-            email: 'test@peacefulkids.app',
+            email: 'dev@peacefulkids.app',
             password: 'testpass123',
           });
         }
@@ -130,10 +132,10 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModalProps) 
           <div className="text-center mb-4">
             <div className="text-4xl mb-4">🧘‍♂️</div>
             <DialogTitle className="text-2xl font-bold text-gradient-primary mb-2">
-              {isSignUp ? 'Join Peaceful Kids' : 'Welcome Back'}
+              {isSignUp ? t('auth.joinPeaceful') : t('auth.welcomeBack')}
             </DialogTitle>
             <p className="text-muted-foreground text-sm">
-              {isSignUp ? 'Create your meditation journey' : 'Continue your mindful journey'}
+              {isSignUp ? t('auth.createJourney') : t('auth.continueJourney')}
             </p>
           </div>
         </DialogHeader>
@@ -263,7 +265,7 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModalProps) 
             disabled={isLoading}
             className="w-full text-xs"
           >
-            Quick Dev Login (test@peacefulkids.app)
+            Quick Dev Login (dev@peacefulkids.app)
           </Button>
         </div>
 

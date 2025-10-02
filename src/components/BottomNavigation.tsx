@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useTranslation } from 'react-i18next';
 import AuthModal from './AuthModal';
 import exploreIcon from '@/assets/nav-explore.svg';
 import meditationsIcon from '@/assets/nav-meditations.svg';
@@ -9,6 +10,7 @@ import profileIcon from '@/assets/nav-profile.svg';
 
 const BottomNavigation = () => {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'signin' | 'signup'>('signin');
   
@@ -22,10 +24,10 @@ const BottomNavigation = () => {
   };
 
   const navItems = [
-    { to: '/', icon: exploreIcon, label: 'Explore', requiresAuth: false },
-    { to: '/meditations', icon: meditationsIcon, label: 'Meditations', requiresAuth: false },
-    { to: '/tracking', icon: trackingIcon, label: 'Tracking', requiresAuth: true },
-    { to: '/profile', icon: profileIcon, label: 'Profile', requiresAuth: true },
+    { to: '/', icon: exploreIcon, label: t('nav.explore'), requiresAuth: false },
+    { to: '/meditations', icon: meditationsIcon, label: t('nav.meditations'), requiresAuth: false },
+    { to: '/tracking', icon: trackingIcon, label: t('nav.tracking'), requiresAuth: true },
+    { to: '/profile', icon: profileIcon, label: t('nav.profile'), requiresAuth: true },
   ];
 
   return (

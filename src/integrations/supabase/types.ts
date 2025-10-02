@@ -44,6 +44,33 @@ export type Database = {
         }
         Relationships: []
       }
+      content_categories: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          sort_order: number | null
+          thumbnail_png_url: string | null
+          thumbnail_svg_url: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          sort_order?: number | null
+          thumbnail_png_url?: string | null
+          thumbnail_svg_url?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          sort_order?: number | null
+          thumbnail_png_url?: string | null
+          thumbnail_svg_url?: string | null
+        }
+        Relationships: []
+      }
       meditation_usage: {
         Row: {
           completed: boolean | null
@@ -283,6 +310,107 @@ export type Database = {
           id?: string
           name?: string
           sort_order?: number | null
+        }
+        Relationships: []
+      }
+      user_favorites: {
+        Row: {
+          created_at: string
+          id: string
+          meditation_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          meditation_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          meditation_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_favorites_meditation_id_fkey"
+            columns: ["meditation_id"]
+            isOneToOne: false
+            referencedRelation: "meditations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_favorites_meditation_id_fkey"
+            columns: ["meditation_id"]
+            isOneToOne: false
+            referencedRelation: "meditations_adults"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_favorites_meditation_id_fkey"
+            columns: ["meditation_id"]
+            isOneToOne: false
+            referencedRelation: "meditations_by_age"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_favorites_meditation_id_fkey"
+            columns: ["meditation_id"]
+            isOneToOne: false
+            referencedRelation: "meditations_kids"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_flags: {
+        Row: {
+          created_at: string | null
+          flags: Json
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          flags?: Json
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          flags?: Json
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          created_at: string
+          id: string
+          language: string | null
+          notification_settings: Json | null
+          preferred_age_group: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          language?: string | null
+          notification_settings?: Json | null
+          preferred_age_group?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          language?: string | null
+          notification_settings?: Json | null
+          preferred_age_group?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

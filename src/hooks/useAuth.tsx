@@ -49,9 +49,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         
         // Set default subscription if none exists
         if (subscription) {
+          // Map old plan types to new ones
+          let planType: 'free' | 'peace_plan' | 'peace_plus_plan' = 'free';
+          if (subscription.plan_type === 'peace_plan' || subscription.plan_type === 'peace_plus_plan') {
+            planType = subscription.plan_type;
+          } else if (subscription.plan_type === 'monthly') {
+            planType = 'peace_plan';
+          } else if (subscription.plan_type === 'yearly') {
+            planType = 'peace_plus_plan';
+          }
+          
           const typedSubscription = {
             ...subscription,
-            plan_type: subscription.plan_type as 'free' | 'monthly' | 'yearly'
+            plan_type: planType
           };
           setSubscription(typedSubscription);
         } else {

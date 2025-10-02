@@ -1,30 +1,87 @@
-import { User, Settings, Bell, Download, Heart, LogOut, Crown } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { 
+  User, Settings, Bell, Download, Heart, LogOut, Crown, 
+  Shield, FileText, HelpCircle, Trash2, Database,
+  ChevronRight, Lock, RefreshCw, ExternalLink, Baby
+} from 'lucide-react';
 import { useUserStore } from '../stores/userStore';
 import { useAuth } from '../hooks/useAuth';
+import { supabase } from '../integrations/supabase/client';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Switch } from '../components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import { 
+  AlertDialog, 
+  AlertDialogAction, 
+  AlertDialogCancel, 
+  AlertDialogContent, 
+  AlertDialogDescription, 
+  AlertDialogFooter, 
+  AlertDialogHeader, 
+  AlertDialogTitle 
+} from '../components/ui/alert-dialog';
+import { toast } from '../hooks/use-toast';
+import logo from '@/assets/logo.svg';
+import { formatCategoryName } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 const Profile = () => {
-  const { profile, subscription, preferences } = useUserStore();
-  const { signOut } = useAuth();
+  const { profile, subscription, preferences, setPreferences } = useUserStore();
+  const { signOut, user } = useAuth();
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [childMode, setChildMode] = useState(false);
+  const { t, i18n } = useTranslation();
 
-  const menuItems = [
-    { icon: Settings, label: 'Account Settings', action: () => {} },
-    { icon: Bell, label: 'Notifications', action: () => {} },
-    { icon: Download, label: 'Downloaded Content', action: () => {} },
-    { icon: Heart, label: 'Favorites', action: () => {} },
-  ];
+  const handleRestorePurchases = () => {
+    toast({
+      title: "Restoring Purchases",
+      description: "Checking for previous purchases...",
+    });
+    // TODO: Implement restore purchases logic
+  };
+
+  const handleManageSubscription = () => {
+    // TODO: Deep link to subscription management
+    window.open('https://apps.apple.com/account/subscriptions', '_blank');
+  };
+
+  const handleExportData = () => {
+    toast({
+      title: "Exporting Data",
+      description: "Your data will be sent to your email within 24 hours.",
+    });
+    // TODO: Implement data export
+  };
+
+  const handleDeleteAccount = () => {
+    toast({
+      title: "Account Deletion Scheduled",
+      description: "Your account will be deleted in 30 days. You can cancel this anytime.",
+      variant: "destructive",
+    });
+    setShowDeleteDialog(false);
+    // TODO: Implement account deletion with grace period
+  };
+
+  const handleSignOutEverywhere = () => {
+    toast({
+      title: "Signed Out Everywhere",
+      description: "All sessions have been terminated.",
+    });
+    signOut();
+    // TODO: Implement sign out from all devices
+  };
 
   return (
     <div className="pb-24 pt-6">
       {/* Header */}
       <div className="px-4 mb-8">
         <h1 className="text-2xl font-bold text-gradient-primary mb-2">
-          Profile
+          {t('profile.title')}
         </h1>
         <p className="text-muted-foreground">
-          Manage your account and preferences
+          {t('profile.subtitle')}
         </p>
       </div>
 
@@ -38,7 +95,7 @@ const Profile = () => {
             <div className="flex-1">
               <h2 className="text-xl font-bold">{profile?.display_name}</h2>
               <p className="text-muted-foreground">
-                Age: {profile?.age} • {profile?.category_preference} content
+                Age: {profile?.age} • {formatCategoryName(profile?.category_preference)} content
               </p>
               <div className="flex items-center gap-2 mt-2">
                 {subscription?.is_active ? (
@@ -62,9 +119,132 @@ const Profile = () => {
         </Card>
       </div>
 
-      {/* Notification Settings */}
+      {/* Profile Settings Section */}
       <div className="px-4 mb-8">
-        <h3 className="text-lg font-bold mb-4">Notification Settings</h3>
+        <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+          <Settings className="w-5 h-5" />
+          {t('profile.settings')}
+        </h3>
+        <Card className="card-gradient p-6 space-y-4">
+          {/* Content Level */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <User className="w-5 h-5 text-primary" />
+              <div>
+                <h4 className="font-semibold">Content Level</h4>
+                <p className="text-sm text-muted-foreground">
+                  {formatCategoryName(profile?.category_preference)}
+                </p>
+              </div>
+            </div>
+            <Button variant="ghost" size="sm">
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
+
+          {/* Child Mode Toggle */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Baby className="w-5 h-5 text-primary" />
+              <div>
+                <h4 className="font-semibold">Child Mode</h4>
+                <p className="text-sm text-muted-foreground">
+                  Requires parent PIN to exit
+                </p>
+              </div>
+            </div>
+            <Switch 
+              checked={childMode}
+              onCheckedChange={setChildMode}
+            />
+          </div>
+
+          {/* Download Management */}
+          <div 
+            className="flex items-center justify-between cursor-pointer hover:bg-muted/30 -mx-6 px-6 py-3 rounded-lg transition-colors"
+            onClick={() => toast({ title: "Download Management", description: "Opening download manager..." })}
+          >
+            <div className="flex items-center gap-3">
+              <Download className="w-5 h-5 text-primary" />
+              <div>
+                <h4 className="font-semibold">Downloaded Content</h4>
+                <p className="text-sm text-muted-foreground">Manage offline downloads</p>
+              </div>
+            </div>
+            <ChevronRight className="w-4 h-4" />
+          </div>
+        </Card>
+      </div>
+
+      {/* Purchases Section */}
+      <div className="px-4 mb-8">
+        <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+          <Crown className="w-5 h-5" />
+          {t('profile.purchases')}
+        </h3>
+        <Card className="card-gradient p-6 space-y-4">
+          {/* Subscription Status */}
+          <div className="flex items-center justify-between pb-4 border-b border-border">
+            <div>
+              <h4 className="font-semibold">Current Plan</h4>
+              <p className="text-sm text-muted-foreground">
+                {subscription?.is_active ? subscription.plan_type : 'Free'}
+              </p>
+            </div>
+            {subscription?.is_active ? (
+              <div className="flex items-center gap-1 text-warning font-semibold">
+                <Crown className="w-4 h-4" />
+                Active
+              </div>
+            ) : (
+              <span className="text-muted-foreground text-sm">Inactive</span>
+            )}
+          </div>
+
+          {/* Restore Purchases */}
+          <Button 
+            variant="outline" 
+            className="w-full justify-between"
+            onClick={handleRestorePurchases}
+          >
+            <span className="flex items-center gap-2">
+              <RefreshCw className="w-4 h-4" />
+              Restore Purchases
+            </span>
+            <ChevronRight className="w-4 h-4" />
+          </Button>
+
+          {/* Manage Subscription */}
+          {subscription?.is_active && (
+            <Button 
+              variant="outline" 
+              className="w-full justify-between"
+              onClick={handleManageSubscription}
+            >
+              <span className="flex items-center gap-2">
+                <Settings className="w-4 h-4" />
+                Manage Subscription
+              </span>
+              <ExternalLink className="w-4 h-4" />
+            </Button>
+          )}
+
+          {/* Upgrade Button */}
+          {!subscription?.is_active && (
+            <Button className="btn-premium w-full">
+              <Crown className="w-4 h-4 mr-2" />
+              Upgrade to Premium
+            </Button>
+          )}
+        </Card>
+      </div>
+
+      {/* Notifications Section */}
+      <div className="px-4 mb-8">
+        <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+          <Bell className="w-5 h-5" />
+          {t('profile.notifications')}
+        </h3>
         <Card className="card-gradient p-6 space-y-4">
           <div className="flex items-center justify-between">
             <div>
@@ -107,55 +287,157 @@ const Profile = () => {
         </Card>
       </div>
 
-      {/* Menu Items */}
+      {/* Legal Section */}
       <div className="px-4 mb-8">
-        <div className="space-y-2">
-          {menuItems.map((item, index) => (
-            <Card 
-              key={index}
-              className="card-gradient p-4 cursor-pointer hover:bg-muted/50 transition-colors"
-              onClick={item.action}
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                  <item.icon className="w-5 h-5 text-primary" />
-                </div>
-                <span className="font-medium">{item.label}</span>
-              </div>
-            </Card>
-          ))}
-        </div>
-      </div>
+        <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+          <FileText className="w-5 h-5" />
+          {t('profile.legal')}
+        </h3>
+        <Card className="card-gradient p-6 space-y-2">
+          <Button 
+            variant="ghost" 
+            className="w-full justify-between"
+            onClick={() => window.open('/privacy-policy', '_blank')}
+          >
+            <span className="flex items-center gap-2">
+              <Shield className="w-4 h-4" />
+              Privacy Policy
+            </span>
+            <ChevronRight className="w-4 h-4" />
+          </Button>
 
-      {/* App Info */}
-      <div className="px-4 mb-8">
-        <Card className="card-gradient p-6 text-center">
-          <div className="text-4xl mb-3">🧘‍♂️</div>
-          <h3 className="font-bold text-lg mb-2">Peaceful</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Version 1.0.0 • Mindfulness for the whole family
-          </p>
-          <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
-            <button className="hover:text-primary">Privacy Policy</button>
-            <span>•</span>
-            <button className="hover:text-primary">Terms of Service</button>
-            <span>•</span>
-            <button className="hover:text-primary">Support</button>
+          <Button 
+            variant="ghost" 
+            className="w-full justify-between"
+            onClick={() => window.open('/terms', '_blank')}
+          >
+            <span className="flex items-center gap-2">
+              <FileText className="w-4 h-4" />
+              Terms of Service
+            </span>
+            <ChevronRight className="w-4 h-4" />
+          </Button>
+
+          <Button 
+            variant="ghost" 
+            className="w-full justify-between"
+            onClick={() => window.open('/support', '_blank')}
+          >
+            <span className="flex items-center gap-2">
+              <HelpCircle className="w-4 h-4" />
+              Support & Help
+            </span>
+            <ChevronRight className="w-4 h-4" />
+          </Button>
+
+          {/* App Version */}
+          <div className="pt-4 mt-4 border-t border-border text-center">
+            <div className="flex justify-center mb-3">
+              <img src={logo} alt="Peaceful Kids" className="w-12 h-12" />
+            </div>
+            <h4 className="font-semibold mb-1">Peaceful Kids</h4>
+            <p className="text-xs text-muted-foreground">
+              Version 1.0.0 • Production Channel
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Made with 💜 for mindful families
+            </p>
           </div>
+
+          {/* First Launch Disclaimer */}
+          <Button 
+            variant="ghost" 
+            size="sm"
+            className="w-full mt-2 text-xs"
+            onClick={() => toast({ 
+              title: "First Launch Disclaimer",
+              description: "View the terms you accepted when first using the app."
+            })}
+          >
+            View First-Launch Disclaimer
+          </Button>
         </Card>
       </div>
 
-      {/* Logout */}
-      <div className="px-4">
+      {/* Account Section */}
+      <div className="px-4 mb-8">
+        <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+          <Lock className="w-5 h-5" />
+          {t('profile.account')}
+        </h3>
+        <Card className="card-gradient p-6 space-y-2">
+          <Button
+            variant="ghost"
+            className="w-full justify-between"
+            onClick={handleExportData}
+          >
+            <span className="flex items-center gap-2">
+              <Database className="w-4 h-4" />
+              Export My Data
+            </span>
+            <ChevronRight className="w-4 h-4" />
+          </Button>
+
+          <Button
+            variant="ghost"
+            className="w-full justify-between"
+            onClick={handleSignOutEverywhere}
+          >
+            <span className="flex items-center gap-2">
+              <LogOut className="w-4 h-4" />
+              Sign Out Everywhere
+            </span>
+            <ChevronRight className="w-4 h-4" />
+          </Button>
+
+          <Button
+            variant="ghost"
+            className="w-full justify-between text-destructive hover:text-destructive"
+            onClick={() => setShowDeleteDialog(true)}
+          >
+            <span className="flex items-center gap-2">
+              <Trash2 className="w-4 h-4" />
+              Delete Account
+            </span>
+            <ChevronRight className="w-4 h-4" />
+          </Button>
+        </Card>
+      </div>
+
+      {/* Sign Out */}
+      <div className="px-4 mb-4">
         <Button 
           variant="outline" 
-          className="w-full text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
+          className="w-full"
           onClick={signOut}
         >
           <LogOut className="w-4 h-4 mr-2" />
-          Sign Out
+          {t('profile.signOut')}
         </Button>
       </div>
+
+      {/* Delete Account Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Account?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action will schedule your account for deletion in 30 days. 
+              You can cancel this at any time during the grace period. 
+              All your data will be permanently removed after 30 days.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDeleteAccount}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete Account
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

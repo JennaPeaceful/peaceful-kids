@@ -1,7 +1,11 @@
-import { Lock } from 'lucide-react';
+import { Lock, Video, Music } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Meditation } from '../types';
 import { useUserStore } from '../stores/userStore';
+import { useMeditationStore } from '../stores/meditationStore';
+import { useAuth } from '../hooks/useAuth';
+import logo from '../assets/logo.svg';
 
 interface MeditationCardProps {
   meditation: Meditation;
@@ -10,12 +14,59 @@ interface MeditationCardProps {
 
 const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { user } = useAuth();
   const { subscription } = useUserStore();
+  const { themes } = useMeditationStore();
   
-  // Temporarily disabled for development
-  const isLocked = false; // !meditation.is_free && !subscription?.is_active;
+  // Check if content is locked based on plan type
+  const planType = subscription?.plan_type;
+  const isActive = subscription?.is_active;
+  const isLocked = !meditation.is_free && (
+    !user || 
+    !isActive || 
+    planType === 'free' ||
+    (planType === 'peace_plan' && meditation.media_type === 'video')
+  );
+
+  // Get theme objects with icons for this meditation
+  const meditationThemes = meditation.themes
+    .map(themeName => themes.find(t => t.name === themeName))
+    .filter(Boolean)
+    .slice(0, 3);
 
   const handleCardClick = () => {
+    if (onPlay) {
+      onPlay();
+      return;
+    }
+    
+    // Check if meditation is free
+    if (!meditation.is_free) {
+      // If user is not logged in, redirect to profile
+      if (!user) {
+        navigate('/profile');
+        return;
+      }
+      
+      // Check if user has appropriate plan for this content
+      const planType = subscription?.plan_type;
+      const isActive = subscription?.is_active;
+      
+      // Peace Plan only gets audio, Peace Plus gets everything
+      if (!isActive || planType === 'free') {
+        navigate('/profile');
+        return;
+      }
+      
+      // If user has Peace Plan but content is video, redirect to upgrade
+      if (planType === 'peace_plan' && meditation.media_type === 'video') {
+        navigate('/profile');
+        return;
+      }
+    }
+    
+    // Navigate to meditation player
     navigate(`/meditation/${meditation.id}`);
   };
 
@@ -24,36 +75,24 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
       className={`relative card-gradient p-3 transition-all duration-300 hover:scale-[1.02] cursor-pointer aspect-square ${isLocked ? 'card-premium' : ''}`}
       onClick={handleCardClick}
     >
-      {/* Thumbnail Image - Static */}
+      {/* Thumbnail Image */}
       <div className="relative mb-3 rounded-xl overflow-hidden aspect-square">
         <img 
           src={meditation.thumbnail_url || meditation.thumbnail} 
           alt={meditation.title}
           className="w-full h-full object-cover"
           onError={(e) => {
-            // Show placeholder if image fails to load
             const target = e.target as HTMLImageElement;
-            if (!target.src.includes('data:')) {
-              target.src = 'data:image/svg+xml;base64,' + btoa(`
-                <svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
-                  <defs>
-                    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" style="stop-color:hsl(var(--primary));stop-opacity:0.2" />
-                      <stop offset="100%" style="stop-color:hsl(var(--secondary));stop-opacity:0.4" />
-                    </linearGradient>
-                  </defs>
-                  <rect width="200" height="200" fill="url(#grad)" />
-                  <text x="100" y="100" font-family="system-ui" font-size="20" fill="hsl(var(--muted-foreground))" text-anchor="middle" dy=".3em">🧘‍♀️</text>
-                </svg>
-              `);
+            if (!target.src.includes(logo)) {
+              target.src = logo;
             }
           }}
         />
-        
+
         {/* Premium badge */}
         {!meditation.is_free && (
           <div className="absolute top-2 right-2 bg-warning text-warning-foreground px-2 py-1 rounded-full text-xs font-bold">
-            Premium
+            {t('meditationCard.premium')}
           </div>
         )}
       </div>
@@ -68,16 +107,35 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
           {meditation.description}
         </p>
         
-        {/* Themes */}
-        <div className="flex flex-wrap gap-1">
-          {meditation.themes.slice(0, 2).map((theme) => (
-            <span 
-              key={theme}
-              className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs font-medium"
-            >
-              {theme}
-            </span>
-          ))}
+        {/* Themes and Media Type Icons */}
+        <div className="flex items-center justify-between gap-1">
+          {/* Theme Icons - limited to prevent overflow */}
+          <div className="flex flex-wrap gap-1 flex-1 min-w-0">
+            {meditationThemes.map((theme) => (
+              theme && theme.icon_svg_url && (
+                <div
+                  key={theme.id}
+                  className="w-6 h-6 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0"
+                  title={theme.name}
+                >
+                  <img 
+                    src={theme.icon_svg_url} 
+                    alt={theme.name}
+                    className="w-4 h-4"
+                  />
+                </div>
+              )
+            ))}
+          </div>
+          
+          {/* Media Type Icon */}
+          <div className="flex-shrink-0">
+            {meditation.media_type === 'video' ? (
+              <Video className="w-5 h-5 text-primary/70" />
+            ) : (
+              <Music className="w-5 h-5 text-primary/70" />
+            )}
+          </div>
         </div>
       </div>
       
@@ -86,7 +144,7 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
         <div className="absolute inset-0 bg-warning/5 rounded-2xl border-2 border-warning/20 flex items-center justify-center">
           <div className="text-center p-4">
             <Lock className="w-8 h-8 text-warning mx-auto mb-2" />
-            <p className="text-sm font-semibold text-warning">Premium Only</p>
+            <p className="text-sm font-semibold text-warning">{t('meditationCard.premiumOnly')}</p>
           </div>
         </div>
       )}

@@ -71,6 +71,7 @@ export interface UserPreferences {
   id: string;
   user_id: string;
   preferred_age_group: string;
+  language?: string;
   notification_settings: {
     daily_reminder: boolean;
     streak_celebration: boolean;
@@ -82,7 +83,7 @@ export interface UserSubscription {
   id: string;
   user_id: string;
   is_active: boolean;
-  plan_type: 'free' | 'monthly' | 'yearly';
+  plan_type: 'free' | 'peace_plan' | 'peace_plus_plan';
   expires_at?: string;
 }
 

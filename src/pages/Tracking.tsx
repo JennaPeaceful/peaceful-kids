@@ -1,23 +1,67 @@
-import { useEffect } from 'react';
-import { Calendar, Award, TrendingUp, Target, Flame, Clock } from 'lucide-react';
-import { useProgressStore } from '../stores/progressStore';
+import { TrendingUp, Target, Flame, Clock } from 'lucide-react';
+import { useProgressStats } from '../hooks/useProgressStats';
+import { useTranslation } from 'react-i18next';
 import { Card } from '../components/ui/card';
+import { Button } from '../components/ui/button';
 
 const Tracking = () => {
-  const { stats, fetchUserProgress, isLoading } = useProgressStore();
+  const { data: stats, isLoading } = useProgressStats();
+  const { t } = useTranslation();
 
-  useEffect(() => {
-    // Fetch user progress when page loads
-    fetchUserProgress();
-  }, [fetchUserProgress]);
+  if (isLoading || !stats) {
+    return (
+      <div className="pb-24 pt-6 px-4">
+        <div className="text-center py-12">
+          <div className="text-4xl mb-4">🧘‍♂️</div>
+          <p className="text-muted-foreground">{t('tracking.loadingProgress')}</p>
+        </div>
+      </div>
+    );
+  }
 
-  const achievements = [
-    { id: 1, title: 'First Session', description: 'Completed your first meditation', icon: '🎯', unlocked: true },
-    { id: 2, title: 'Week Warrior', description: '7 day meditation streak', icon: '🔥', unlocked: true },
-    { id: 3, title: 'Calm Explorer', description: 'Tried 5 different meditations', icon: '🧭', unlocked: true },
-    { id: 4, title: 'Focus Master', description: 'Complete 10 focus meditations', icon: '🎭', unlocked: false },
-    { id: 5, title: 'Sleep Champion', description: 'Complete 15 bedtime meditations', icon: '🌙', unlocked: false },
-    { id: 6, title: 'Mindful Month', description: '30 day meditation streak', icon: '🏆', unlocked: false },
+  const hasNoData = stats.currentStreak === 0 && stats.totalMeditations === 0 && stats.totalMinutes === 0;
+
+  if (hasNoData) {
+    return (
+      <div className="pb-24 pt-6">
+        {/* Header */}
+        <div className="px-4 mb-8">
+          <h1 className="text-2xl font-bold text-gradient-primary mb-2">
+            {t('tracking.title')}
+          </h1>
+          <p className="text-muted-foreground">
+            {t('tracking.subtitle')}
+          </p>
+        </div>
+
+        {/* Empty State */}
+        <div className="px-4">
+          <Card className="card-gradient p-8 text-center">
+            <div className="text-6xl mb-6">🌱</div>
+            <h2 className="text-2xl font-bold mb-4">{t('tracking.emptyState.title')}</h2>
+            <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+              {t('tracking.emptyState.description')}
+            </p>
+            <Button 
+              onClick={() => window.location.href = '/meditations'}
+              className="btn-hero"
+            >
+              {t('tracking.emptyState.button')}
+            </Button>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  const weekDays = [
+    t('tracking.weekDays.sun'),
+    t('tracking.weekDays.mon'),
+    t('tracking.weekDays.tue'),
+    t('tracking.weekDays.wed'),
+    t('tracking.weekDays.thu'),
+    t('tracking.weekDays.fri'),
+    t('tracking.weekDays.sat')
   ];
 
   return (
@@ -25,65 +69,18 @@ const Tracking = () => {
       {/* Header */}
       <div className="px-4 mb-8">
         <h1 className="text-2xl font-bold text-gradient-primary mb-2">
-          Your Journey
+          {t('tracking.title')}
         </h1>
         <p className="text-muted-foreground">
-          Track your progress and celebrate achievements
+          {t('tracking.subtitle')}
         </p>
-      </div>
-
-      {/* Stats Overview */}
-      <div className="px-4 mb-8">
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          {/* Current Streak */}
-          <Card className="card-gradient p-6 text-center">
-            <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center mx-auto mb-3">
-              <Flame className="w-6 h-6 text-primary-foreground" />
-            </div>
-            <div className="text-3xl font-bold text-primary mb-1">
-              {stats.currentStreak}
-            </div>
-            <div className="text-sm text-muted-foreground">
-              Day Streak
-            </div>
-          </Card>
-
-          {/* Total Sessions */}
-          <Card className="card-gradient p-6 text-center">
-            <div className="w-12 h-12 bg-gradient-to-br from-secondary to-accent rounded-full flex items-center justify-center mx-auto mb-3">
-              <Target className="w-6 h-6 text-secondary-foreground" />
-            </div>
-            <div className="text-3xl font-bold text-secondary mb-1">
-              {stats.totalMeditations}
-            </div>
-            <div className="text-sm text-muted-foreground">
-              Sessions
-            </div>
-          </Card>
-        </div>
-
-        {/* Total Minutes */}
-        <Card className="card-gradient p-6 text-center mb-6">
-          <div className="w-16 h-16 bg-gradient-to-br from-accent to-warning rounded-full flex items-center justify-center mx-auto mb-4">
-            <Clock className="w-8 h-8 text-accent-foreground" />
-          </div>
-          <div className="text-4xl font-bold text-gradient-premium mb-2">
-            {stats.totalMinutes}
-          </div>
-          <div className="text-lg text-muted-foreground">
-            Mindful Minutes
-          </div>
-          <div className="text-sm text-muted-foreground mt-1">
-            That's {Math.round(stats.totalMinutes / 60 * 10) / 10} hours of peace! 🌸
-          </div>
-        </Card>
       </div>
 
       {/* Weekly Activity */}
       <div className="px-4 mb-8">
         <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
           <TrendingUp className="w-5 h-5 text-success" />
-          This Week
+          {t('tracking.thisWeek')}
         </h2>
         
         <Card className="card-gradient p-6">
@@ -98,7 +95,7 @@ const Tracking = () => {
                   }}
                 />
                 <div className="text-xs text-muted-foreground mt-2">
-                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][index]}
+                  {weekDays[index]}
                 </div>
               </div>
             ))}
@@ -106,61 +103,62 @@ const Tracking = () => {
           
           <div className="text-center">
             <div className="text-lg font-semibold mb-1">
-              {stats.weeklyActivity.reduce((sum, day) => sum + day.minutes, 0)} minutes this week
+              {stats.weeklyActivity.reduce((sum, day) => sum + day.minutes, 0)} {t('tracking.minutesThisWeek')}
             </div>
             <div className="text-sm text-muted-foreground">
-              Keep up the great work! 🌟
+              {t('tracking.keepWork')}
             </div>
           </div>
         </Card>
       </div>
 
-      {/* Achievements */}
+      {/* Stats Overview */}
       <div className="px-4 mb-8">
-        <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-          <Award className="w-5 h-5 text-warning" />
-          Achievements
-        </h2>
-        
-        <div className="grid grid-cols-2 gap-4">
-          {achievements.map((achievement) => (
-            <Card 
-              key={achievement.id} 
-              className={`p-4 text-center transition-all duration-300 ${
-                achievement.unlocked 
-                  ? 'card-gradient border-success/20 bg-success/5' 
-                  : 'bg-muted/50 opacity-60'
-              }`}
-            >
-              <div className="text-3xl mb-2">{achievement.icon}</div>
-              <h3 className={`font-bold text-sm mb-1 ${
-                achievement.unlocked ? 'text-foreground' : 'text-muted-foreground'
-              }`}>
-                {achievement.title}
-              </h3>
-              <p className="text-xs text-muted-foreground">
-                {achievement.description}
-              </p>
-              {achievement.unlocked && (
-                <div className="mt-2 text-xs text-success font-semibold">
-                  ✨ Unlocked!
-                </div>
-              )}
-            </Card>
-          ))}
-        </div>
-      </div>
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          {/* Current Streak */}
+          <Card className="card-gradient p-6 text-center">
+            <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center mx-auto mb-3">
+              <Flame className="w-6 h-6 text-primary-foreground" />
+            </div>
+            <div className="text-3xl font-bold text-primary mb-1">
+              {stats.currentStreak}
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {t('tracking.dayStreak')}
+            </div>
+          </Card>
 
-      {/* Motivational Message */}
-      <div className="px-4">
-        <Card className="card-gradient p-6 text-center">
-          <div className="text-2xl mb-3">🌈</div>
-          <h3 className="font-bold text-lg mb-2">You're Amazing!</h3>
-          <p className="text-muted-foreground">
-            Every moment of mindfulness makes a difference. Keep growing your inner peace, one breath at a time.
-          </p>
+          {/* Total Sessions */}
+          <Card className="card-gradient p-6 text-center">
+            <div className="w-12 h-12 bg-gradient-to-br from-secondary to-accent rounded-full flex items-center justify-center mx-auto mb-3">
+              <Target className="w-6 h-6 text-secondary-foreground" />
+            </div>
+            <div className="text-3xl font-bold text-secondary mb-1">
+              {stats.totalMeditations}
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {t('tracking.sessions')}
+            </div>
+          </Card>
+        </div>
+
+        {/* Total Minutes */}
+        <Card className="card-gradient p-6 text-center mb-6">
+          <div className="w-16 h-16 bg-gradient-to-br from-accent to-warning rounded-full flex items-center justify-center mx-auto mb-4">
+            <Clock className="w-8 h-8 text-accent-foreground" />
+          </div>
+          <div className="text-4xl font-bold text-gradient-premium mb-2">
+            {stats.totalMinutes}
+          </div>
+          <div className="text-lg text-muted-foreground">
+            {t('tracking.mindfulMinutes')}
+          </div>
+          <div className="text-sm text-muted-foreground mt-1">
+            {t('tracking.hoursOfPeace', { hours: Math.round(stats.totalMinutes / 60 * 10) / 10 })}
+          </div>
         </Card>
       </div>
+
     </div>
   );
 };

@@ -1,20 +1,27 @@
 import { useState, useEffect } from 'react';
-import { Search, X, ArrowUpDown, ChevronDown } from 'lucide-react';
+import { Search, X, ChevronsUp, ChevronsDown, Heart } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { useMeditationStore } from '../stores/meditationStore';
+import { useFavorites } from '../hooks/useFavorites';
+import { useAuth } from '../hooks/useAuth';
 import MeditationCard from '../components/MeditationCard';
 import FilterBreadcrumb from '../components/FilterBreadcrumb';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { ScrollArea } from '../components/ui/scroll-area';
-import { Badge } from '../components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../components/ui/dropdown-menu';
+import { Badge } from '../components/ui/badge';
+import { formatCategoryName } from '@/lib/utils';
 
-type SortOption = 'title' | 'duration' | 'created_at';
+type MediaType = 'all' | 'audio' | 'video';
 
 const ITEMS_PER_LOAD = 15;
 
 const Meditations = () => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const { 
     filteredMeditations, 
     filters, 
@@ -27,9 +34,11 @@ const Meditations = () => {
     fetchMeditations, 
     isLoading 
   } = useMeditationStore();
+  const { favorites } = useFavorites();
   const [displayedItems, setDisplayedItems] = useState(ITEMS_PER_LOAD);
-  const [sortBy, setSortBy] = useState<SortOption>('title');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [mediaType, setMediaType] = useState<MediaType>('all');
+  const [resultsExpanded, setResultsExpanded] = useState(false);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
   useEffect(() => {
     fetchMeditations();
@@ -38,6 +47,26 @@ const Meditations = () => {
   useEffect(() => {
     setDisplayedItems(ITEMS_PER_LOAD);
   }, [filteredMeditations]);
+
+  useEffect(() => {
+    if (resultsExpanded) {
+      const handleWindowScroll = () => {
+        const scrollTop = window.scrollY;
+        const scrollHeight = document.documentElement.scrollHeight;
+        const clientHeight = window.innerHeight;
+        
+        if (scrollHeight - scrollTop <= clientHeight + 100) {
+          setDisplayedItems(prev => {
+            const total = filteredMeditations.length;
+            return prev < total ? Math.min(prev + ITEMS_PER_LOAD, total) : prev;
+          });
+        }
+      };
+
+      window.addEventListener('scroll', handleWindowScroll);
+      return () => window.removeEventListener('scroll', handleWindowScroll);
+    }
+  }, [resultsExpanded, filteredMeditations.length]);
 
   const handleCategorySelect = (category: string | null) => {
     if (category === null) {
@@ -71,29 +100,35 @@ const Meditations = () => {
 
   const handleClearAll = () => {
     clearFilters();
-  };
-
-  const handleSort = (option: SortOption) => {
-    if (sortBy === option) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortBy(option);
-      setSortOrder('asc');
-    }
+    setMediaType('all');
+    setShowFavoritesOnly(false);
   };
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
-    
-    // Load more when user scrolls to bottom
-    if (scrollHeight - scrollTop <= clientHeight + 100) {
-      if (displayedItems < sortedMeditations.length) {
-        setDisplayedItems(prev => Math.min(prev + ITEMS_PER_LOAD, sortedMeditations.length));
+    if (resultsExpanded) {
+      // For expanded view, handle window scroll
+      const scrollTop = window.scrollY;
+      const scrollHeight = document.documentElement.scrollHeight;
+      const clientHeight = window.innerHeight;
+      
+      if (scrollHeight - scrollTop <= clientHeight + 100) {
+        if (displayedItems < sortedMeditations.length) {
+          setDisplayedItems(prev => Math.min(prev + ITEMS_PER_LOAD, sortedMeditations.length));
+        }
+      }
+    } else {
+      // For collapsed view, handle ScrollArea scroll
+      const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+      
+      if (scrollHeight - scrollTop <= clientHeight + 100) {
+        if (displayedItems < sortedMeditations.length) {
+          setDisplayedItems(prev => Math.min(prev + ITEMS_PER_LOAD, sortedMeditations.length));
+        }
       }
     }
   };
 
-  const hasActiveFilters = filters.selectedCategory || filters.selectedContentCategories.length > 0 || filters.selectedAgeGroup || filters.selectedThemes.length > 0 || filters.searchQuery;
+  const hasActiveFilters = filters.selectedCategory || filters.selectedContentCategories.length > 0 || filters.selectedAgeGroup || filters.selectedThemes.length > 0 || filters.searchQuery || showFavoritesOnly;
   
   // Age group color mapping
   const getAgeGroupColor = (ageGroup: string) => {
@@ -111,7 +146,7 @@ const Meditations = () => {
   
   // Get filtered themes that don't overlap with content categories
   const availableThemes = themes.filter(theme => 
-    !filters.selectedCategory || theme.category.includes(filters.selectedCategory) &&
+    (!filters.selectedCategory || theme.category?.includes(filters.selectedCategory)) &&
     !filters.selectedContentCategories.includes(theme.name)
   );
 
@@ -125,27 +160,26 @@ const Meditations = () => {
       })
     : contentCategories;
 
-  // Sort meditations
-  const sortedMeditations = [...filteredMeditations].sort((a, b) => {
-    let aValue: any = a[sortBy];
-    let bValue: any = b[sortBy];
-    
-    if (sortBy === 'duration') {
-      aValue = a.duration || 0;
-      bValue = b.duration || 0;
-    } else if (sortBy === 'created_at') {
-      aValue = new Date(a.created_at || '').getTime();
-      bValue = new Date(b.created_at || '').getTime();
-    } else {
-      aValue = (a.title || '').toLowerCase();
-      bValue = (b.title || '').toLowerCase();
+  // Sort meditations and filter by media type and favorites
+  const filteredByMediaType = mediaType === 'all' 
+    ? filteredMeditations 
+    : filteredMeditations.filter(m => m.media_type === mediaType);
+
+  const filteredByFavorites = showFavoritesOnly
+    ? filteredByMediaType.filter(m => favorites.includes(m.id))
+    : filteredByMediaType;
+
+  const sortedMeditations = [...filteredByFavorites].sort((a, b) => {
+    // If user is not authenticated, prioritize free meditations
+    if (!user) {
+      if (a.is_free && !b.is_free) return -1;
+      if (!a.is_free && b.is_free) return 1;
     }
     
-    if (sortOrder === 'asc') {
-      return aValue > bValue ? 1 : -1;
-    } else {
-      return aValue < bValue ? 1 : -1;
-    }
+    // Then sort alphabetically
+    const aTitle = (a.title || '').toLowerCase();
+    const bTitle = (b.title || '').toLowerCase();
+    return aTitle > bTitle ? 1 : -1;
   });
 
   const displayedMeditations = sortedMeditations.slice(0, displayedItems);
@@ -156,7 +190,7 @@ const Meditations = () => {
       <div className="px-4 mb-6">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl font-bold text-gradient-primary">
-            Meditations
+            {t('meditations.title')}
           </h1>
           {hasActiveFilters && (
             <Button
@@ -166,20 +200,43 @@ const Meditations = () => {
               size="sm"
             >
               <X className="w-4 h-4 mr-2" />
-              Clear All
+              {t('meditations.clearAll')}
             </Button>
           )}
         </div>
 
         {/* Search */}
-        <div className="relative mb-6">
+        <div className="relative mb-4">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Search meditations..."
+            placeholder={t('meditations.searchPlaceholder')}
             value={filters.searchQuery}
             onChange={(e) => handleSearchChange(e.target.value)}
             className="pl-10 pr-4 py-3 bg-card border-border rounded-xl"
           />
+        </div>
+
+        {/* Favorites Filter Toggle */}
+        <div className="mb-6">
+          <Button
+            variant={showFavoritesOnly ? "default" : "outline"}
+            onClick={() => {
+              if (!user) {
+                navigate('/profile');
+              } else {
+                setShowFavoritesOnly(!showFavoritesOnly);
+              }
+            }}
+            className="w-full"
+          >
+            <Heart className={`w-4 h-4 mr-2 ${showFavoritesOnly ? 'fill-current' : ''}`} />
+            {!user 
+              ? 'Sign in to set favorites'
+              : showFavoritesOnly 
+                ? t('meditations.showingFavorites') 
+                : t('meditations.showFavorites')
+            }
+          </Button>
         </div>
 
         {/* Filter Breadcrumb */}
@@ -225,11 +282,48 @@ const Meditations = () => {
           </div>
         )}
 
-        {/* Content Categories - Grid View when category is selected */}
-        {filters.selectedCategory && !filters.selectedContentCategories.length && availableContentCategories.length > 0 && (
+        {/* Age Groups - show for Kid category immediately after Kids is selected */}
+        {filters.selectedCategory === 'Kid' && !filters.selectedAgeGroup && ageGroups.length > 0 && (
           <div className="mb-6">
             <label className="text-sm font-medium text-muted-foreground mb-3 block">
-              Select Content Type
+              Age Group
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              {ageGroups.filter(ag => ag).map((ageGroup) => {
+                const isSelected = filters.selectedAgeGroup === ageGroup;
+                const color = getAgeGroupColor(ageGroup);
+                return (
+                  <Button
+                    key={ageGroup}
+                    variant="outline"
+                    onClick={() => handleAgeGroupSelect(isSelected ? null : ageGroup)}
+                    className={`flex items-center justify-center h-auto py-6 transition-all ${
+                      isSelected 
+                        ? 'border-2 shadow-lg scale-105' 
+                        : 'hover:shadow-primary hover:scale-102'
+                    }`}
+                    style={{
+                      background: `linear-gradient(135deg, ${color}dd, ${color})`,
+                      borderColor: isSelected ? color : `${color}88`,
+                      color: color === '#ffff00' ? '#000' : '#fff'
+                    }}
+                  >
+                    <span className="font-semibold text-sm">{ageGroup}</span>
+                  </Button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Content Categories - For Kids after age group, for Adults immediately */}
+        {filters.selectedCategory && 
+         ((filters.selectedCategory === 'Kid' && filters.selectedAgeGroup && !filters.selectedContentCategories.length) ||
+          (filters.selectedCategory === 'Adult' && !filters.selectedContentCategories.length)) &&
+         availableContentCategories.length > 0 && (
+          <div className="mb-6">
+            <label className="text-sm font-medium text-muted-foreground mb-3 block">
+              Content Category
             </label>
             <div className="grid grid-cols-2 gap-3">
               {availableContentCategories.map((category) => (
@@ -251,167 +345,119 @@ const Meditations = () => {
           </div>
         )}
 
-        {/* Content Categories - Dropdown when already selected */}
-        {filters.selectedCategory && filters.selectedContentCategories.length > 0 && availableContentCategories.length > 0 && (
-          <div className="mb-6">
-            <label className="text-sm font-medium text-muted-foreground mb-3 block">
-              Content Categories
-            </label>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-full justify-between">
-                  {filters.selectedContentCategories.length > 0 
-                    ? `${filters.selectedContentCategories.length} selected`
-                    : 'Select content categories'
-                  }
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-full max-h-60 overflow-y-auto z-50 bg-card">
-                {availableContentCategories.map((category) => (
-                  <DropdownMenuItem 
-                    key={category}
-                    onClick={() => handleContentCategoryToggle(category)}
-                    className={filters.selectedContentCategories.includes(category) ? 'bg-accent' : ''}
-                  >
-                    {category}
-                    {filters.selectedContentCategories.includes(category) && (
-                      <span className="ml-auto">✓</span>
-                    )}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        )}
-
-        {/* Age Groups - show for Kid category */}
-        {filters.selectedCategory === 'Kid' && ageGroups.length > 0 && (
-          <div className="mb-6">
-            <label className="text-sm font-medium text-muted-foreground mb-3 block">
-              Age Group
-            </label>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-full justify-between">
-                  {filters.selectedAgeGroup || 'Select age group'}
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-full z-50 bg-card">
-                {ageGroups.filter(ag => ag).map((ageGroup) => (
-                  <DropdownMenuItem 
-                    key={ageGroup}
-                    onClick={() => handleAgeGroupSelect(ageGroup)}
-                    className={`${filters.selectedAgeGroup === ageGroup ? 'bg-accent' : ''} flex items-center`}
-                  >
-                    <div 
-                      className="w-3 h-3 rounded-full mr-2"
-                      style={{ backgroundColor: getAgeGroupColor(ageGroup) }}
-                    />
-                    {ageGroup}
-                  </DropdownMenuItem>
-                ))}
-                {filters.selectedAgeGroup && (
-                  <DropdownMenuItem 
-                    onClick={() => handleAgeGroupSelect(null)} 
-                    className="text-destructive"
-                  >
-                    Clear selection
-                  </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        )}
-
-        {/* Themes */}
-        {filters.selectedCategory && availableThemes.length > 0 && (
+        {/* Themes - Icon Grid - Show after age group for Kids, or after content category for Adults */}
+        {filters.selectedCategory && 
+         filters.selectedContentCategories.length > 0 &&
+         (filters.selectedCategory !== 'Kid' || filters.selectedAgeGroup) &&
+         availableThemes.length > 0 && (
           <div className="mb-6">
             <label className="text-sm font-medium text-muted-foreground mb-3 block">
               Themes
             </label>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-full justify-between">
-                  {filters.selectedThemes.length > 0 
-                    ? `${filters.selectedThemes.length} selected`
-                    : 'Select themes'
-                  }
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-full max-h-60 overflow-y-auto z-50 bg-card">
-                {availableThemes.map((theme) => (
-                  <DropdownMenuItem 
+            <div className="grid grid-cols-4 gap-3">
+              {availableThemes.map((theme) => {
+                const isSelected = filters.selectedThemes.includes(theme.name);
+                return (
+                  <button
                     key={theme.id}
                     onClick={() => handleThemeToggle(theme.name)}
-                    className={`${filters.selectedThemes.includes(theme.name) ? 'bg-accent' : ''} flex items-center`}
+                    className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all ${
+                      isSelected 
+                        ? 'bg-primary/20 border-2 border-primary' 
+                        : 'bg-card border-2 border-border hover:border-primary/50'
+                    }`}
                   >
                     {theme.icon_svg_url && (
                       <img 
                         src={theme.icon_svg_url} 
                         alt={theme.name}
-                        className="w-4 h-4 mr-2"
+                        className="w-8 h-8"
                       />
                     )}
-                    {theme.name}
-                    {filters.selectedThemes.includes(theme.name) && (
-                      <span className="ml-auto">✓</span>
-                    )}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                    <span className="text-xs font-medium text-center leading-tight">
+                      {theme.name}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>
 
-      {/* Results */}
-      <div className="px-4">
-        {filteredMeditations.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-              <Search className="w-8 h-8 text-muted-foreground" />
-            </div>
-            <h3 className="text-lg font-semibold mb-2">No meditations found</h3>
-            <p className="text-muted-foreground mb-4">
-              Try adjusting your filters or search query
-            </p>
+      {/* Results Section with Expand/Collapse */}
+      <div className="relative">
+        {/* Expand Arrow */}
+        {filteredMeditations.length > 0 && !resultsExpanded && (
+          <div className="px-4 mb-4 flex justify-center">
+            <button
+              onClick={() => setResultsExpanded(true)}
+              className="text-primary hover:text-primary/80 transition-colors"
+              aria-label="Expand results"
+            >
+              <ChevronsUp className="w-8 h-8" />
+            </button>
           </div>
-        ) : (
-          <>
-            {/* Results Header */}
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm text-muted-foreground">
-                {filteredMeditations.length} meditation{filteredMeditations.length !== 1 ? 's' : ''} found
-              </p>
-              
-              {/* Sort Options */}
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Sort by:</span>
-                <Select value={sortBy} onValueChange={(value: SortOption) => handleSort(value)}>
-                  <SelectTrigger className="w-32">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="title">Title</SelectItem>
-                    <SelectItem value="duration">Duration</SelectItem>
-                    <SelectItem value="created_at">Date</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-                >
-                  <ArrowUpDown className="w-4 h-4" />
-                </Button>
+        )}
+
+        {/* Expanded Results View */}
+        {resultsExpanded && (
+          <div className="fixed inset-0 bg-background z-50 overflow-y-auto pb-24 animate-slide-in-up">
+            {/* Header with Filter Summary */}
+            <div className="sticky top-0 bg-background/95 backdrop-blur-sm border-b border-border z-10 pb-4">
+              <div className="px-4 pt-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-bold text-gradient-primary">
+                    {sortedMeditations.length} Results
+                  </h2>
+                </div>
+
+                {/* Filter Summary Pills */}
+                {hasActiveFilters && (
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {filters.selectedCategory && (
+                      <Badge variant="secondary" className="text-xs">
+                        {formatCategoryName(filters.selectedCategory)}
+                      </Badge>
+                    )}
+                    {filters.selectedContentCategories.map(cat => (
+                      <Badge key={cat} variant="secondary" className="text-xs">
+                        {cat}
+                      </Badge>
+                    ))}
+                    {filters.selectedAgeGroup && (
+                      <Badge variant="secondary" className="text-xs">
+                        {filters.selectedAgeGroup}
+                      </Badge>
+                    )}
+                    {filters.selectedThemes.map(theme => (
+                      <Badge key={theme} variant="secondary" className="text-xs">
+                        {theme}
+                      </Badge>
+                    ))}
+                    {filters.searchQuery && (
+                      <Badge variant="secondary" className="text-xs">
+                        "{filters.searchQuery}"
+                      </Badge>
+                    )}
+                  </div>
+                )}
+
+                {/* Collapse Arrow */}
+                <div className="flex justify-center mt-4">
+                  <button
+                    onClick={() => setResultsExpanded(false)}
+                    className="text-primary hover:text-primary/80 transition-colors"
+                    aria-label="Collapse results"
+                  >
+                    <ChevronsDown className="w-8 h-8" />
+                  </button>
+                </div>
               </div>
             </div>
-            
+
             {/* Results Grid */}
-            <ScrollArea className="h-[60vh]" onScrollCapture={handleScroll}>
+            <div className="px-4 pt-4">
               <div className="grid grid-cols-2 gap-4 pb-6">
                 {displayedMeditations.map((meditation) => (
                   <MeditationCard key={meditation.id} meditation={meditation} />
@@ -423,8 +469,34 @@ const Meditations = () => {
                   Loading more...
                 </div>
               )}
-            </ScrollArea>
-          </>
+            </div>
+          </div>
+        )}
+
+        {/* Collapsed Results Preview */}
+        {!resultsExpanded && filteredMeditations.length > 0 && (
+          <div className="px-4">
+            <div className="grid grid-cols-2 gap-4 pb-6">
+              {displayedMeditations.slice(0, 4).map((meditation) => (
+                <MeditationCard key={meditation.id} meditation={meditation} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* No Results */}
+        {filteredMeditations.length === 0 && (
+          <div className="px-4">
+            <div className="text-center py-12">
+              <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                <Search className="w-8 h-8 text-muted-foreground" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">No meditations found</h3>
+              <p className="text-muted-foreground mb-4">
+                Try adjusting your filters or search query
+              </p>
+            </div>
+          </div>
         )}
       </div>
     </div>
