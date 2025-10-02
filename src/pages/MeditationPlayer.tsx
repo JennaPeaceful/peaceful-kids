@@ -680,9 +680,12 @@ const MeditationPlayer = () => {
             size="lg"
             onClick={() => handleSkip(-30)}
             disabled={isLocked || !canPlay}
-            className="w-12 h-12 rounded-full"
+            className="w-16 h-16 rounded-full relative group"
           >
             <SkipBack className="w-6 h-6" />
+            <span className="absolute inset-0 flex items-center justify-center text-xs font-bold pointer-events-none">
+              30
+            </span>
           </Button>
 
           <Button
@@ -704,9 +707,12 @@ const MeditationPlayer = () => {
             size="lg"
             onClick={() => handleSkip(30)}
             disabled={isLocked || !canPlay}
-            className="w-12 h-12 rounded-full"
+            className="w-16 h-16 rounded-full relative group"
           >
             <SkipForward className="w-6 h-6" />
+            <span className="absolute inset-0 flex items-center justify-center text-xs font-bold pointer-events-none">
+              30
+            </span>
           </Button>
         </div>
 
