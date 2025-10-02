@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTranslation } from 'react-i18next';
 import AuthModal from './AuthModal';
@@ -11,6 +11,7 @@ import profileIcon from '@/assets/nav-profile.svg';
 const BottomNavigation = () => {
   const { user } = useAuth();
   const { t } = useTranslation();
+  const location = useLocation();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'signin' | 'signup'>('signin');
   
@@ -47,13 +48,17 @@ const BottomNavigation = () => {
             <NavLink
               key={to}
               to={to}
-              className={({ isActive }) =>
-                `flex flex-col items-center justify-center min-touch py-2 px-3 rounded-xl transition-all duration-300 ${
-                  isActive
+              className={({ isActive }) => {
+                // Check if we're on a meditation player page and this is the meditations nav item
+                const isMeditationPlayerActive = to === '/meditations' && location.pathname.startsWith('/meditation/');
+                const shouldBeActive = isActive || isMeditationPlayerActive;
+                
+                return `flex flex-col items-center justify-center min-touch py-2 px-3 rounded-xl transition-all duration-300 ${
+                  shouldBeActive
                     ? 'text-primary bg-primary/10 scale-105'
                     : 'text-muted-foreground hover:text-primary hover:bg-primary/5'
-                }`
-              }
+                }`;
+              }}
             >
               <img src={icon} alt={label} className="w-6 h-6 mb-1" />
               <span className="text-xs font-medium">{label}</span>
