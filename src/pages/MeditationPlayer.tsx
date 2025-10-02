@@ -429,9 +429,7 @@ const MeditationPlayer = () => {
             <img
               src={meditation.thumbnail_url || meditation.thumbnail}
               alt={meditation.title}
-              className={`w-full h-full object-cover rounded-3xl shadow-2xl transition-all duration-300 ${
-                player.isPlaying && !isLocked && canPlay ? 'animate-[pulse_1s_ease-in-out_infinite] scale-105' : ''
-              }`}
+              className="w-full h-full object-cover rounded-3xl shadow-2xl"
               onError={(e) => {
                 if (!e.currentTarget.src.includes('data:')) {
                   console.warn('Thumbnail failed to load, using placeholder');
