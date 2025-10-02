@@ -686,7 +686,7 @@ const MeditationPlayer = () => {
             <img 
               src={skip10Icon} 
               alt="Skip back 10 seconds" 
-              className="w-8 h-8 transform scale-x-[-1]"
+              className="w-8 h-8 transform scale-x-[-1] brightness-0"
             />
           </Button>
 
@@ -714,7 +714,7 @@ const MeditationPlayer = () => {
             <img 
               src={skip10Icon} 
               alt="Skip forward 10 seconds" 
-              className="w-8 h-8"
+              className="w-8 h-8 brightness-0"
             />
           </Button>
         </div>
