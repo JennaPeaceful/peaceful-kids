@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { UserProgress, ProgressStats } from '../types';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ProgressState {
   userProgress: UserProgress[];
@@ -8,7 +9,7 @@ interface ProgressState {
   // Actions
   addProgress: (progress: Omit<UserProgress, 'id'>) => void;
   updateStats: () => void;
-  completeSession: (meditationId: string, durationSeconds: number) => void;
+  completeSession: (meditationId: string, durationSeconds: number) => Promise<void>;
 }
 
 const mockWeeklyActivity = [
@@ -92,13 +93,44 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
     }));
   },
   
-  completeSession: (meditationId, durationSeconds) => {
-    get().addProgress({
-      user_id: '1',
-      meditation_id: meditationId,
-      completed_at: new Date().toISOString(),
-      progress_seconds: durationSeconds,
-      is_completed: true,
-    });
+  completeSession: async (meditationId, durationSeconds) => {
+    try {
+      // Get the current user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        console.error('No authenticated user found');
+        return;
+      }
+
+      // Insert progress record into Supabase
+      const { error } = await supabase
+        .from('user_progress')
+        .insert({
+          user_id: user.id,
+          meditation_id: meditationId,
+          completed_at: new Date().toISOString(),
+          progress_seconds: Math.round(durationSeconds),
+          is_completed: true,
+        });
+
+      if (error) {
+        console.error('Error saving progress:', error);
+        throw error;
+      }
+
+      // Also update local state for immediate UI feedback
+      get().addProgress({
+        user_id: user.id,
+        meditation_id: meditationId,
+        completed_at: new Date().toISOString(),
+        progress_seconds: Math.round(durationSeconds),
+        is_completed: true,
+      });
+
+      console.log('Progress saved successfully!');
+    } catch (error) {
+      console.error('Failed to complete session:', error);
+    }
   },
 }));

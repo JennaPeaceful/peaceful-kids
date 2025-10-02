@@ -10,10 +10,12 @@ import { Progress } from '../components/ui/progress';
 import { Slider } from '../components/ui/slider';
 import { toast } from '../hooks/use-toast';
 import AudioWaveform from '../components/AudioWaveform';
+import { useQueryClient } from '@tanstack/react-query';
 
 const MeditationPlayer = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { meditations, themes, player, setCurrentMeditation, setPlaying, setCurrentTime, fetchMeditations } = useMeditationStore();
   const { completeSession } = useProgressStore();
   const { subscription } = useUserStore();
@@ -95,11 +97,13 @@ const MeditationPlayer = () => {
     }
   };
 
-  const handleMediaComplete = () => {
+  const handleMediaComplete = async () => {
     setIsCompleted(true);
     setPlaying(false);
     if (meditation) {
-      completeSession(meditation.id, duration);
+      await completeSession(meditation.id, duration);
+      // Invalidate the progress stats query to refresh the tracking page
+      queryClient.invalidateQueries({ queryKey: ['progress-stats'] });
       toast({
         title: "Meditation Complete! 🎉",
         description: "Great job! You've completed another mindful session.",
