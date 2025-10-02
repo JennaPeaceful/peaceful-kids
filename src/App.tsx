@@ -8,6 +8,7 @@ import i18n from "./lib/i18n";
 import { AuthProvider } from "./hooks/useAuth";
 import { useSplash } from "./hooks/useSplash";
 import SplashScreen from "./components/SplashScreen";
+import { WellnessDisclaimer } from "./components/WellnessDisclaimer";
 import BottomNavigation from "./components/BottomNavigation";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Explore from "./pages/Explore";
@@ -35,6 +36,7 @@ const App = () => {
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          <WellnessDisclaimer />
           {showSplash ? (
             <SplashScreen onComplete={completeSplash} />
           ) : (
