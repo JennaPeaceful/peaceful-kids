@@ -83,7 +83,7 @@ export interface UserSubscription {
   id: string;
   user_id: string;
   is_active: boolean;
-  plan_type: 'free' | 'monthly' | 'yearly';
+  plan_type: 'free' | 'peace_plan' | 'peace_plus_plan';
   expires_at?: string;
 }
 

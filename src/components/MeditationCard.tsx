@@ -19,8 +19,15 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
   const { subscription } = useUserStore();
   const { themes } = useMeditationStore();
   
-  // Temporarily disabled for development
-  const isLocked = false; // !meditation.is_free && !subscription?.is_active;
+  // Check if content is locked based on plan type
+  const planType = subscription?.plan_type;
+  const isActive = subscription?.is_active;
+  const isLocked = !meditation.is_free && (
+    !user || 
+    !isActive || 
+    planType === 'free' ||
+    (planType === 'peace_plan' && meditation.media_type === 'video')
+  );
 
   // Get theme objects with icons for this meditation
   const meditationThemes = meditation.themes
@@ -29,20 +36,37 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
     .slice(0, 3);
 
   const handleCardClick = () => {
-    // If meditation is not free
+    if (onPlay) {
+      onPlay();
+      return;
+    }
+    
+    // Check if meditation is free
     if (!meditation.is_free) {
+      // If user is not logged in, redirect to profile
       if (!user) {
-        // Not signed in -> redirect to profile
         navigate('/profile');
         return;
-      } else {
-        // Signed in -> redirect to explore
-        navigate('/');
+      }
+      
+      // Check if user has appropriate plan for this content
+      const planType = subscription?.plan_type;
+      const isActive = subscription?.is_active;
+      
+      // Peace Plan only gets audio, Peace Plus gets everything
+      if (!isActive || planType === 'free') {
+        navigate('/profile');
+        return;
+      }
+      
+      // If user has Peace Plan but content is video, redirect to upgrade
+      if (planType === 'peace_plan' && meditation.media_type === 'video') {
+        navigate('/profile');
         return;
       }
     }
     
-    // Free meditation -> go to player
+    // Navigate to meditation player
     navigate(`/meditation/${meditation.id}`);
   };
 
