@@ -131,9 +131,9 @@ const Profile = () => {
       <div className="px-4 mb-8">
         <Card className="card-gradient p-6 text-center">
           <div className="text-4xl mb-3">🧘‍♂️</div>
-          <h3 className="font-bold text-lg mb-2">Peaceful Kids</h3>
+          <h3 className="font-bold text-lg mb-2">Peaceful</h3>
           <p className="text-sm text-muted-foreground mb-4">
-            Version 1.0.0 • Made with 💜 for mindful families
+            Version 1.0.0 • Mindfulness for the whole family
           </p>
           <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
             <button className="hover:text-primary">Privacy Policy</button>

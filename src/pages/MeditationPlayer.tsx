@@ -28,8 +28,8 @@ const MeditationPlayer = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const meditation = meditations.find(m => m.id === id);
-  // Temporarily disabled for development
-  const isLocked = false; // meditation && !meditation.is_free && !subscription?.is_active;
+  // Check if meditation is locked (premium content requires active subscription)
+  const isLocked = meditation && !meditation.is_free && !subscription?.is_active;
   const isAudio = meditation?.media_type === 'audio';
 
   useEffect(() => {

@@ -1,14 +1,17 @@
 import { create } from 'zustand';
 import { UserProgress, ProgressStats } from '../types';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ProgressState {
   userProgress: UserProgress[];
   stats: ProgressStats;
-  
+  isLoading: boolean;
+
   // Actions
   addProgress: (progress: Omit<UserProgress, 'id'>) => void;
   updateStats: () => void;
-  completeSession: (meditationId: string, durationSeconds: number) => void;
+  completeSession: (meditationId: string, durationSeconds: number) => Promise<void>;
+  fetchUserProgress: () => Promise<void>;
 }
 
 const mockWeeklyActivity = [
@@ -22,30 +25,14 @@ const mockWeeklyActivity = [
 ];
 
 export const useProgressStore = create<ProgressState>((set, get) => ({
-  userProgress: [
-    {
-      id: '1',
-      user_id: '1',
-      meditation_id: '1',
-      completed_at: new Date().toISOString(),
-      progress_seconds: 600,
-      is_completed: true,
-    },
-    {
-      id: '2',
-      user_id: '1',
-      meditation_id: '2',
-      completed_at: new Date(Date.now() - 86400000).toISOString(),
-      progress_seconds: 480,
-      is_completed: true,
-    },
-  ],
+  userProgress: [],
+  isLoading: false,
   stats: {
-    currentStreak: 3,
-    totalMeditations: 12,
-    totalMinutes: 145,
+    currentStreak: 0,
+    totalMeditations: 0,
+    totalMinutes: 0,
     weeklyActivity: mockWeeklyActivity,
-    achievements: ['First Session', 'Week Warrior', 'Calm Explorer'],
+    achievements: [],
   },
   
   addProgress: (progress) => {
@@ -92,13 +79,78 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
     }));
   },
   
-  completeSession: (meditationId, durationSeconds) => {
-    get().addProgress({
-      user_id: '1',
-      meditation_id: meditationId,
-      completed_at: new Date().toISOString(),
-      progress_seconds: durationSeconds,
-      is_completed: true,
-    });
+  completeSession: async (meditationId, durationSeconds) => {
+    try {
+      // Get current authenticated user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.error('No authenticated user');
+        return;
+      }
+
+      // Insert progress into Supabase
+      const { data, error } = await supabase
+        .from('user_progress')
+        .insert({
+          user_id: user.id,
+          meditation_id: meditationId,
+          completed_at: new Date().toISOString(),
+          progress_seconds: durationSeconds,
+          is_completed: true,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error saving progress to Supabase:', error);
+        return;
+      }
+
+      // Update local state with saved data
+      if (data) {
+        get().addProgress(data);
+      }
+    } catch (error) {
+      console.error('Error in completeSession:', error);
+    }
+  },
+
+  fetchUserProgress: async () => {
+    try {
+      set({ isLoading: true });
+
+      // Get current authenticated user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.error('No authenticated user');
+        set({ isLoading: false });
+        return;
+      }
+
+      // Fetch user's progress from Supabase
+      const { data, error } = await supabase
+        .from('user_progress')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('completed_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching progress from Supabase:', error);
+        set({ isLoading: false });
+        return;
+      }
+
+      // Update state with fetched progress
+      set({
+        userProgress: data || [],
+        isLoading: false
+      });
+
+      // Recalculate stats
+      get().updateStats();
+    } catch (error) {
+      console.error('Error in fetchUserProgress:', error);
+      set({ isLoading: false });
+    }
   },
 }));

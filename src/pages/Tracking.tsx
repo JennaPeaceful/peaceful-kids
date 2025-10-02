@@ -1,9 +1,15 @@
+import { useEffect } from 'react';
 import { Calendar, Award, TrendingUp, Target, Flame, Clock } from 'lucide-react';
 import { useProgressStore } from '../stores/progressStore';
 import { Card } from '../components/ui/card';
 
 const Tracking = () => {
-  const { stats } = useProgressStore();
+  const { stats, fetchUserProgress, isLoading } = useProgressStore();
+
+  useEffect(() => {
+    // Fetch user progress when page loads
+    fetchUserProgress();
+  }, [fetchUserProgress]);
 
   const achievements = [
     { id: 1, title: 'First Session', description: 'Completed your first meditation', icon: '🎯', unlocked: true },
