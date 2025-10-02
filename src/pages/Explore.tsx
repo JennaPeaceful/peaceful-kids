@@ -98,10 +98,6 @@ const Explore = () => {
 
           {/* Peace Plus Plan */}
           <Card className="card-premium p-8 border-2 border-accent/50 hover:border-accent transition-all relative overflow-hidden">
-            <div className="absolute top-3 right-3 bg-gradient-to-r from-accent to-warning text-accent-foreground px-3 py-1 rounded-full text-xs font-bold shadow-premium">
-              {t('explore.mostPopular')}
-            </div>
-            
             <div className="flex items-start justify-between mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-gradient-premium mb-2">{t('explore.peacePlusPlan')}</h2>
@@ -158,11 +154,8 @@ const Explore = () => {
 
         {/* Additional Info */}
         <div className="mt-12 text-center">
-          <p className="text-sm text-muted-foreground mb-3">
+          <p className="text-sm text-muted-foreground">
             {t('explore.cancelAnytime')}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {t('explore.freeTrial')}
           </p>
         </div>
       </div>
