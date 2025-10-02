@@ -89,10 +89,10 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
           }}
         />
 
-        {/* Premium badge */}
+        {/* Premium badge - show specific plan required */}
         {!meditation.is_free && (
           <div className="absolute top-2 right-2 bg-warning text-warning-foreground px-2 py-1 rounded-full text-xs font-bold">
-            {t('meditationCard.premium')}
+            {meditation.media_type === 'video' ? 'Peace Plus Plan' : 'Peace Plan'}
           </div>
         )}
       </div>
@@ -144,7 +144,9 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
         <div className="absolute inset-0 bg-warning/5 rounded-2xl border-2 border-warning/20 flex items-center justify-center">
           <div className="text-center p-4">
             <Lock className="w-8 h-8 text-warning mx-auto mb-2" />
-            <p className="text-sm font-semibold text-warning">{t('meditationCard.premiumOnly')}</p>
+            <p className="text-sm font-semibold text-warning">
+              {meditation.media_type === 'video' ? 'Peace Plus Plan' : 'Peace Plan'}
+            </p>
           </div>
         </div>
       )}
