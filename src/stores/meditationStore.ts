@@ -9,6 +9,7 @@ interface MeditationState {
   recommendedMeditations: Meditation[];
   categories: Category[];
   contentCategories: string[];
+  courses: string[];
   themes: Array<{id: string; name: string; icon: string; color: string; category: string[]; icon_svg_url?: string; icon_png_url?: string; sort_order?: number}>;
   ageGroups: string[];
   filters: FilterState;
@@ -19,6 +20,7 @@ interface MeditationState {
   fetchMeditations: () => Promise<void>;
   fetchCategories: () => Promise<void>;
   fetchContentCategories: () => Promise<void>;
+  fetchCourses: () => Promise<void>;
   initializeThemes: () => void;
   setMeditations: (meditations: Meditation[]) => void;
   setFilters: (filters: Partial<FilterState>) => void;
@@ -33,6 +35,7 @@ interface MeditationState {
 const initialFilters: FilterState = {
   selectedCategory: null,
   selectedContentCategories: [],
+  selectedCourses: [],
   selectedAgeGroup: null,
   selectedThemes: [],
   searchQuery: '',
@@ -89,6 +92,7 @@ const transformMeditation = (dbMeditation: any): Meditation => ({
   age_group: dbMeditation.age_group || '',
   themes: dbMeditation.themes || [],
   content_categories: dbMeditation.content_categories || [],
+  courses: dbMeditation.courses || null,
   created_at: dbMeditation.created_at || '',
   sort_order: dbMeditation.sort_order || 0,
 });
@@ -100,6 +104,7 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
   recommendedMeditations: [],
   categories: [],
   contentCategories: [],
+  courses: [],
   themes: [],
   ageGroups: [],
   filters: initialFilters,
@@ -140,6 +145,7 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
       // Fetch additional data
       await get().fetchCategories();
       await get().fetchContentCategories();
+      await get().fetchCourses();
       await get().initializeThemes();
       
       // Apply current filters if any
@@ -205,6 +211,23 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
     }
   },
 
+  fetchCourses: async () => {
+    try {
+      const { data, error } = await supabase
+        .from('meditations')
+        .select('courses')
+        .eq('category', 'Courses')
+        .not('courses', 'is', null);
+
+      if (error) throw error;
+
+      const courses = [...new Set(data.map((row: any) => row.courses).filter(Boolean))];
+      set({ courses });
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+    }
+  },
+
   initializeThemes: async () => {
     try {
       const { data, error } = await supabase
@@ -232,6 +255,12 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
     if (filters.selectedContentCategories.length > 0) {
       filtered = filtered.filter(m => 
         m.content_categories?.some(cat => filters.selectedContentCategories.includes(cat))
+      );
+    }
+
+    if (filters.selectedCourses.length > 0) {
+      filtered = filtered.filter(m => 
+        m.courses && filters.selectedCourses.includes(m.courses)
       );
     }
     

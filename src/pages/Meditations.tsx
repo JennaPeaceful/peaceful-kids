@@ -26,7 +26,8 @@ const Meditations = () => {
     filteredMeditations, 
     filters, 
     categories,
-    contentCategories, 
+    contentCategories,
+    courses, 
     themes, 
     ageGroups, 
     setFilters, 
@@ -83,6 +84,13 @@ const Meditations = () => {
     setFilters({ selectedContentCategories: newCategories });
   };
 
+  const handleCourseToggle = (course: string) => {
+    const newCourses = filters.selectedCourses.includes(course)
+      ? filters.selectedCourses.filter(c => c !== course)
+      : [...filters.selectedCourses, course];
+    setFilters({ selectedCourses: newCourses });
+  };
+
   const handleAgeGroupSelect = (ageGroup: string | null) => {
     setFilters({ selectedAgeGroup: ageGroup });
   };
@@ -128,7 +136,7 @@ const Meditations = () => {
     }
   };
 
-  const hasActiveFilters = filters.selectedCategory || filters.selectedContentCategories.length > 0 || filters.selectedAgeGroup || filters.selectedThemes.length > 0 || filters.searchQuery || showFavoritesOnly;
+  const hasActiveFilters = filters.selectedCategory || filters.selectedContentCategories.length > 0 || filters.selectedCourses.length > 0 || filters.selectedAgeGroup || filters.selectedThemes.length > 0 || filters.searchQuery || showFavoritesOnly;
   
   // Age group color mapping
   const getAgeGroupColor = (ageGroup: string) => {
@@ -243,13 +251,16 @@ const Meditations = () => {
         <FilterBreadcrumb
           selectedCategory={filters.selectedCategory}
           selectedContentCategories={filters.selectedContentCategories}
+          selectedCourses={filters.selectedCourses}
           selectedAgeGroup={filters.selectedAgeGroup}
           selectedThemes={filters.selectedThemes}
           contentCategories={availableContentCategories}
+          courses={courses}
           ageGroups={ageGroups}
           themes={availableThemes}
           onCategorySelect={handleCategorySelect}
           onContentCategoryToggle={handleContentCategoryToggle}
+          onCourseToggle={handleCourseToggle}
           onAgeGroupSelect={handleAgeGroupSelect}
           onThemeToggle={handleThemeToggle}
         />
@@ -316,8 +327,35 @@ const Meditations = () => {
           </div>
         )}
 
+        {/* Courses - Show when Courses category is selected */}
+        {filters.selectedCategory === 'Courses' && !filters.selectedCourses.length && courses.length > 0 && (
+          <div className="mb-6">
+            <label className="text-sm font-medium text-muted-foreground mb-3 block">
+              Courses
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              {courses.map((course) => (
+                <Button
+                  key={course}
+                  variant="outline"
+                  onClick={() => handleCourseToggle(course)}
+                  className="flex flex-col items-center gap-2 h-auto py-4 hover:shadow-primary transition-all"
+                >
+                  <div className="relative w-16 h-16 rounded-xl bg-gradient-to-br from-secondary via-primary to-accent p-3 flex items-center justify-center">
+                    <div className="text-white font-bold text-lg">
+                      {course.split(' ').slice(0, 2).map(word => word[0]).join('').toUpperCase()}
+                    </div>
+                  </div>
+                  <span className="text-xs font-medium text-center leading-tight px-2">{course}</span>
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Content Categories - For Kids after age group, for Adults immediately */}
         {filters.selectedCategory && 
+         filters.selectedCategory !== 'Courses' &&
          ((filters.selectedCategory === 'Kid' && filters.selectedAgeGroup && !filters.selectedContentCategories.length) ||
           (filters.selectedCategory === 'Adult' && !filters.selectedContentCategories.length)) &&
          availableContentCategories.length > 0 && (

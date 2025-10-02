@@ -7,13 +7,16 @@ import { formatCategoryName } from '@/lib/utils';
 interface FilterBreadcrumbProps {
   selectedCategory: string | null;
   selectedContentCategories: string[];
+  selectedCourses?: string[];
   selectedAgeGroup: string | null;
   selectedThemes: string[];
   contentCategories: string[];
+  courses?: string[];
   ageGroups: string[];
   themes: Array<{ id: string; name: string; icon: string; category: string[]; icon_svg_url?: string }>;
   onCategorySelect: (category: string | null) => void;
   onContentCategoryToggle: (category: string) => void;
+  onCourseToggle?: (course: string) => void;
   onAgeGroupSelect: (ageGroup: string | null) => void;
   onThemeToggle: (theme: string) => void;
 }
@@ -21,13 +24,16 @@ interface FilterBreadcrumbProps {
 const FilterBreadcrumb = ({
   selectedCategory,
   selectedContentCategories,
+  selectedCourses = [],
   selectedAgeGroup,
   selectedThemes,
   contentCategories,
+  courses = [],
   ageGroups,
   themes,
   onCategorySelect,
   onContentCategoryToggle,
+  onCourseToggle,
   onAgeGroupSelect,
   onThemeToggle
 }: FilterBreadcrumbProps) => {
@@ -106,6 +112,34 @@ const FilterBreadcrumb = ({
               onClick={(e) => {
                 e.stopPropagation();
                 onContentCategoryToggle(category);
+              }}
+            >
+              <X className="w-3 h-3" />
+            </Button>
+          </Badge>
+        );
+      })}
+
+      {/* Course Pills */}
+      {selectedCourses.map((course) => {
+        const pillId = `course-${course}`;
+        return (
+          <Badge 
+            key={course}
+            variant="secondary" 
+            className="h-8 px-3 cursor-pointer hover:bg-secondary/80 transition-colors"
+            onClick={() => toggleExpand(pillId)}
+          >
+            <span className="text-sm">
+              {expandedPills.has(pillId) ? course : truncateText(course, 12)}
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-4 w-4 p-0 ml-2 hover:bg-transparent"
+              onClick={(e) => {
+                e.stopPropagation();
+                onCourseToggle?.(course);
               }}
             >
               <X className="w-3 h-3" />
