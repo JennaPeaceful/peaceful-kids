@@ -297,7 +297,7 @@ const Profile = () => {
           <Button 
             variant="ghost" 
             className="w-full justify-between"
-            onClick={() => window.open('/privacy-policy', '_blank')}
+            onClick={() => window.open('https://peaceful-legal-a6ew5bxei-davids-projects-2b73b5ac.vercel.app/privacy', '_blank')}
           >
             <span className="flex items-center gap-2">
               <Shield className="w-4 h-4" />
@@ -309,7 +309,7 @@ const Profile = () => {
           <Button 
             variant="ghost" 
             className="w-full justify-between"
-            onClick={() => window.open('/terms', '_blank')}
+            onClick={() => window.open('https://peaceful-legal-a6ew5bxei-davids-projects-2b73b5ac.vercel.app/terms', '_blank')}
           >
             <span className="flex items-center gap-2">
               <FileText className="w-4 h-4" />
@@ -321,11 +321,11 @@ const Profile = () => {
           <Button 
             variant="ghost" 
             className="w-full justify-between"
-            onClick={() => window.open('/support', '_blank')}
+            onClick={() => window.open('https://peaceful-legal-a6ew5bxei-davids-projects-2b73b5ac.vercel.app/support', '_blank')}
           >
             <span className="flex items-center gap-2">
               <HelpCircle className="w-4 h-4" />
-              Support & Help
+              Support
             </span>
             <ChevronRight className="w-4 h-4" />
           </Button>
