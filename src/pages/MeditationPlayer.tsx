@@ -651,6 +651,24 @@ const MeditationPlayer = () => {
 
         {/* Audio Waveform - Removed (now overlaid on thumbnail) */}
 
+        {/* Seek Slider for Audio */}
+        {isAudio && (
+          <div className="w-full max-w-md mb-6 px-4">
+            <Slider
+              value={[localCurrentTime]}
+              max={duration}
+              step={1}
+              onValueChange={handleSeek}
+              className="cursor-pointer"
+              disabled={!canPlay || isLocked}
+            />
+            <div className="flex justify-between text-xs text-muted-foreground mt-2">
+              <span>{formatTime(localCurrentTime)}</span>
+              <span>{formatTime(duration)}</span>
+            </div>
+          </div>
+        )}
+
         {/* Controls */}
         <div className="flex items-center justify-center gap-6 mb-8">
           <Button
