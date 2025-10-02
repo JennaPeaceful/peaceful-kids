@@ -22,7 +22,7 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
   // Check if content is locked based on plan type
   const planType = subscription?.plan_type;
   const isActive = subscription?.is_active;
-  const isCourse = meditation.courses != null && meditation.courses !== '';
+  const isCourse = meditation.category === 'Courses';
   const isLocked = !meditation.is_free && (
     !user || 
     !isActive || 
@@ -61,7 +61,7 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
       }
       
       // If user has Peace Plan but content is a course, redirect to explore to upgrade
-      const isCourse = meditation.courses != null && meditation.courses !== '';
+      const isCourse = meditation.category === 'Courses';
       if (planType === 'peace_plan' && isCourse) {
         navigate('/explore');
         return;
@@ -95,7 +95,7 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
         {!meditation.is_free && (() => {
           const isActive = subscription?.is_active;
           const planType = subscription?.plan_type;
-          const isCourse = meditation.courses != null && meditation.courses !== '';
+          const isCourse = meditation.category === 'Courses';
           
           // Don't show badge if user has access
           if (user && isActive && planType !== 'free') {
