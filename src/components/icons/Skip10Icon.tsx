@@ -30,8 +30,8 @@ const Skip10Icon: React.FC<Skip10IconProps> = ({ className, direction = 'forward
         fill="hsl(var(--background))"
         d="M 1157.92 864.422 C 1173.61 864.436 1187.09 867.382 1199.72 877.374 C 1228.61 900.235 1235.67 948.586 1239.53 983.186 C 1246.26 1043.37 1249.26 1179.67 1209 1228.19 C 1197.2 1242.41 1180.96 1248.71 1162.99 1250.19 C 1146.3 1250.15 1131.65 1246.62 1118.61 1235.54 C 1087.76 1209.32 1080.99 1155.85 1078 1117.57 C 1073.36 1057.97 1070.04 933.873 1110.77 886.948 C 1123.41 872.381 1138.97 865.897 1157.92 864.422 z"
       />
-      {/* Draw the "1" explicitly so it's never lost (draw last to be on top) */}
-      <rect x="960" y="800" width="160" height="560" rx="40" fill="currentColor" />
+      {/* Draw the "1" explicitly so it's never lost (left of zero) */}
+      <rect x="840" y="800" width="100" height="560" rx="40" fill="currentColor" />
     </svg>
   );
 };
