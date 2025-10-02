@@ -192,10 +192,10 @@ const Meditations = () => {
   const displayedMeditations = sortedMeditations.slice(0, displayedItems);
 
   return (
-    <div className="pb-24 pt-6 min-h-screen">
-      {/* Header */}
-      <div className="px-4 mb-6">
-        <div className="flex items-center justify-between mb-4">
+    <div className="pb-24 min-h-screen">
+      {/* Header - Sticky */}
+      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b border-border/40 px-4 py-4 mb-6">
+        <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-gradient-primary">
             {t('meditations.title')}
           </h1>
@@ -211,6 +211,9 @@ const Meditations = () => {
             </Button>
           )}
         </div>
+      </div>
+
+      <div className="px-4">
 
         {/* Search */}
         <div className="relative mb-4">
