@@ -15,6 +15,7 @@ export interface Meditation {
   age_group: string;
   themes: string[];
   content_categories?: string[];
+  courses?: string | null;
   created_at: string;
   sort_order: number;
 }

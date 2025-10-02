@@ -22,11 +22,12 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
   // Check if content is locked based on plan type
   const planType = subscription?.plan_type;
   const isActive = subscription?.is_active;
+  const isCourse = meditation.courses != null && meditation.courses !== '';
   const isLocked = !meditation.is_free && (
     !user || 
     !isActive || 
     planType === 'free' ||
-    (planType === 'peace_plan' && meditation.media_type === 'video')
+    (planType === 'peace_plan' && isCourse)
   );
 
   // Get theme objects with icons for this meditation
@@ -59,8 +60,9 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
         return;
       }
       
-      // If user has Peace Plan but content is video, redirect to explore to upgrade
-      if (planType === 'peace_plan' && meditation.media_type === 'video') {
+      // If user has Peace Plan but content is a course, redirect to explore to upgrade
+      const isCourse = meditation.courses != null && meditation.courses !== '';
+      if (planType === 'peace_plan' && isCourse) {
         navigate('/explore');
         return;
       }
@@ -93,20 +95,21 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
         {!meditation.is_free && (() => {
           const isActive = subscription?.is_active;
           const planType = subscription?.plan_type;
+          const isCourse = meditation.courses != null && meditation.courses !== '';
           
           // Don't show badge if user has access
           if (user && isActive && planType !== 'free') {
             // Peace Plus has access to everything
             if (planType === 'peace_plus_plan') return null;
-            // Peace Plan has access to audio only
-            if (planType === 'peace_plan' && meditation.media_type !== 'video') return null;
+            // Peace Plan has access to meditations (not courses)
+            if (planType === 'peace_plan' && !isCourse) return null;
           }
           
           // Show badge if no access
           return (
             <div className="absolute top-2 left-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1 shadow-lg">
               <Lock className="w-3 h-3" />
-              {meditation.media_type === 'video' ? 'Peace Plus' : 'Peace Plan'}
+              {isCourse ? 'Peace Plus' : 'Peace Plan'}
             </div>
           );
         })()}
