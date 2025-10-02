@@ -363,7 +363,7 @@ const MeditationPlayer = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/5">
+    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/5 pb-24">
       {/* Header */}
       <div className="flex items-center justify-between p-4">
         <Button
