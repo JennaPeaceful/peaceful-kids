@@ -11,7 +11,7 @@ import { Slider } from '../components/ui/slider';
 import { toast } from '../hooks/use-toast';
 import AudioWaveform from '../components/AudioWaveform';
 import { useQueryClient } from '@tanstack/react-query';
-import skip10Icon from '@/assets/skip-10-forward.svg';
+import Skip10Icon from '@/components/icons/Skip10Icon';
 
 const MeditationPlayer = () => {
   const { id } = useParams<{ id: string }>();
@@ -683,10 +683,9 @@ const MeditationPlayer = () => {
             disabled={isLocked || !canPlay}
             className="w-16 h-16 rounded-full relative group"
           >
-            <img 
-              src={skip10Icon} 
-              alt="Skip back 10 seconds" 
-              className="w-8 h-8 transform scale-x-[-1] brightness-0"
+            <Skip10Icon 
+              className="w-8 h-8"
+              direction="backward"
             />
           </Button>
 
@@ -711,10 +710,9 @@ const MeditationPlayer = () => {
             disabled={isLocked || !canPlay}
             className="w-16 h-16 rounded-full relative group"
           >
-            <img 
-              src={skip10Icon} 
-              alt="Skip forward 10 seconds" 
-              className="w-8 h-8 brightness-0"
+            <Skip10Icon 
+              className="w-8 h-8"
+              direction="forward"
             />
           </Button>
         </div>
