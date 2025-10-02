@@ -44,6 +44,7 @@ const App = () => {
               <AuthProvider>
                 <Routes>
                   <Route path="/" element={<AppLayout><Explore /></AppLayout>} />
+                  <Route path="/explore" element={<AppLayout><Explore /></AppLayout>} />
                   <Route path="/meditations" element={<AppLayout><Meditations /></AppLayout>} />
                   <Route path="/meditation/:id" element={<MeditationPlayer />} />
                   <Route path="/tracking" element={<AppLayout><Tracking /></AppLayout>} />
