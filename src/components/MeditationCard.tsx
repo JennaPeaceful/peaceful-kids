@@ -133,7 +133,7 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
               theme && theme.icon_svg_url && (
                 <div
                   key={theme.id}
-                  className="w-6 h-6 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0"
+                  className="w-6 h-6 bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 rounded-lg flex items-center justify-center flex-shrink-0"
                   title={theme.name}
                 >
                   <img 

@@ -334,21 +334,38 @@ const Meditations = () => {
               Courses
             </label>
             <div className="grid grid-cols-2 gap-3">
-              {courses.map((course) => (
-                <Button
-                  key={course}
-                  variant="outline"
-                  onClick={() => handleCourseToggle(course)}
-                  className="flex flex-col items-center gap-2 h-auto py-4 hover:shadow-primary transition-all"
-                >
-                  <div className="relative w-16 h-16 rounded-xl bg-gradient-to-br from-secondary via-primary to-accent p-3 flex items-center justify-center">
-                    <div className="text-white font-bold text-lg">
-                      {course.split(' ').slice(0, 2).map(word => word[0]).join('').toUpperCase()}
-                    </div>
-                  </div>
-                  <span className="text-xs font-medium text-center leading-tight px-2">{course}</span>
-                </Button>
-              ))}
+              {courses.map((course) => {
+                // Get the first meditation's thumbnail for this course
+                const courseMeditation = filteredMeditations.find(m => m.courses === course);
+                const thumbnailUrl = courseMeditation?.thumbnail_url || courseMeditation?.thumbnail;
+                
+                return (
+                  <Button
+                    key={course}
+                    variant="outline"
+                    onClick={() => handleCourseToggle(course)}
+                    className="flex flex-col items-center gap-2 h-auto py-4 hover:shadow-primary transition-all"
+                  >
+                    {thumbnailUrl ? (
+                      <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-gradient-to-br from-secondary via-primary to-accent">
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/40 via-secondary/40 to-accent/40 z-10" />
+                        <img 
+                          src={thumbnailUrl} 
+                          alt={course}
+                          className="w-full h-full object-cover relative z-0"
+                        />
+                      </div>
+                    ) : (
+                      <div className="relative w-16 h-16 rounded-xl bg-gradient-to-br from-secondary via-primary to-accent p-3 flex items-center justify-center">
+                        <div className="text-white font-bold text-lg">
+                          {course.split(' ').slice(0, 2).map(word => word[0]).join('').toUpperCase()}
+                        </div>
+                      </div>
+                    )}
+                    <span className="text-xs font-medium text-center leading-tight px-2 whitespace-normal min-h-[2rem] flex items-center">{course}</span>
+                  </Button>
+                );
+              })}
             </div>
           </div>
         )}
