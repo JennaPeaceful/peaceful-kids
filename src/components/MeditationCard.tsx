@@ -89,13 +89,27 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
           }}
         />
 
-        {/* Premium badge - show specific plan required */}
-        {!meditation.is_free && (
-          <div className="absolute top-2 left-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1 shadow-lg">
-            <Lock className="w-3 h-3" />
-            {meditation.media_type === 'video' ? 'Peace Plus' : 'Peace Plan'}
-          </div>
-        )}
+        {/* Premium badge - only show if user doesn't have access */}
+        {!meditation.is_free && (() => {
+          const isActive = subscription?.is_active;
+          const planType = subscription?.plan_type;
+          
+          // Don't show badge if user has access
+          if (user && isActive && planType !== 'free') {
+            // Peace Plus has access to everything
+            if (planType === 'peace_plus_plan') return null;
+            // Peace Plan has access to audio only
+            if (planType === 'peace_plan' && meditation.media_type !== 'video') return null;
+          }
+          
+          // Show badge if no access
+          return (
+            <div className="absolute top-2 left-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1 shadow-lg">
+              <Lock className="w-3 h-3" />
+              {meditation.media_type === 'video' ? 'Peace Plus' : 'Peace Plan'}
+            </div>
+          );
+        })()}
       </div>
 
       {/* Content */}
