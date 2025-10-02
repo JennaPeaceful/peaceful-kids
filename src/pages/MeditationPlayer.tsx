@@ -9,7 +9,6 @@ import { Button } from '../components/ui/button';
 import { Progress } from '../components/ui/progress';
 import { Slider } from '../components/ui/slider';
 import { toast } from '../hooks/use-toast';
-import AudioWaveform from '../components/AudioWaveform';
 import { useQueryClient } from '@tanstack/react-query';
 import Skip10Icon from '@/components/icons/Skip10Icon';
 
@@ -260,14 +259,6 @@ const MeditationPlayer = () => {
     mediaElement.currentTime = newTime;
   };
 
-  const handleWaveformClick = (time: number) => {
-    if (isLocked || !canPlay) return;
-    const mediaElement = isAudio ? audioRef.current : videoRef.current;
-    if (!mediaElement) return;
-    
-    mediaElement.currentTime = time;
-  };
-
   const handleVolumeChange = (newVolume: number[]) => {
     const vol = newVolume[0];
     setVolume(vol);
@@ -433,12 +424,16 @@ const MeditationPlayer = () => {
         {/* Media Display */}
         <div className="relative w-80 h-80 mb-8">
           {isAudio ? (
-            /* Thumbnail with overlay waveform for audio meditations */
+            /* Thumbnail with pulsing effect for audio meditations */
             <div className="relative w-full h-full">
               <img
                 src={meditation.thumbnail_url || meditation.thumbnail}
                 alt={meditation.title}
-                className="w-full h-full object-cover rounded-3xl shadow-2xl"
+                className={`w-full h-full object-cover rounded-3xl shadow-2xl transition-all duration-300 ${
+                  player.isPlaying && !isLocked && canPlay 
+                    ? 'animate-[pulse_1s_ease-in-out_infinite] scale-105' 
+                    : ''
+                }`}
                 onError={(e) => {
                   if (!e.currentTarget.src.includes('data:')) {
                     console.warn('Thumbnail failed to load, using placeholder');
@@ -457,26 +452,6 @@ const MeditationPlayer = () => {
                   }
                 }}
               />
-              {/* Waveform Overlay */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center p-6">
-                <div className="w-full bg-black/60 backdrop-blur-sm rounded-2xl p-4">
-                  <AudioWaveform
-                    audioUrl={meditation.media_url}
-                    isPlaying={player.isPlaying && !isLocked && canPlay}
-                    currentTime={localCurrentTime}
-                    duration={duration}
-                    height={60}
-                    barWidth={3}
-                    barGap={1}
-                    onClick={handleWaveformClick}
-                    className="mb-2"
-                  />
-                  <div className="flex justify-between text-xs text-white/90">
-                    <span>{formatTime(localCurrentTime)}</span>
-                    <span>{formatTime(duration)}</span>
-                  </div>
-                </div>
-              </div>
             </div>
           ) : (
             /* Video player with controls */
