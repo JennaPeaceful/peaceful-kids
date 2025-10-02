@@ -43,9 +43,9 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
     
     // Check if meditation is free
     if (!meditation.is_free) {
-      // If user is not logged in, redirect to profile
+      // If user is not logged in, redirect to explore to see plans
       if (!user) {
-        navigate('/profile');
+        navigate('/explore');
         return;
       }
       
@@ -55,13 +55,13 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
       
       // Peace Plan only gets audio, Peace Plus gets everything
       if (!isActive || planType === 'free') {
-        navigate('/profile');
+        navigate('/explore');
         return;
       }
       
-      // If user has Peace Plan but content is video, redirect to upgrade
+      // If user has Peace Plan but content is video, redirect to explore to upgrade
       if (planType === 'peace_plan' && meditation.media_type === 'video') {
-        navigate('/profile');
+        navigate('/explore');
         return;
       }
     }
