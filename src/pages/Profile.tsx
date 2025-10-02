@@ -4,6 +4,7 @@ import {
   Shield, FileText, HelpCircle, Trash2, Database,
   ChevronRight, Lock, RefreshCw, ExternalLink, Baby
 } from 'lucide-react';
+import { WellnessDisclaimer } from '@/components/WellnessDisclaimer';
 import { useUserStore } from '../stores/userStore';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../integrations/supabase/client';
@@ -30,6 +31,7 @@ const Profile = () => {
   const { profile, subscription, preferences, setPreferences } = useUserStore();
   const { signOut, user } = useAuth();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [childMode, setChildMode] = useState(false);
   const { t, i18n } = useTranslation();
 
@@ -349,10 +351,7 @@ const Profile = () => {
             variant="ghost" 
             size="sm"
             className="w-full mt-2 text-xs"
-            onClick={() => toast({ 
-              title: "First Launch Disclaimer",
-              description: "View the terms you accepted when first using the app."
-            })}
+            onClick={() => setShowDisclaimer(true)}
           >
             View First-Launch Disclaimer
           </Button>
@@ -415,6 +414,12 @@ const Profile = () => {
           {t('profile.signOut')}
         </Button>
       </div>
+
+      {/* Wellness Disclaimer Modal */}
+      <WellnessDisclaimer 
+        forceOpen={showDisclaimer} 
+        onClose={() => setShowDisclaimer(false)} 
+      />
 
       {/* Delete Account Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>

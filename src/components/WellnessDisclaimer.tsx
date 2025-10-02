@@ -11,19 +11,30 @@ import { Button } from '@/components/ui/button';
 
 const DISCLAIMER_STORAGE_KEY = 'wellness_disclaimer_accepted';
 
-export const WellnessDisclaimer = () => {
+interface WellnessDisclaimerProps {
+  forceOpen?: boolean;
+  onClose?: () => void;
+}
+
+export const WellnessDisclaimer = ({ forceOpen = false, onClose }: WellnessDisclaimerProps) => {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
+    if (forceOpen) {
+      setOpen(true);
+      return;
+    }
+    
     const hasAccepted = localStorage.getItem(DISCLAIMER_STORAGE_KEY);
     if (!hasAccepted) {
       setOpen(true);
     }
-  }, []);
+  }, [forceOpen]);
 
   const handleAccept = () => {
     localStorage.setItem(DISCLAIMER_STORAGE_KEY, 'true');
     setOpen(false);
+    onClose?.();
   };
 
   return (
