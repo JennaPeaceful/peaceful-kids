@@ -20,8 +20,6 @@ const resources = {
         mostPopular: 'MOST POPULAR',
         perMonth: 'per month',
         cancelAnytime: 'Cancel anytime • No long-term commitment',
-        freeTrial: 'All plans include a 7-day free trial',
-        freeTrialButton: '7-day free trial, then $9.99/month',
         startPeacePlan: 'Start Peace Plan',
         startPeacePlusPlan: 'Start Peace Plus Plan',
         features: {
@@ -132,8 +130,6 @@ const resources = {
         progressTracking: 'Progress tracking & insights',
         noAds: 'No ads during sessions',
         cancelAnytime: 'Cancel anytime',
-        freeTrial: '7-day free trial, then $9.99/month',
-        startFreeTrial: 'Start Free Trial',
       },
       premiumGate: {
         title: 'Premium Content',
@@ -178,8 +174,6 @@ const resources = {
         mostPopular: 'MÁS POPULAR',
         perMonth: 'por mes',
         cancelAnytime: 'Cancela en cualquier momento • Sin compromisos a largo plazo',
-        freeTrial: 'Todos los planes incluyen una prueba gratuita de 7 días',
-        freeTrialButton: 'Prueba gratuita de 7 días, luego $9.99/mes',
         startPeacePlan: 'Iniciar Plan Peace',
         startPeacePlusPlan: 'Iniciar Plan Peace Plus',
         features: {
@@ -290,8 +284,6 @@ const resources = {
         progressTracking: 'Seguimiento de progreso e información',
         noAds: 'Sin anuncios durante las sesiones',
         cancelAnytime: 'Cancela en cualquier momento',
-        freeTrial: 'Prueba gratuita de 7 días, luego $9.99/mes',
-        startFreeTrial: 'Iniciar prueba gratuita',
       },
       premiumGate: {
         title: 'Contenido Premium',
@@ -336,8 +328,6 @@ const resources = {
         mostPopular: 'PLUS POPULAIRE',
         perMonth: 'par mois',
         cancelAnytime: 'Annulez à tout moment • Aucun engagement à long terme',
-        freeTrial: 'Tous les plans incluent un essai gratuit de 7 jours',
-        freeTrialButton: 'Essai gratuit de 7 jours, puis 9,99$/mois',
         startPeacePlan: 'Démarrer le plan Peace',
         startPeacePlusPlan: 'Démarrer le plan Peace Plus',
         features: {
@@ -448,8 +438,6 @@ const resources = {
         progressTracking: 'Suivi des progrès et informations',
         noAds: 'Pas de publicités pendant les séances',
         cancelAnytime: 'Annulez à tout moment',
-        freeTrial: 'Essai gratuit de 7 jours, puis 9,99$/mois',
-        startFreeTrial: "Commencer l'essai gratuit",
       },
       premiumGate: {
         title: 'Contenu Premium',

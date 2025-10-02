@@ -33,8 +33,8 @@ const Explore = () => {
             {t('explore.subtitle')}
           </p>
           
-          {/* Free Trial Button */}
-          <Button 
+          {/* Try Free Samples Button */}
+          <Button
             onClick={handleTryFreeSamples}
             variant="outline"
             size="lg"
@@ -46,117 +46,74 @@ const Explore = () => {
         </div>
 
         {/* Subscription Plans */}
-        <div className="space-y-6 max-w-lg mx-auto">
-          {/* Peace Plan */}
-          <Card className="card-gradient p-8 border-2 border-primary/20 hover:border-primary/40 transition-all">
-            <div className="flex items-start justify-between mb-6">
-              <div>
-                <h2 className="text-2xl font-bold text-primary mb-2">{t('explore.peacePlan')}</h2>
-                <p className="text-muted-foreground text-sm">{t('explore.peacePlanDesc')}</p>
+        <div className="space-y-6 max-w-4xl mx-auto">
+          {/* Two Cards Side-by-Side */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Peace Plan */}
+            <Card className="card-gradient p-8 border-2 border-primary/20 hover:border-primary/40 transition-all flex flex-col">
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-primary mb-2">Peace Plan</h2>
+                <div className="text-3xl font-bold text-primary mt-3">$5.99</div>
+                <div className="text-sm text-muted-foreground">/month</div>
+                <p className="text-muted-foreground text-sm mt-3">All Meditations</p>
               </div>
-              <div className="text-right">
-                <div className="text-3xl font-bold text-primary">$5.99</div>
-                <div className="text-xs text-muted-foreground">{t('explore.perMonth')}</div>
-              </div>
-            </div>
 
-            <div className="space-y-4 mb-8">
-              <div className="flex items-start gap-3">
-                <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <Check className="w-3 h-3 text-primary" />
+              <div className="space-y-4 mb-8 flex-grow">
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Check className="w-3 h-3 text-primary" />
+                  </div>
+                  <span className="text-sm">Access to full audio meditation library</span>
                 </div>
-                <span className="text-sm">{t('explore.features.allAudioKids')}</span>
               </div>
-              <div className="flex items-start gap-3">
-                <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <Check className="w-3 h-3 text-primary" />
-                </div>
-                <span className="text-sm">{t('explore.features.allAudioAdults')}</span>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <Check className="w-3 h-3 text-primary" />
-                </div>
-                <span className="text-sm">{t('explore.features.unlimitedAccess')}</span>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <Check className="w-3 h-3 text-primary" />
-                </div>
-                <span className="text-sm">{t('explore.features.trackProgress')}</span>
-              </div>
-            </div>
 
-            <Button 
-              onClick={() => handleSelectPlan('peace')}
-              className="w-full btn-soft"
-              size="lg"
-            >
-              {t('explore.startPeacePlan')}
-            </Button>
-          </Card>
+              <Button 
+                onClick={() => handleSelectPlan('peace')}
+                className="w-full btn-soft mt-auto"
+                size="lg"
+              >
+                Subscribe
+              </Button>
+            </Card>
 
-          {/* Peace Plus Plan */}
-          <Card className="card-premium p-8 border-2 border-accent/50 hover:border-accent transition-all relative overflow-hidden">
-            <div className="flex items-start justify-between mb-6">
-              <div>
-                <h2 className="text-2xl font-bold text-gradient-premium mb-2">{t('explore.peacePlusPlan')}</h2>
-                <p className="text-muted-foreground text-sm">{t('explore.peacePlusPlanDesc')}</p>
+            {/* Peace Plus Plan - Highlighted */}
+            <Card className="card-premium p-8 border-2 border-accent/50 hover:border-accent transition-all relative flex flex-col">
+              <div className="absolute top-4 right-4 bg-accent text-accent-foreground text-xs font-semibold px-3 py-1 rounded-full">
+                Recommended
               </div>
-              <div className="text-right">
-                <div className="text-3xl font-bold text-gradient-premium">$9.99</div>
-                <div className="text-xs text-muted-foreground">{t('explore.perMonth')}</div>
+              
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-gradient-premium mb-2">Peace Plus Plan</h2>
+                <div className="text-3xl font-bold text-gradient-premium mt-3">$9.99</div>
+                <div className="text-sm text-muted-foreground">/month</div>
+                <p className="text-muted-foreground text-sm mt-3">All Content</p>
               </div>
-            </div>
 
-            <div className="space-y-4 mb-8">
-              <div className="flex items-start gap-3">
-                <div className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <Check className="w-3 h-3 text-accent" />
+              <div className="space-y-4 mb-8 flex-grow">
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Check className="w-3 h-3 text-accent" />
+                  </div>
+                  <span className="text-sm font-medium">Meditations + Courses (Audio + Video)</span>
                 </div>
-                <span className="text-sm font-medium">{t('explore.features.everythingInPeace')}</span>
               </div>
-              <div className="flex items-start gap-3">
-                <div className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <Check className="w-3 h-3 text-accent" />
-                </div>
-                <span className="text-sm font-medium">{t('explore.features.highlyMediated')}</span>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <Check className="w-3 h-3 text-accent" />
-                </div>
-                <span className="text-sm font-medium">{t('explore.features.rainbowArray')}</span>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <Check className="w-3 h-3 text-accent" />
-                </div>
-                <span className="text-sm font-medium">{t('explore.features.premiumVideo')}</span>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <Check className="w-3 h-3 text-accent" />
-                </div>
-                <span className="text-sm font-medium">{t('explore.features.prioritySupport')}</span>
-              </div>
-            </div>
 
-            <Button 
-              onClick={() => handleSelectPlan('peace-plus')}
-              className="w-full btn-premium"
-              size="lg"
-            >
-              {t('explore.startPeacePlusPlan')}
-            </Button>
-          </Card>
-        </div>
+              <Button 
+                onClick={() => handleSelectPlan('peace-plus')}
+                className="w-full btn-premium mt-auto"
+                size="lg"
+              >
+                Subscribe
+              </Button>
+            </Card>
+          </div>
 
-        {/* Additional Info */}
-        <div className="mt-12 text-center">
-          <p className="text-sm text-muted-foreground">
-            {t('explore.cancelAnytime')}
-          </p>
+          {/* Disclaimer */}
+          <div className="mt-8 text-center">
+            <p className="text-sm text-muted-foreground">
+              Billed monthly. Cancel anytime.
+            </p>
+          </div>
         </div>
       </div>
     </div>
