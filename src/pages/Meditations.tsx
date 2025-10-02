@@ -158,15 +158,14 @@ const Meditations = () => {
     !filters.selectedContentCategories.includes(theme.name)
   );
 
-  // Get content categories for the selected category
+  // Get content categories for the selected category - only show categories that have meditations
   const availableContentCategories = filters.selectedCategory 
-    ? contentCategories.filter(category => {
-        // For adults, show all content categories
-        if (filters.selectedCategory === 'Adult') return true;
-        // For kids, show content categories that have meditations
-        return filteredMeditations.some(m => m.content_categories?.includes(category));
-      })
-    : contentCategories;
+    ? contentCategories.filter(category => 
+        filteredMeditations.some(m => m.content_categories?.includes(category.name))
+      )
+    : contentCategories.filter(category => 
+        filteredMeditations.some(m => m.content_categories?.includes(category.name))
+      );
 
   // Sort meditations and filter by media type and favorites
   const filteredByMediaType = mediaType === 'all' 
@@ -381,21 +380,36 @@ const Meditations = () => {
               Content Category
             </label>
             <div className="grid grid-cols-2 gap-3">
-              {availableContentCategories.map((category) => (
-                <Button
-                  key={category}
-                  variant="outline"
-                  onClick={() => handleContentCategoryToggle(category)}
-                  className="flex flex-col items-center gap-2 h-auto py-4 hover:shadow-primary transition-all"
-                >
-                  <div className="relative w-16 h-16 rounded-xl bg-gradient-to-br from-secondary via-primary to-accent p-3 flex items-center justify-center">
-                    <div className="text-white font-bold text-lg">
-                      {category.split(' ').slice(0, 2).map(word => word[0]).join('').toUpperCase()}
-                    </div>
-                  </div>
-                  <span className="text-xs font-medium text-center leading-tight px-2">{category}</span>
-                </Button>
-              ))}
+              {availableContentCategories.map((category) => {
+                const thumbnailUrl = category.thumbnail_svg_url || category.thumbnail_png_url;
+                
+                return (
+                  <Button
+                    key={category.name}
+                    variant="outline"
+                    onClick={() => handleContentCategoryToggle(category.name)}
+                    className="flex flex-col items-center gap-2 h-auto py-4 hover:shadow-primary transition-all"
+                  >
+                    {thumbnailUrl ? (
+                      <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-gradient-to-br from-secondary via-primary to-accent">
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/40 via-secondary/40 to-accent/40 z-10" />
+                        <img 
+                          src={thumbnailUrl} 
+                          alt={category.name}
+                          className="w-full h-full object-cover relative z-0"
+                        />
+                      </div>
+                    ) : (
+                      <div className="relative w-16 h-16 rounded-xl bg-gradient-to-br from-secondary via-primary to-accent p-3 flex items-center justify-center">
+                        <div className="text-white font-bold text-lg">
+                          {category.name.split(' ').slice(0, 2).map((word: string) => word[0]).join('').toUpperCase()}
+                        </div>
+                      </div>
+                    )}
+                    <span className="text-xs font-medium text-center leading-tight px-2 whitespace-normal min-h-[2rem] flex items-center">{category.name}</span>
+                  </Button>
+                );
+              })}
             </div>
           </div>
         )}

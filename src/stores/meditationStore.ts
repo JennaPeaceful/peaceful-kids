@@ -8,7 +8,7 @@ interface MeditationState {
   recentMeditations: Meditation[];
   recommendedMeditations: Meditation[];
   categories: Category[];
-  contentCategories: string[];
+  contentCategories: Array<{name: string; thumbnail_png_url?: string; thumbnail_svg_url?: string}>;
   courses: string[];
   themes: Array<{id: string; name: string; icon: string; color: string; category: string[]; icon_svg_url?: string; icon_png_url?: string; sort_order?: number}>;
   ageGroups: string[];
@@ -197,15 +197,13 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
   
   fetchContentCategories: async () => {
     try {
-      const { data, error } = await supabase
-        .from('meditations')
-        .select('content_categories')
-        .not('content_categories', 'is', null);
+      const { data: contentCatData, error: catError } = await supabase
+        .from('content_categories')
+        .select('name, thumbnail_png_url, thumbnail_svg_url');
 
-      if (error) throw error;
+      if (catError) throw catError;
 
-      const categories = [...new Set(data.flatMap((row: any) => row.content_categories || []))];
-      set({ contentCategories: categories });
+      set({ contentCategories: contentCatData || [] });
     } catch (error) {
       console.error('Error fetching content categories:', error);
     }

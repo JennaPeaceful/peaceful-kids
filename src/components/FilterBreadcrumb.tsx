@@ -10,7 +10,7 @@ interface FilterBreadcrumbProps {
   selectedCourses?: string[];
   selectedAgeGroup: string | null;
   selectedThemes: string[];
-  contentCategories: string[];
+  contentCategories: Array<{name: string; thumbnail_png_url?: string; thumbnail_svg_url?: string}>;
   courses?: string[];
   ageGroups: string[];
   themes: Array<{ id: string; name: string; icon: string; category: string[]; icon_svg_url?: string }>;
@@ -93,17 +93,17 @@ const FilterBreadcrumb = ({
       )}
 
       {/* Content Category Pills */}
-      {selectedContentCategories.map((category) => {
-        const pillId = `content-${category}`;
+      {selectedContentCategories.map((categoryName) => {
+        const pillId = `content-${categoryName}`;
         return (
           <Badge 
-            key={category}
+            key={categoryName}
             variant="secondary" 
             className="h-8 px-3 cursor-pointer hover:bg-secondary/80 transition-colors"
             onClick={() => toggleExpand(pillId)}
           >
             <span className="text-sm">
-              {expandedPills.has(pillId) ? category : truncateText(category, 12)}
+              {expandedPills.has(pillId) ? categoryName : truncateText(categoryName, 12)}
             </span>
             <Button
               variant="ghost"
@@ -111,7 +111,7 @@ const FilterBreadcrumb = ({
               className="h-4 w-4 p-0 ml-2 hover:bg-transparent"
               onClick={(e) => {
                 e.stopPropagation();
-                onContentCategoryToggle(category);
+                onContentCategoryToggle(categoryName);
               }}
             >
               <X className="w-3 h-3" />
