@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Play, Pause, SkipBack, SkipForward, ArrowLeft, Heart, Lock, AlertCircle, Volume2, VolumeX, Maximize, Minimize } from 'lucide-react';
+import { Play, Pause, ArrowLeft, Heart, Lock, AlertCircle, Volume2, VolumeX, Maximize, Minimize } from 'lucide-react';
 import { useMeditationStore } from '../stores/meditationStore';
 import { useProgressStore } from '../stores/progressStore';
 import { useUserStore } from '../stores/userStore';
@@ -11,6 +11,7 @@ import { Slider } from '../components/ui/slider';
 import { toast } from '../hooks/use-toast';
 import AudioWaveform from '../components/AudioWaveform';
 import { useQueryClient } from '@tanstack/react-query';
+import skip10Icon from '@/assets/skip-10-forward.svg';
 
 const MeditationPlayer = () => {
   const { id } = useParams<{ id: string }>();
@@ -678,14 +679,15 @@ const MeditationPlayer = () => {
           <Button
             variant="ghost"
             size="lg"
-            onClick={() => handleSkip(-30)}
+            onClick={() => handleSkip(-10)}
             disabled={isLocked || !canPlay}
             className="w-16 h-16 rounded-full relative group"
           >
-            <SkipBack className="w-6 h-6" />
-            <span className="absolute inset-0 flex items-center justify-center text-xs font-bold pointer-events-none">
-              30
-            </span>
+            <img 
+              src={skip10Icon} 
+              alt="Skip back 10 seconds" 
+              className="w-8 h-8 transform scale-x-[-1]"
+            />
           </Button>
 
           <Button
@@ -705,14 +707,15 @@ const MeditationPlayer = () => {
           <Button
             variant="ghost"
             size="lg"
-            onClick={() => handleSkip(30)}
+            onClick={() => handleSkip(10)}
             disabled={isLocked || !canPlay}
             className="w-16 h-16 rounded-full relative group"
           >
-            <SkipForward className="w-6 h-6" />
-            <span className="absolute inset-0 flex items-center justify-center text-xs font-bold pointer-events-none">
-              30
-            </span>
+            <img 
+              src={skip10Icon} 
+              alt="Skip forward 10 seconds" 
+              className="w-8 h-8"
+            />
           </Button>
         </div>
 
