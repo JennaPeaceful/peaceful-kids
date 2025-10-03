@@ -12,6 +12,7 @@ import { toast } from '../hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import Skip10Icon from '@/components/icons/Skip10Icon';
 import { ParentalGate } from '@/components/ParentalGate';
+import { trackMeditationPlayed, trackMeditationCompleted, trackPaywallViewed, trackParentalGatePassed } from '@/config/analytics';
 
 const MeditationPlayer = () => {
   const { id } = useParams<{ id: string }>();
@@ -42,8 +43,8 @@ const MeditationPlayer = () => {
 
   const meditation = meditations.find(m => m.id === id);
   const isFav = meditation ? isFavorite(meditation.id) : false;
-  // Temporarily disabled for development
-  const isLocked = false; // meditation && !meditation.is_free && !subscription?.is_active;
+  // Re-enabled premium content gating for RevenueCat integration
+  const isLocked = meditation && !meditation.is_free && !subscription?.is_active;
   const isAudio = meditation?.media_type === 'audio';
 
   useEffect(() => {
@@ -106,6 +107,10 @@ const MeditationPlayer = () => {
       await completeSession(meditation.id, duration);
       // Invalidate the progress stats query to refresh the tracking page
       queryClient.invalidateQueries({ queryKey: ['progress-stats'] });
+
+      // Track meditation completion in analytics
+      trackMeditationCompleted(meditation.id, meditation.title, duration);
+
       toast({
         title: "Meditation Complete! 🎉",
         description: "Great job! You've completed another mindful session.",
@@ -203,6 +208,7 @@ const MeditationPlayer = () => {
 
   const handlePlayPause = async () => {
     if (isLocked) {
+      trackPaywallViewed('meditation_player');
       toast({
         title: "Premium Required",
         description: "Upgrade to premium to access this meditation.",
@@ -210,7 +216,7 @@ const MeditationPlayer = () => {
       });
       return;
     }
-    
+
     if (!canPlay) {
       toast({
         title: "Media Loading",
@@ -218,14 +224,19 @@ const MeditationPlayer = () => {
       });
       return;
     }
-    
+
     const mediaElement = isAudio ? audioRef.current : videoRef.current;
     if (!mediaElement) return;
-    
+
     try {
       if (player.isPlaying) {
         mediaElement.pause();
       } else {
+        // Track meditation playback start
+        if (meditation && !player.isPlaying) {
+          trackMeditationPlayed(meditation.id, meditation.title, duration);
+        }
+
         // Request wake lock to keep screen active during playback
         if ('wakeLock' in navigator) {
           try {
@@ -235,7 +246,7 @@ const MeditationPlayer = () => {
             console.log('Wake lock not available');
           }
         }
-        
+
         const playPromise = mediaElement.play();
         if (playPromise !== undefined) {
           playPromise.catch((error) => {

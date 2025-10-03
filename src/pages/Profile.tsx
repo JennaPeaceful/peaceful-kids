@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  User, Settings, LogOut, Crown, 
+import {
+  User, Settings, LogOut, Crown,
   Shield, FileText, HelpCircle, Trash2, Database,
-  ChevronRight, Lock, RefreshCw, ExternalLink
+  ChevronRight, Lock, RefreshCw, ExternalLink, Loader2
 } from 'lucide-react';
+import { isNativePlatform, isIOS, isAndroid } from '@/utils/platform';
+import { restorePurchases, openSubscriptionManagement } from '@/utils/revenuecat';
+import { forceRefreshSubscription } from '@/utils/syncSubscription';
 import { WellnessDisclaimer } from '@/components/WellnessDisclaimer';
 import { useUserStore } from '../stores/userStore';
 import { useAuth } from '../hooks/useAuth';
@@ -35,19 +38,92 @@ const Profile = () => {
   const { signOut, user } = useAuth();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const [isRestoringPurchases, setIsRestoringPurchases] = useState(false);
   const { t, i18n } = useTranslation();
 
-  const handleRestorePurchases = () => {
-    toast({
-      title: "Restoring Purchases",
-      description: "Checking for previous purchases...",
-    });
-    // TODO: Implement restore purchases logic
+  const handleRestorePurchases = async () => {
+    if (!isNativePlatform()) {
+      toast({
+        title: "Not Available",
+        description: "Restore purchases is only available on mobile apps.",
+      });
+      return;
+    }
+
+    if (!user?.id) {
+      toast({
+        title: "Sign In Required",
+        description: "Please sign in to restore purchases.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsRestoringPurchases(true);
+
+    try {
+      toast({
+        title: "Restoring Purchases",
+        description: "Checking for previous purchases...",
+      });
+
+      const customerInfo = await restorePurchases();
+
+      if (customerInfo && Object.keys(customerInfo.entitlements.active).length > 0) {
+        // Found active entitlements - sync to Supabase
+        await forceRefreshSubscription(
+          user.id,
+          (result) => {
+            toast({
+              title: "Purchases Restored!",
+              description: `Your ${result.planType === 'peace_plus_plan' ? 'Peace Plus' : 'Peace'} Plan subscription has been restored.`,
+            });
+          },
+          (error) => {
+            console.error('Sync error:', error);
+            toast({
+              title: "Sync Warning",
+              description: "Purchases restored but sync failed. Please restart the app.",
+              variant: "destructive",
+            });
+          }
+        );
+      } else {
+        toast({
+          title: "No Purchases Found",
+          description: "No previous purchases were found for this account.",
+        });
+      }
+    } catch (error: any) {
+      console.error('Restore purchases error:', error);
+      toast({
+        title: "Restore Failed",
+        description: error.message || "Failed to restore purchases. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsRestoringPurchases(false);
+    }
   };
 
-  const handleManageSubscription = () => {
-    // TODO: Deep link to subscription management
-    window.open('https://apps.apple.com/account/subscriptions', '_blank');
+  const handleManageSubscription = async () => {
+    if (!isNativePlatform()) {
+      // On web, open App Store subscription page
+      window.open('https://apps.apple.com/account/subscriptions', '_blank');
+      return;
+    }
+
+    try {
+      // Use RevenueCat's native subscription management
+      await openSubscriptionManagement();
+    } catch (error) {
+      console.error('Failed to open subscription management:', error);
+      toast({
+        title: "Error",
+        description: "Failed to open subscription management.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleExportData = () => {
@@ -245,18 +321,25 @@ const Profile = () => {
             )}
           </div>
 
-          {/* Restore Purchases */}
-          <Button 
-            variant="outline" 
-            className="w-full justify-between"
-            onClick={handleRestorePurchases}
-          >
-            <span className="flex items-center gap-2">
-              <RefreshCw className="w-4 h-4" />
-              Restore Purchases
-            </span>
-            <ChevronRight className="w-4 h-4" />
-          </Button>
+          {/* Restore Purchases - Native only */}
+          {isNativePlatform() && (
+            <Button
+              variant="outline"
+              className="w-full justify-between"
+              onClick={handleRestorePurchases}
+              disabled={isRestoringPurchases}
+            >
+              <span className="flex items-center gap-2">
+                {isRestoringPurchases ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="w-4 h-4" />
+                )}
+                Restore Purchases
+              </span>
+              {!isRestoringPurchases && <ChevronRight className="w-4 h-4" />}
+            </Button>
+          )}
 
           {/* Manage Subscription */}
           {subscription?.is_active && (

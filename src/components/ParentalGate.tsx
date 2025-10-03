@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { trackParentalGatePassed } from '@/config/analytics';
 
 interface ParentalGateProps {
   isOpen: boolean;
@@ -30,6 +31,9 @@ export const ParentalGate = ({ isOpen, onClose, onSuccess }: ParentalGateProps) 
     const correctAnswer = num1 + num2;
 
     if (parseInt(answer) === correctAnswer) {
+      // Track successful parental gate passage
+      trackParentalGatePassed();
+
       onSuccess();
       onClose();
     } else {

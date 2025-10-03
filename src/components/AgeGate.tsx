@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/dialog';
 import { useUserStore } from '@/stores/userStore';
 import logo from '@/assets/logo.svg';
+import { trackAgeGateResponse } from '@/config/analytics';
 
 interface AgeGateProps {
   isOpen: boolean;
@@ -22,10 +23,13 @@ export const AgeGate = ({ isOpen, onComplete }: AgeGateProps) => {
     // Store in localStorage
     localStorage.setItem('age-gate-completed', 'true');
     localStorage.setItem('user-age-group', group);
-    
+
     // Store in Zustand
     setAgeGroup(group);
-    
+
+    // Track age gate response in analytics
+    trackAgeGateResponse(group === 'adult');
+
     // Complete the flow
     onComplete();
   };

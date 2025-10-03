@@ -3,6 +3,9 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserStore } from '@/stores/userStore';
 import { toast } from 'sonner';
+import { identifyUser as identifyAnalyticsUser, resetAnalytics, trackSignIn } from '@/config/analytics';
+import { identifyUser as identifyRevenueCatUser, logoutUser as logoutRevenueCatUser } from '@/utils/revenuecat';
+import { syncOnAppLaunch } from '@/utils/syncSubscription';
 
 interface AuthContextType {
   user: User | null;
@@ -43,14 +46,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           ...profile,
           category_preference: profile.category_preference as 'Kids' | 'Adults'
         };
-        
+
         setProfile(typedProfile);
         login(typedProfile);
-        
+
         // Set default subscription if none exists
+        let planType: 'free' | 'peace_plan' | 'peace_plus_plan' = 'free';
         if (subscription) {
           // Map old plan types to new ones
-          let planType: 'free' | 'peace_plan' | 'peace_plus_plan' = 'free';
           if (subscription.plan_type === 'peace_plan' || subscription.plan_type === 'peace_plus_plan') {
             planType = subscription.plan_type;
           } else if (subscription.plan_type === 'monthly') {
@@ -58,7 +61,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           } else if (subscription.plan_type === 'yearly') {
             planType = 'peace_plus_plan';
           }
-          
+
           const typedSubscription = {
             ...subscription,
             plan_type: planType
@@ -86,6 +89,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           },
         };
         setPreferences(defaultPreferences);
+
+        // Track user in analytics
+        identifyAnalyticsUser(userId, {
+          email: profile.email || undefined,
+          name: profile.display_name || undefined,
+          age: profile.age || undefined,
+          subscription_tier: planType,
+        });
+
+        // Identify user with RevenueCat for purchase attribution
+        await identifyRevenueCatUser(userId);
+
+        // Sync subscription status from RevenueCat on app launch
+        // This ensures we catch any subscription changes that happened elsewhere
+        await syncOnAppLaunch(userId);
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
@@ -99,6 +117,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         toast.error('Error signing out');
       } else {
         logout();
+        resetAnalytics(); // Clear analytics user identity
+        await logoutRevenueCatUser(); // Log out from RevenueCat
         toast.success('Signed out successfully');
       }
     } catch (error) {
