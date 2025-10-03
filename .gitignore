@@ -17,6 +17,8 @@ dist-ssr
 .env.local
 .env.production
 .env.development
+.env.native
+.env.development.native
 
 # Editor directories and files
 .vscode/*
@@ -29,29 +31,8 @@ dist-ssr
 *.sln
 *.sw?
 
-# Capacitor
-# Ignore native-specific files that shouldn't be in Lovable
-src/main.native.tsx
-index.native.html
-src/capacitor-init.ts
-src/config/
-src/utils/
-src/components/ErrorState.tsx
-src/components/LoadingState.tsx
-src/hooks/useErrorHandler.ts
-android/
-ios/
-capacitor.config.ts
-.capacitor-quick-ref.md
-.env.example
-CAPACITOR.md
-POSTHOG-SETUP.md
-REVENUECAT_QA_CHECKLIST.md
-SECURITY-AUDIT-REPORT.md
-SENTRY-SETUP.md
-
-# Keep the platform directories in git for easier collaboration
-# But ignore build artifacts and IDE files within them
+# Capacitor build artifacts
+# Keep source files but ignore build outputs
 ios/App/Pods/
 ios/App/Podfile.lock
 ios/App/*.xcworkspace/
