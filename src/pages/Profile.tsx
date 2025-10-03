@@ -6,7 +6,6 @@ import {
   ChevronRight, Lock, RefreshCw, ExternalLink
 } from 'lucide-react';
 import { WellnessDisclaimer } from '@/components/WellnessDisclaimer';
-import { ParentalGate } from '@/components/ParentalGate';
 import { useUserStore } from '../stores/userStore';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../integrations/supabase/client';
@@ -35,7 +34,6 @@ const Profile = () => {
   const { signOut, user } = useAuth();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
-  const [showParentalGate, setShowParentalGate] = useState(false);
   const { t, i18n } = useTranslation();
 
   const handleRestorePurchases = () => {
@@ -118,7 +116,7 @@ const Profile = () => {
           {!subscription?.is_active && (
             <Button 
               className="btn-premium w-full"
-              onClick={() => setShowParentalGate(true)}
+              onClick={() => navigate('/explore')}
             >
               <Crown className="w-4 h-4 mr-2" />
               Upgrade to Premium
@@ -185,7 +183,7 @@ const Profile = () => {
           {!subscription?.is_active && (
             <Button 
               className="btn-premium w-full"
-              onClick={() => setShowParentalGate(true)}
+              onClick={() => navigate('/explore')}
             >
               <Crown className="w-4 h-4 mr-2" />
               Upgrade to Premium
@@ -320,13 +318,6 @@ const Profile = () => {
           {t('profile.signOut')}
         </Button>
       </div>
-
-      {/* Parental Gate */}
-      <ParentalGate
-        isOpen={showParentalGate}
-        onClose={() => setShowParentalGate(false)}
-        onSuccess={() => navigate('/explore')}
-      />
 
       {/* Wellness Disclaimer Modal */}
       <WellnessDisclaimer 
