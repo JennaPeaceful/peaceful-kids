@@ -9,7 +9,16 @@ import {
 } from '@/components/ui/dialog';
 import { useUserStore } from '@/stores/userStore';
 import logo from '@/assets/logo.svg';
-import { trackAgeGateResponse } from '@/config/analytics';
+
+// Safe import for analytics - no-op if not available
+const trackAgeGateResponse = async (ageGroup: string) => {
+  try {
+    const { trackAgeGateResponse: track } = await import('@/config/analytics');
+    track(ageGroup);
+  } catch {
+    // Analytics not available in this environment
+  }
+};
 
 interface AgeGateProps {
   isOpen: boolean;
@@ -28,7 +37,7 @@ export const AgeGate = ({ isOpen, onComplete }: AgeGateProps) => {
     setAgeGroup(group);
 
     // Track age gate response in analytics
-    trackAgeGateResponse(group === 'adult');
+    trackAgeGateResponse(group);
 
     // Complete the flow
     onComplete();

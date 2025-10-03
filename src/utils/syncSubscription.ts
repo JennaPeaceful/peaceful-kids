@@ -53,7 +53,7 @@ export async function syncSubscriptionStatus(userId: string): Promise<SyncResult
         if (activeEntitlements.length > 0) {
           isActive = true;
           const highestTier = await getHighestTierEntitlement();
-          planType = highestTier || 'peace_plan'; // Default to peace_plan if we can't determine
+          planType = (highestTier as 'peace_plan' | 'peace_plus_plan') || 'peace_plan'; // Default to peace_plan if we can't determine
         }
       }
     } else {
@@ -67,7 +67,7 @@ export async function syncSubscriptionStatus(userId: string): Promise<SyncResult
         .single();
 
       if (existingSub) {
-        planType = existingSub.plan_type;
+        planType = existingSub.plan_type as 'free' | 'peace_plan' | 'peace_plus_plan';
         isActive = existingSub.is_active;
         console.log('[SubscriptionSync] Existing web subscription:', planType, isActive);
       }
@@ -83,7 +83,6 @@ export async function syncSubscriptionStatus(userId: string): Promise<SyncResult
           user_id: userId,
           plan_type: planType,
           is_active: isActive,
-          updated_at: new Date().toISOString(),
         },
         {
           onConflict: 'user_id',

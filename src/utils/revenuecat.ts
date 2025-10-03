@@ -171,9 +171,9 @@ export async function openSubscriptionManagement(): Promise<void> {
   }
 
   try {
-    const { Purchases } = await import('@revenuecat/purchases-capacitor');
     if (isIOS()) {
-      await Purchases.showManageSubscriptions();
+      // iOS - open App Store subscriptions
+      window.open('https://apps.apple.com/account/subscriptions', '_blank');
     } else {
       // Android - open Play Store subscriptions
       window.open('https://play.google.com/store/account/subscriptions', '_blank');

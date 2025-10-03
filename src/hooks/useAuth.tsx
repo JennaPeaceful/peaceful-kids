@@ -92,7 +92,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
         // Track user in analytics
         identifyAnalyticsUser(userId, {
-          email: profile.email || undefined,
+          email: user?.email || undefined,
           name: profile.display_name || undefined,
           age: profile.age || undefined,
           subscription_tier: planType,

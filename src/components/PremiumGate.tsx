@@ -13,8 +13,38 @@ import { isNativePlatform } from '@/utils/platform';
 import { getOfferings, purchasePackage } from '@/utils/revenuecat';
 import { forceRefreshSubscription } from '@/utils/syncSubscription';
 import { toast } from '@/hooks/use-toast';
-import { trackPaywallViewed, trackPurchaseInitiated, trackPurchaseCompleted } from '@/config/analytics';
-import type { PurchasesOfferings, PurchasesPackage } from '@revenuecat/purchases-capacitor';
+
+// Safe analytics imports - no-op if not available
+const trackPaywallViewed = async (source: string) => {
+  try {
+    const { trackPaywallViewed: track } = await import('@/config/analytics');
+    track(source);
+  } catch {
+    // Analytics not available
+  }
+};
+
+const trackPurchaseInitiated = async (productId: string) => {
+  try {
+    const { trackPurchaseInitiated: track } = await import('@/config/analytics');
+    track(productId);
+  } catch {
+    // Analytics not available
+  }
+};
+
+const trackPurchaseCompleted = async (productId: string, revenue: number = 0) => {
+  try {
+    const { trackPurchaseCompleted: track } = await import('@/config/analytics');
+    track(productId, revenue);
+  } catch {
+    // Analytics not available
+  }
+};
+
+// Type imports - these won't cause runtime errors
+type PurchasesOfferings = any;
+type PurchasesPackage = any;
 
 interface PremiumGateProps {
   children: ReactNode;
@@ -51,7 +81,7 @@ const PremiumGate = ({ children, feature, showUpgrade = true }: PremiumGateProps
   // Track paywall view
   useEffect(() => {
     if (showPaywall) {
-      trackPaywallViewed();
+      trackPaywallViewed('premium_gate');
     }
   }, [showPaywall]);
 

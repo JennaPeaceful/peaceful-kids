@@ -22,18 +22,22 @@ export function initAnalytics(): void {
 
   try {
     // Dynamic import of PostHog when in native mode
-    const posthog = require('posthog-js').default;
-    const apiKey = import.meta.env.VITE_POSTHOG_KEY;
+    import('posthog-js').then((module) => {
+      const posthog = module.default;
+      const apiKey = import.meta.env.VITE_POSTHOG_KEY;
 
-    if (apiKey) {
-      posthogInstance = posthog.init(apiKey, {
-        api_host: 'https://app.posthog.com',
-        capture_pageview: false, // We'll manually track
-        persistence: 'localStorage',
-      });
+      if (apiKey) {
+        posthogInstance = posthog.init(apiKey, {
+          api_host: 'https://app.posthog.com',
+          capture_pageview: false, // We'll manually track
+          persistence: 'localStorage',
+        });
 
-      console.log('[Analytics] PostHog initialized');
-    }
+        console.log('[Analytics] PostHog initialized');
+      }
+    }).catch((error) => {
+      console.log('[Analytics] Failed to initialize:', error);
+    });
   } catch (error) {
     console.log('[Analytics] Failed to initialize:', error);
   }

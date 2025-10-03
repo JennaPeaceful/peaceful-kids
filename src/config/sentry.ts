@@ -27,30 +27,31 @@ export function initSentry(): void {
 
   try {
     // Dynamic import of Sentry when in native mode
-    const Sentry = require('@sentry/capacitor');
-    const { init } = Sentry;
-
-    init({
-      dsn,
-      environment: import.meta.env.MODE || 'development',
-      integrations: [
-        // Add any Capacitor-specific integrations here
-      ],
-      tracesSampleRate: import.meta.env.MODE === 'production' ? 0.1 : 1.0,
-      debug: import.meta.env.MODE !== 'production',
-      beforeSend(event, hint) {
-        // Filter out non-critical errors in production
-        if (import.meta.env.MODE === 'production') {
-          // Don't send network errors
-          if (hint.originalException?.message?.includes('Network')) {
-            return null;
+    import('@sentry/capacitor').then((Sentry) => {
+      Sentry.init({
+        dsn,
+        environment: import.meta.env.MODE || 'development',
+        integrations: [
+          // Add any Capacitor-specific integrations here
+        ],
+        tracesSampleRate: import.meta.env.MODE === 'production' ? 0.1 : 1.0,
+        debug: import.meta.env.MODE !== 'production',
+        beforeSend(event, hint) {
+          // Filter out non-critical errors in production
+          if (import.meta.env.MODE === 'production') {
+            // Don't send network errors
+            if (hint.originalException?.message?.includes('Network')) {
+              return null;
+            }
           }
-        }
-        return event;
-      },
-    });
+          return event;
+        },
+      });
 
-    console.log('[Sentry] Initialized for', import.meta.env.MODE);
+      console.log('[Sentry] Initialized for', import.meta.env.MODE);
+    }).catch((error) => {
+      console.log('[Sentry] Failed to initialize:', error);
+    });
   } catch (error) {
     console.log('[Sentry] Failed to initialize:', error);
   }

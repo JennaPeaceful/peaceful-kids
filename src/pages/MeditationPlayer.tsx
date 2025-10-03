@@ -12,7 +12,43 @@ import { toast } from '../hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import Skip10Icon from '@/components/icons/Skip10Icon';
 import { ParentalGate } from '@/components/ParentalGate';
-import { trackMeditationPlayed, trackMeditationCompleted, trackPaywallViewed, trackParentalGatePassed } from '@/config/analytics';
+
+// Safe analytics imports - no-op if not available
+const trackMeditationPlayed = async (meditationId: string, title: string) => {
+  try {
+    const { trackMeditationPlayed: track } = await import('@/config/analytics');
+    track(meditationId, title);
+  } catch {
+    // Analytics not available
+  }
+};
+
+const trackMeditationCompleted = async (meditationId: string, title: string, duration: number) => {
+  try {
+    const { trackMeditationCompleted: track } = await import('@/config/analytics');
+    track(meditationId, title, duration);
+  } catch {
+    // Analytics not available
+  }
+};
+
+const trackPaywallViewed = async (source: string) => {
+  try {
+    const { trackPaywallViewed: track } = await import('@/config/analytics');
+    track(source);
+  } catch {
+    // Analytics not available
+  }
+};
+
+const trackParentalGatePassed = async () => {
+  try {
+    const { trackParentalGatePassed: track } = await import('@/config/analytics');
+    track();
+  } catch {
+    // Analytics not available
+  }
+};
 
 const MeditationPlayer = () => {
   const { id } = useParams<{ id: string }>();
@@ -234,7 +270,7 @@ const MeditationPlayer = () => {
       } else {
         // Track meditation playback start
         if (meditation && !player.isPlaying) {
-          trackMeditationPlayed(meditation.id, meditation.title, duration);
+          trackMeditationPlayed(meditation.id, meditation.title);
         }
 
         // Request wake lock to keep screen active during playback
@@ -370,22 +406,22 @@ const MeditationPlayer = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/5 pb-24">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4">
+      {/* Header - with safe area padding for mobile */}
+      <div className="flex items-center justify-between p-4 pt-6 safe-top">
         <Button
-          variant="ghost"
+          variant="outline"
           size="sm"
           onClick={() => navigate(-1)}
-          className="w-10 h-10 rounded-full"
+          className="w-10 h-10 rounded-full bg-background/80 backdrop-blur-sm"
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        
+
         <Button
-          variant="ghost"
+          variant="outline"
           size="sm"
           onClick={handleFavoriteClick}
-          className="w-10 h-10 rounded-full"
+          className="w-10 h-10 rounded-full bg-background/80 backdrop-blur-sm"
         >
           <Heart className={`w-5 h-5 ${isFav ? 'fill-primary text-primary' : ''}`} />
         </Button>
@@ -473,6 +509,8 @@ const MeditationPlayer = () => {
               <video
                 ref={videoRef}
                 src={meditation.media_url}
+                playsInline
+                webkit-playsinline="true"
                 onLoadStart={() => {
                   console.log('Loading video from:', meditation.media_url);
                   handleLoadStart();

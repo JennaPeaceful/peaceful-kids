@@ -2,7 +2,16 @@ import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { trackParentalGatePassed } from '@/config/analytics';
+
+// Safe import for analytics - no-op if not available
+const trackParentalGatePassed = async () => {
+  try {
+    const { trackParentalGatePassed: track } = await import('@/config/analytics');
+    track();
+  } catch {
+    // Analytics not available in this environment
+  }
+};
 
 interface ParentalGateProps {
   isOpen: boolean;
