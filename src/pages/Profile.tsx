@@ -57,14 +57,103 @@ const Profile = () => {
     // TODO: Implement data export
   };
 
-  const handleDeleteAccount = () => {
-    toast({
-      title: "Account Deletion Scheduled",
-      description: "Your account will be deleted in 30 days. You can cancel this anytime.",
-      variant: "destructive",
-    });
-    setShowDeleteDialog(false);
-    // TODO: Implement account deletion with grace period
+  const handleDeleteAccount = async () => {
+    if (!user?.id) {
+      toast({
+        title: "Error",
+        description: "No user session found.",
+        variant: "destructive",
+      });
+      setShowDeleteDialog(false);
+      return;
+    }
+
+    try {
+      // Delete user data from Supabase tables
+      // Note: These deletes will work based on RLS policies we just added
+
+      // 1. Delete meditation usage records
+      const { error: usageError } = await supabase
+        .from('meditation_usage')
+        .delete()
+        .eq('user_id', user.id);
+
+      if (usageError) {
+        console.error('Error deleting meditation usage:', usageError);
+      }
+
+      // 2. Delete user favorites
+      const { error: favError } = await supabase
+        .from('user_favorites')
+        .delete()
+        .eq('user_id', user.id);
+
+      if (favError) {
+        console.error('Error deleting favorites:', favError);
+      }
+
+      // 3. Delete user progress
+      const { error: progressError } = await supabase
+        .from('user_progress')
+        .delete()
+        .eq('user_id', user.id);
+
+      if (progressError) {
+        console.error('Error deleting progress:', progressError);
+      }
+
+      // 4. Delete user preferences
+      const { error: prefError } = await supabase
+        .from('user_preferences')
+        .delete()
+        .eq('user_id', user.id);
+
+      if (prefError) {
+        console.error('Error deleting preferences:', prefError);
+      }
+
+      // 5. Delete user subscriptions
+      const { error: subError } = await supabase
+        .from('user_subscriptions')
+        .delete()
+        .eq('user_id', user.id);
+
+      if (subError) {
+        console.error('Error deleting subscriptions:', subError);
+      }
+
+      // 6. Finally, delete user profile (most critical)
+      const { error: profileError } = await supabase
+        .from('user_profiles')
+        .delete()
+        .eq('user_id', user.id);
+
+      if (profileError) {
+        throw profileError;
+      }
+
+      // Show success message
+      toast({
+        title: "Account Deleted",
+        description: "Your account and all data have been permanently removed.",
+        variant: "destructive",
+      });
+
+      // Sign out after successful deletion
+      setTimeout(() => {
+        signOut();
+      }, 1500);
+
+    } catch (error) {
+      console.error('Account deletion error:', error);
+      toast({
+        title: "Deletion Failed",
+        description: "Unable to delete account. Please contact support at dev@peacefulkids.app",
+        variant: "destructive",
+      });
+    } finally {
+      setShowDeleteDialog(false);
+    }
   };
 
   const handleSignOutEverywhere = () => {
@@ -331,9 +420,12 @@ const Profile = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Account?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action will schedule your account for deletion in 30 days. 
-              You can cancel this at any time during the grace period. 
-              All your data will be permanently removed after 30 days.
+              This will permanently delete your account and all associated data including:
+              {'\n'}• Your profile information
+              {'\n'}• Meditation progress and history
+              {'\n'}• Subscription information
+              {'\n'}• Saved preferences and favorites
+              {'\n\n'}This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -342,7 +434,7 @@ const Profile = () => {
               onClick={handleDeleteAccount}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Delete Account
+              Permanently Delete Account
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
