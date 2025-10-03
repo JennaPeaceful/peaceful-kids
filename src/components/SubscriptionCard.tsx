@@ -1,8 +1,31 @@
+import { useState } from 'react';
 import { CheckCircle, Sparkles, Music } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card } from './ui/card';
+import { ParentalGate } from './ParentalGate';
 
-const SubscriptionCard = () => {
+interface SubscriptionCardProps {
+  onSubscribe?: (plan: string) => void;
+}
+
+const SubscriptionCard = ({ onSubscribe }: SubscriptionCardProps) => {
+  const [showParentalGate, setShowParentalGate] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+
+  const handleSelectPlan = (plan: string) => {
+    setSelectedPlan(plan);
+    setShowParentalGate(true);
+  };
+
+  const handleParentalGateSuccess = () => {
+    if (selectedPlan && onSubscribe) {
+      onSubscribe(selectedPlan);
+    } else {
+      console.log('Selected plan:', selectedPlan);
+      // TODO: Implement subscription logic
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Two Cards Side-by-Side on Desktop */}
@@ -30,7 +53,10 @@ const SubscriptionCard = () => {
             </div>
           </div>
 
-          <Button className="btn-soft w-full mt-auto">
+          <Button 
+            className="btn-soft w-full mt-auto"
+            onClick={() => handleSelectPlan('peace')}
+          >
             Subscribe
           </Button>
         </Card>
@@ -64,7 +90,10 @@ const SubscriptionCard = () => {
             </div>
           </div>
 
-          <Button className="btn-premium w-full mt-auto">
+          <Button 
+            className="btn-premium w-full mt-auto"
+            onClick={() => handleSelectPlan('peace-plus')}
+          >
             <Sparkles className="w-4 h-4 mr-2" />
             Subscribe
           </Button>
@@ -75,6 +104,13 @@ const SubscriptionCard = () => {
       <p className="text-sm text-muted-foreground text-center">
         Billed monthly. Cancel anytime.
       </p>
+
+      {/* Parental Gate */}
+      <ParentalGate
+        isOpen={showParentalGate}
+        onClose={() => setShowParentalGate(false)}
+        onSuccess={handleParentalGateSuccess}
+      />
     </div>
   );
 };

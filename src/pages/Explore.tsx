@@ -1,16 +1,25 @@
+import { useState } from 'react';
 import { Check, Headphones } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import logo from '@/assets/logo.svg';
+import { ParentalGate } from '@/components/ParentalGate';
 
 const Explore = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [showParentalGate, setShowParentalGate] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
 
   const handleSelectPlan = (plan: string) => {
-    console.log('Selected plan:', plan);
+    setSelectedPlan(plan);
+    setShowParentalGate(true);
+  };
+
+  const handleParentalGateSuccess = () => {
+    console.log('Selected plan:', selectedPlan);
     // TODO: Implement subscription flow
   };
 
@@ -116,6 +125,13 @@ const Explore = () => {
           </div>
         </div>
       </div>
+
+      {/* Parental Gate */}
+      <ParentalGate
+        isOpen={showParentalGate}
+        onClose={() => setShowParentalGate(false)}
+        onSuccess={handleParentalGateSuccess}
+      />
     </div>
   );
 };

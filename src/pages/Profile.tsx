@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
-  User, Settings, Bell, Download, Heart, LogOut, Crown, 
+  User, Settings, Bell, Heart, LogOut, Crown, 
   Shield, FileText, HelpCircle, Trash2, Database,
-  ChevronRight, Lock, RefreshCw, ExternalLink, Baby
+  ChevronRight, Lock, RefreshCw, ExternalLink
 } from 'lucide-react';
 import { WellnessDisclaimer } from '@/components/WellnessDisclaimer';
+import { ParentalGate } from '@/components/ParentalGate';
 import { useUserStore } from '../stores/userStore';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../integrations/supabase/client';
@@ -28,11 +30,12 @@ import { formatCategoryName } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 
 const Profile = () => {
+  const navigate = useNavigate();
   const { profile, subscription, preferences, setPreferences } = useUserStore();
   const { signOut, user } = useAuth();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
-  const [childMode, setChildMode] = useState(false);
+  const [showParentalGate, setShowParentalGate] = useState(false);
   const { t, i18n } = useTranslation();
 
   const handleRestorePurchases = () => {
@@ -113,7 +116,10 @@ const Profile = () => {
           </div>
 
           {!subscription?.is_active && (
-            <Button className="btn-premium w-full">
+            <Button 
+              className="btn-premium w-full"
+              onClick={() => setShowParentalGate(true)}
+            >
               <Crown className="w-4 h-4 mr-2" />
               Upgrade to Premium
             </Button>
@@ -142,38 +148,6 @@ const Profile = () => {
             <Button variant="ghost" size="sm">
               <ChevronRight className="w-4 h-4" />
             </Button>
-          </div>
-
-          {/* Child Mode Toggle */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Baby className="w-5 h-5 text-primary" />
-              <div>
-                <h4 className="font-semibold">Child Mode</h4>
-                <p className="text-sm text-muted-foreground">
-                  Requires parent PIN to exit
-                </p>
-              </div>
-            </div>
-            <Switch 
-              checked={childMode}
-              onCheckedChange={setChildMode}
-            />
-          </div>
-
-          {/* Download Management */}
-          <div 
-            className="flex items-center justify-between cursor-pointer hover:bg-muted/30 -mx-6 px-6 py-3 rounded-lg transition-colors"
-            onClick={() => toast({ title: "Download Management", description: "Opening download manager..." })}
-          >
-            <div className="flex items-center gap-3">
-              <Download className="w-5 h-5 text-primary" />
-              <div>
-                <h4 className="font-semibold">Downloaded Content</h4>
-                <p className="text-sm text-muted-foreground">Manage offline downloads</p>
-              </div>
-            </div>
-            <ChevronRight className="w-4 h-4" />
           </div>
         </Card>
       </div>
@@ -233,7 +207,10 @@ const Profile = () => {
 
           {/* Upgrade Button */}
           {!subscription?.is_active && (
-            <Button className="btn-premium w-full">
+            <Button 
+              className="btn-premium w-full"
+              onClick={() => setShowParentalGate(true)}
+            >
               <Crown className="w-4 h-4 mr-2" />
               Upgrade to Premium
             </Button>
@@ -257,7 +234,17 @@ const Profile = () => {
             </div>
             <Switch 
               checked={preferences?.notification_settings.daily_reminder}
-              onCheckedChange={() => {}}
+              onCheckedChange={(checked) => {
+                if (preferences) {
+                  setPreferences({
+                    ...preferences,
+                    notification_settings: {
+                      ...preferences.notification_settings,
+                      daily_reminder: checked
+                    }
+                  });
+                }
+              }}
             />
           </div>
 
@@ -270,7 +257,17 @@ const Profile = () => {
             </div>
             <Switch 
               checked={preferences?.notification_settings.streak_celebration}
-              onCheckedChange={() => {}}
+              onCheckedChange={(checked) => {
+                if (preferences) {
+                  setPreferences({
+                    ...preferences,
+                    notification_settings: {
+                      ...preferences.notification_settings,
+                      streak_celebration: checked
+                    }
+                  });
+                }
+              }}
             />
           </div>
 
@@ -283,7 +280,17 @@ const Profile = () => {
             </div>
             <Switch 
               checked={preferences?.notification_settings.new_content}
-              onCheckedChange={() => {}}
+              onCheckedChange={(checked) => {
+                if (preferences) {
+                  setPreferences({
+                    ...preferences,
+                    notification_settings: {
+                      ...preferences.notification_settings,
+                      new_content: checked
+                    }
+                  });
+                }
+              }}
             />
           </div>
         </Card>
@@ -414,6 +421,13 @@ const Profile = () => {
           {t('profile.signOut')}
         </Button>
       </div>
+
+      {/* Parental Gate */}
+      <ParentalGate
+        isOpen={showParentalGate}
+        onClose={() => setShowParentalGate(false)}
+        onSuccess={() => navigate('/explore')}
+      />
 
       {/* Wellness Disclaimer Modal */}
       <WellnessDisclaimer 

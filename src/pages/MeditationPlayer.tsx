@@ -11,6 +11,7 @@ import { Slider } from '../components/ui/slider';
 import { toast } from '../hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import Skip10Icon from '@/components/icons/Skip10Icon';
+import { ParentalGate } from '@/components/ParentalGate';
 
 const MeditationPlayer = () => {
   const { id } = useParams<{ id: string }>();
@@ -32,6 +33,7 @@ const MeditationPlayer = () => {
   const [isMuted, setIsMuted] = useState(false);
   const [showControls, setShowControls] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showParentalGate, setShowParentalGate] = useState(false);
   
   const audioRef = useRef<HTMLAudioElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -577,7 +579,10 @@ const MeditationPlayer = () => {
                 <p className="text-sm opacity-90 mb-4">
                   Upgrade to access this meditation
                 </p>
-                <Button className="btn-premium">
+                <Button 
+                  className="btn-premium"
+                  onClick={() => setShowParentalGate(true)}
+                >
                   Unlock Premium
                 </Button>
               </div>
@@ -708,6 +713,13 @@ const MeditationPlayer = () => {
           </div>
         )}
       </div>
+
+      {/* Parental Gate */}
+      <ParentalGate
+        isOpen={showParentalGate}
+        onClose={() => setShowParentalGate(false)}
+        onSuccess={() => navigate('/explore')}
+      />
     </div>
   );
 };

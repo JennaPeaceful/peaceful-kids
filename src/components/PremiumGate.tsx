@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Crown, Lock, Sparkles } from 'lucide-react';
 import AuthModal from './AuthModal';
+import { ParentalGate } from './ParentalGate';
 
 interface PremiumGateProps {
   children: ReactNode;
@@ -20,6 +21,7 @@ const PremiumGate = ({ children, feature, showUpgrade = true }: PremiumGateProps
   const { subscription } = useUserStore();
   const { t } = useTranslation();
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showParentalGate, setShowParentalGate] = useState(false);
   
   const isPremium = subscription?.is_active;
   const isLoggedIn = !!user;
@@ -70,7 +72,10 @@ const PremiumGate = ({ children, feature, showUpgrade = true }: PremiumGateProps
       </div>
 
       <div className="flex flex-col gap-3 w-full max-w-xs">
-        <Button className="btn-premium">
+        <Button 
+          className="btn-premium"
+          onClick={() => setShowParentalGate(true)}
+        >
           <Crown className="w-4 h-4 mr-2" />
           {t('premiumGate.upgradeToPremium')}
         </Button>
@@ -94,6 +99,12 @@ const PremiumGate = ({ children, feature, showUpgrade = true }: PremiumGateProps
           {t('premiumGate.goBack')}
         </Button>
       </div>
+      
+      <ParentalGate
+        isOpen={showParentalGate}
+        onClose={() => setShowParentalGate(false)}
+        onSuccess={() => navigate('/explore')}
+      />
       
       <AuthModal 
         isOpen={showAuthModal} 
