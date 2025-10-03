@@ -249,8 +249,8 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
     // Apply age group filter FIRST (COPPA compliance)
     const ageGroup = localStorage.getItem('user-age-group');
     if (ageGroup === 'child') {
-      // Children only see Kids category meditations
-      filtered = filtered.filter(m => m.category === 'Kid');
+      // Children see Kids and Adults categories, but NOT Courses
+      filtered = filtered.filter(m => m.category !== 'Courses');
     }
     
     if (filters.selectedCategory) {

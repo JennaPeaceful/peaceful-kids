@@ -36,8 +36,8 @@ const Explore = () => {
     const ageGroup = localStorage.getItem('user-age-group');
     let filteredByAge = meditations;
     if (ageGroup === 'child') {
-      // Children only see Kids category meditations
-      filteredByAge = meditations.filter(m => m.category === 'Kid');
+      // Children see Kids and Adults categories, but NOT Courses
+      filteredByAge = meditations.filter(m => m.category !== 'Courses');
     }
 
     const featured = filteredByAge.filter(m => 

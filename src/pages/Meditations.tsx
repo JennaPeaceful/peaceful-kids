@@ -276,8 +276,8 @@ const Meditations = () => {
             <div className="grid grid-cols-2 gap-3">
               {categories
                 .filter(category => {
-                  // Hide Adults category for children (COPPA compliance)
-                  if (ageGroup === 'child' && category.name === 'Adult') {
+                  // Hide Courses category for children (COPPA compliance)
+                  if (ageGroup === 'child' && category.name === 'Courses') {
                     return false;
                   }
                   return true;
