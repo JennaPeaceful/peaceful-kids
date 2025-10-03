@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  User, Settings, Bell, Heart, LogOut, Crown, 
+  User, Settings, LogOut, Crown, 
   Shield, FileText, HelpCircle, Trash2, Database,
   ChevronRight, Lock, RefreshCw, ExternalLink
 } from 'lucide-react';
@@ -127,30 +127,6 @@ const Profile = () => {
         </Card>
       </div>
 
-      {/* Profile Settings Section */}
-      <div className="px-4 mb-8">
-        <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-          <Settings className="w-5 h-5" />
-          {t('profile.settings')}
-        </h3>
-        <Card className="card-gradient p-6 space-y-4">
-          {/* Content Level */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <User className="w-5 h-5 text-primary" />
-              <div>
-                <h4 className="font-semibold">Content Level</h4>
-                <p className="text-sm text-muted-foreground">
-                  {formatCategoryName(profile?.category_preference)}
-                </p>
-              </div>
-            </div>
-            <Button variant="ghost" size="sm">
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-          </div>
-        </Card>
-      </div>
 
       {/* Purchases Section */}
       <div className="px-4 mb-8">
@@ -218,83 +194,6 @@ const Profile = () => {
         </Card>
       </div>
 
-      {/* Notifications Section */}
-      <div className="px-4 mb-8">
-        <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-          <Bell className="w-5 h-5" />
-          {t('profile.notifications')}
-        </h3>
-        <Card className="card-gradient p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="font-semibold">Daily Reminder</h4>
-              <p className="text-sm text-muted-foreground">
-                Get reminded to meditate each day
-              </p>
-            </div>
-            <Switch 
-              checked={preferences?.notification_settings.daily_reminder}
-              onCheckedChange={(checked) => {
-                if (preferences) {
-                  setPreferences({
-                    ...preferences,
-                    notification_settings: {
-                      ...preferences.notification_settings,
-                      daily_reminder: checked
-                    }
-                  });
-                }
-              }}
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="font-semibold">Streak Celebrations</h4>
-              <p className="text-sm text-muted-foreground">
-                Celebrate your meditation streaks
-              </p>
-            </div>
-            <Switch 
-              checked={preferences?.notification_settings.streak_celebration}
-              onCheckedChange={(checked) => {
-                if (preferences) {
-                  setPreferences({
-                    ...preferences,
-                    notification_settings: {
-                      ...preferences.notification_settings,
-                      streak_celebration: checked
-                    }
-                  });
-                }
-              }}
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="font-semibold">New Content</h4>
-              <p className="text-sm text-muted-foreground">
-                Notifications about new meditations
-              </p>
-            </div>
-            <Switch 
-              checked={preferences?.notification_settings.new_content}
-              onCheckedChange={(checked) => {
-                if (preferences) {
-                  setPreferences({
-                    ...preferences,
-                    notification_settings: {
-                      ...preferences.notification_settings,
-                      new_content: checked
-                    }
-                  });
-                }
-              }}
-            />
-          </div>
-        </Card>
-      </div>
 
       {/* Legal Section */}
       <div className="px-4 mb-8">
