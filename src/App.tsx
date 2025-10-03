@@ -11,6 +11,7 @@ import { useSplash } from "./hooks/useSplash";
 import SplashScreen from "./components/SplashScreen";
 import { AgeGate } from "./components/AgeGate";
 import { WellnessDisclaimer } from "./components/WellnessDisclaimer";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import BottomNavigation from "./components/BottomNavigation";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Explore from "./pages/Explore";
@@ -52,37 +53,39 @@ const App = () => {
   };
 
   return (
-    <I18nextProvider i18n={i18n}>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <WellnessDisclaimer />
+    <ErrorBoundary>
+      <I18nextProvider i18n={i18n}>
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <WellnessDisclaimer />
 
-          {/* Age Gate - Shows first, before splash */}
-          <AgeGate isOpen={showAgeGate} onComplete={handleAgeGateComplete} />
+            {/* Age Gate - Shows first, before splash */}
+            <AgeGate isOpen={showAgeGate} onComplete={handleAgeGateComplete} />
 
-          {showSplash ? (
-            <SplashScreen onComplete={completeSplash} />
-          ) : (
-            <BrowserRouter>
-              <AuthProvider>
-                <Routes>
-                  <Route path="/" element={<AppLayout><Explore /></AppLayout>} />
-                  <Route path="/explore" element={<AppLayout><Explore /></AppLayout>} />
-                  <Route path="/meditations" element={<AppLayout><Meditations /></AppLayout>} />
-                  <Route path="/meditation/:id" element={<AppLayout><MeditationPlayer /></AppLayout>} />
-                  <Route path="/tracking" element={<AppLayout><Tracking /></AppLayout>} />
-                  <Route path="/profile" element={<AppLayout><Profile /></AppLayout>} />
-                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </AuthProvider>
-            </BrowserRouter>
-          )}
-        </TooltipProvider>
-      </QueryClientProvider>
-    </I18nextProvider>
+            {showSplash ? (
+              <SplashScreen onComplete={completeSplash} />
+            ) : (
+              <BrowserRouter>
+                <AuthProvider>
+                  <Routes>
+                    <Route path="/" element={<AppLayout><Explore /></AppLayout>} />
+                    <Route path="/explore" element={<AppLayout><Explore /></AppLayout>} />
+                    <Route path="/meditations" element={<AppLayout><Meditations /></AppLayout>} />
+                    <Route path="/meditation/:id" element={<AppLayout><MeditationPlayer /></AppLayout>} />
+                    <Route path="/tracking" element={<AppLayout><Tracking /></AppLayout>} />
+                    <Route path="/profile" element={<AppLayout><Profile /></AppLayout>} />
+                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </AuthProvider>
+              </BrowserRouter>
+            )}
+          </TooltipProvider>
+        </QueryClientProvider>
+      </I18nextProvider>
+    </ErrorBoundary>
   );
 };
 
