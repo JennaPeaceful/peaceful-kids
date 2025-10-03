@@ -185,10 +185,12 @@ const Profile = () => {
               <User className="w-8 h-8 text-primary-foreground" />
             </div>
             <div className="flex-1">
-              <h2 className="text-xl font-bold">{profile?.display_name}</h2>
-              <p className="text-muted-foreground">
-                Age: {profile?.age} • {formatCategoryName(profile?.category_preference)} content
-              </p>
+              <h2 className="text-xl font-bold">{profile?.display_name || user?.email || 'User'}</h2>
+              {profile?.age && profile?.category_preference && (
+                <p className="text-muted-foreground">
+                  Age: {profile.age} • {formatCategoryName(profile.category_preference)} content
+                </p>
+              )}
               <div className="flex items-center gap-2 mt-2">
                 {subscription?.is_active ? (
                   <div className="flex items-center gap-1 text-warning font-semibold">

@@ -16,32 +16,10 @@ interface UserState {
 }
 
 export const useUserStore = create<UserState>((set) => ({
-  profile: {
-    id: '1',
-    user_id: '1',
-    display_name: 'Alex',
-    age: 8,
-    category_preference: 'Kid',
-    avatar_url: undefined,
-    created_at: new Date().toISOString(),
-  },
-  subscription: {
-    id: '1',
-    user_id: '1',
-    is_active: false,
-    plan_type: 'free' as const,
-  },
-  preferences: {
-    id: '1',
-    user_id: '1',
-    preferred_age_group: '6-8 years',
-    notification_settings: {
-      daily_reminder: true,
-      streak_celebration: true,
-      new_content: true,
-    },
-  },
-  isAuthenticated: true,
+  profile: null,
+  subscription: null,
+  preferences: null,
+  isAuthenticated: false,
   
   setProfile: (profile) => set({ profile }),
   setSubscription: (subscription) => set({ subscription }),
