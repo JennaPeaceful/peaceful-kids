@@ -134,6 +134,13 @@ export type Database = {
             referencedRelation: "meditations_kids"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "meditation_usage_meditation_id_fkey"
+            columns: ["meditation_id"]
+            isOneToOne: false
+            referencedRelation: "meditations_missing_thumbnails"
+            referencedColumns: ["id"]
+          },
         ]
       }
       meditations: {
@@ -146,6 +153,7 @@ export type Database = {
           created_at: string | null
           description: string | null
           duration: number | null
+          featured_for_plan: string[] | null
           google_drive_id: string | null
           id: string
           is_free: boolean | null
@@ -170,6 +178,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           duration?: number | null
+          featured_for_plan?: string[] | null
           google_drive_id?: string | null
           id?: string
           is_free?: boolean | null
@@ -194,6 +203,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           duration?: number | null
+          featured_for_plan?: string[] | null
           google_drive_id?: string | null
           id?: string
           is_free?: boolean | null
@@ -208,72 +218,6 @@ export type Database = {
           themes?: string[] | null
           thumbnail_url?: string | null
           title?: string
-        }
-        Relationships: []
-      }
-      meditations_backup_before_dedupe: {
-        Row: {
-          age_group: string | null
-          categories: string[] | null
-          category: string | null
-          content_categories: string[] | null
-          created_at: string | null
-          description: string | null
-          duration: number | null
-          google_drive_id: string | null
-          id: string | null
-          is_free: boolean | null
-          max_age: number | null
-          media_type: string | null
-          media_url: string | null
-          min_age: number | null
-          sort_order: number | null
-          target_audience: string[] | null
-          themes: string[] | null
-          thumbnail_url: string | null
-          title: string | null
-        }
-        Insert: {
-          age_group?: string | null
-          categories?: string[] | null
-          category?: string | null
-          content_categories?: string[] | null
-          created_at?: string | null
-          description?: string | null
-          duration?: number | null
-          google_drive_id?: string | null
-          id?: string | null
-          is_free?: boolean | null
-          max_age?: number | null
-          media_type?: string | null
-          media_url?: string | null
-          min_age?: number | null
-          sort_order?: number | null
-          target_audience?: string[] | null
-          themes?: string[] | null
-          thumbnail_url?: string | null
-          title?: string | null
-        }
-        Update: {
-          age_group?: string | null
-          categories?: string[] | null
-          category?: string | null
-          content_categories?: string[] | null
-          created_at?: string | null
-          description?: string | null
-          duration?: number | null
-          google_drive_id?: string | null
-          id?: string | null
-          is_free?: boolean | null
-          max_age?: number | null
-          media_type?: string | null
-          media_url?: string | null
-          min_age?: number | null
-          sort_order?: number | null
-          target_audience?: string[] | null
-          themes?: string[] | null
-          thumbnail_url?: string | null
-          title?: string | null
         }
         Relationships: []
       }
@@ -359,6 +303,13 @@ export type Database = {
             columns: ["meditation_id"]
             isOneToOne: false
             referencedRelation: "meditations_kids"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_favorites_meditation_id_fkey"
+            columns: ["meditation_id"]
+            isOneToOne: false
+            referencedRelation: "meditations_missing_thumbnails"
             referencedColumns: ["id"]
           },
         ]
@@ -496,6 +447,13 @@ export type Database = {
             columns: ["meditation_id"]
             isOneToOne: false
             referencedRelation: "meditations_kids"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_progress_meditation_id_fkey"
+            columns: ["meditation_id"]
+            isOneToOne: false
+            referencedRelation: "meditations_missing_thumbnails"
             referencedColumns: ["id"]
           },
         ]
@@ -790,6 +748,45 @@ export type Database = {
         }
         Relationships: []
       }
+      meditations_missing_thumbnails: {
+        Row: {
+          category: string | null
+          courses: string | null
+          created_at: string | null
+          google_drive_id: string | null
+          id: string | null
+          is_free: boolean | null
+          media_type: string | null
+          primary_content_category: string | null
+          thumbnail_url: string | null
+          title: string | null
+        }
+        Insert: {
+          category?: string | null
+          courses?: string | null
+          created_at?: string | null
+          google_drive_id?: string | null
+          id?: string | null
+          is_free?: boolean | null
+          media_type?: string | null
+          primary_content_category?: string | null
+          thumbnail_url?: string | null
+          title?: string | null
+        }
+        Update: {
+          category?: string | null
+          courses?: string | null
+          created_at?: string | null
+          google_drive_id?: string | null
+          id?: string | null
+          is_free?: boolean | null
+          media_type?: string | null
+          primary_content_category?: string | null
+          thumbnail_url?: string | null
+          title?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_meditations_for_age: {
@@ -803,6 +800,7 @@ export type Database = {
           created_at: string | null
           description: string | null
           duration: number | null
+          featured_for_plan: string[] | null
           google_drive_id: string | null
           id: string
           is_free: boolean | null
