@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,6 +9,7 @@ import i18n from "./lib/i18n";
 import { AuthProvider } from "./hooks/useAuth";
 import { useSplash } from "./hooks/useSplash";
 import SplashScreen from "./components/SplashScreen";
+import { AgeGate } from "./components/AgeGate";
 import { WellnessDisclaimer } from "./components/WellnessDisclaimer";
 import BottomNavigation from "./components/BottomNavigation";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -17,6 +19,7 @@ import Tracking from "./pages/Tracking";
 import Profile from "./pages/Profile";
 import MeditationPlayer from "./pages/MeditationPlayer";
 import NotFound from "./pages/NotFound";
+import { useUserStore } from "./stores/userStore";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +32,24 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => (
 
 const App = () => {
   const { showSplash, completeSplash } = useSplash();
+  const [showAgeGate, setShowAgeGate] = useState(false);
+  const { setAgeGroup } = useUserStore();
+
+  useEffect(() => {
+    const ageGateCompleted = localStorage.getItem('age-gate-completed');
+    const savedAgeGroup = localStorage.getItem('user-age-group');
+    
+    if (!ageGateCompleted) {
+      setShowAgeGate(true);
+    } else if (savedAgeGroup) {
+      // Restore ageGroup to userStore
+      setAgeGroup(savedAgeGroup as 'child' | 'adult');
+    }
+  }, [setAgeGroup]);
+
+  const handleAgeGateComplete = () => {
+    setShowAgeGate(false);
+  };
 
   return (
     <I18nextProvider i18n={i18n}>
@@ -37,6 +58,10 @@ const App = () => {
           <Toaster />
           <Sonner />
           <WellnessDisclaimer />
+          
+          {/* Age Gate - Shows first, before splash */}
+          <AgeGate isOpen={showAgeGate} onComplete={handleAgeGateComplete} />
+          
           {showSplash ? (
             <SplashScreen onComplete={completeSplash} />
           ) : (

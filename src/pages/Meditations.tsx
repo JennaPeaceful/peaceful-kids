@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useMeditationStore } from '../stores/meditationStore';
 import { useFavorites } from '../hooks/useFavorites';
 import { useAuth } from '../hooks/useAuth';
+import { useUserStore } from '../stores/userStore';
 import MeditationCard from '../components/MeditationCard';
 import FilterBreadcrumb from '../components/FilterBreadcrumb';
 import { Button } from '../components/ui/button';
@@ -22,6 +23,7 @@ const Meditations = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { ageGroup } = useUserStore();
   const { 
     filteredMeditations, 
     filters, 
@@ -272,7 +274,15 @@ const Meditations = () => {
           <div className="mb-6">
             <label className="text-sm font-medium text-muted-foreground mb-2 block">Category</label>
             <div className="grid grid-cols-2 gap-3">
-              {categories.map((category) => (
+              {categories
+                .filter(category => {
+                  // Hide Adults category for children (COPPA compliance)
+                  if (ageGroup === 'child' && category.name === 'Adult') {
+                    return false;
+                  }
+                  return true;
+                })
+                .map((category) => (
                 <Button
                   key={category.id}
                   variant="outline"

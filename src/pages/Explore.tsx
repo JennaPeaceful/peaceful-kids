@@ -32,7 +32,15 @@ const Explore = () => {
       planType = subscription.plan_type;
     }
 
-    const featured = meditations.filter(m => 
+    // Apply age group filter (COPPA compliance)
+    const ageGroup = localStorage.getItem('user-age-group');
+    let filteredByAge = meditations;
+    if (ageGroup === 'child') {
+      // Children only see Kids category meditations
+      filteredByAge = meditations.filter(m => m.category === 'Kid');
+    }
+
+    const featured = filteredByAge.filter(m => 
       m.featured_for_plan && m.featured_for_plan.includes(planType)
     ).slice(0, 6); // Show up to 6 featured meditations
 

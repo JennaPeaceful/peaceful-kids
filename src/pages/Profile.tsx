@@ -9,6 +9,7 @@ import { WellnessDisclaimer } from '@/components/WellnessDisclaimer';
 import { useUserStore } from '../stores/userStore';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../integrations/supabase/client';
+import { Badge } from '../components/ui/badge';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Switch } from '../components/ui/switch';
@@ -30,7 +31,7 @@ import { useTranslation } from 'react-i18next';
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { profile, subscription, preferences, setPreferences } = useUserStore();
+  const { profile, subscription, preferences, setPreferences, ageGroup } = useUserStore();
   const { signOut, user } = useAuth();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
@@ -186,14 +187,21 @@ const Profile = () => {
             </div>
             <div className="flex-1">
               <h2 className="text-xl font-bold">{profile?.display_name || user?.email || 'User'}</h2>
-              <div className="flex items-center gap-2 mt-2">
-                {subscription?.is_active ? (
-                  <div className="flex items-center gap-1 text-warning font-semibold">
-                    <Crown className="w-4 h-4" />
-                    Premium Member
-                  </div>
-                ) : (
-                  <span className="text-muted-foreground">Free Account</span>
+              <div className="flex flex-col gap-2 mt-2">
+                <div className="flex items-center gap-2">
+                  {subscription?.is_active ? (
+                    <div className="flex items-center gap-1 text-warning font-semibold">
+                      <Crown className="w-4 h-4" />
+                      Premium Member
+                    </div>
+                  ) : (
+                    <span className="text-muted-foreground">Free Account</span>
+                  )}
+                </div>
+                {ageGroup && (
+                  <Badge variant="outline" className="w-fit">
+                    Age Group: {ageGroup === 'child' ? 'Under 13' : '13+'}
+                  </Badge>
                 )}
               </div>
             </div>
