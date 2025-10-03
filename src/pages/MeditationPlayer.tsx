@@ -107,17 +107,21 @@ const MeditationPlayer = () => {
   };
 
   const handleCanPlay = () => {
+    console.log('[Video] Can play event fired');
     setIsLoading(false);
     setCanPlay(true);
     const mediaElement = isAudio ? audioRef.current : videoRef.current;
     if (mediaElement && mediaElement.duration) {
+      console.log('[Video] Duration:', mediaElement.duration);
       setDuration(mediaElement.duration);
     }
   };
 
   const handleLoadedMetadata = () => {
+    console.log('[Video] Loaded metadata event fired');
     const mediaElement = isAudio ? audioRef.current : videoRef.current;
     if (mediaElement && mediaElement.duration) {
+      console.log('[Video] Metadata duration:', mediaElement.duration);
       setDuration(mediaElement.duration);
     }
   };
@@ -243,6 +247,8 @@ const MeditationPlayer = () => {
   }
 
   const handlePlayPause = async () => {
+    console.log('[PlayPause] Button clicked, isLocked:', isLocked, 'canPlay:', canPlay, 'isPlaying:', player.isPlaying);
+
     if (isLocked) {
       trackPaywallViewed('meditation_player');
       toast({
@@ -254,6 +260,7 @@ const MeditationPlayer = () => {
     }
 
     if (!canPlay) {
+      console.log('[PlayPause] Media not ready yet, showing loading toast');
       toast({
         title: "Media Loading",
         description: "Please wait for the meditation to load completely.",
@@ -262,12 +269,24 @@ const MeditationPlayer = () => {
     }
 
     const mediaElement = isAudio ? audioRef.current : videoRef.current;
-    if (!mediaElement) return;
+    if (!mediaElement) {
+      console.log('[PlayPause] No media element found!');
+      return;
+    }
+
+    console.log('[PlayPause] Media element ready:', {
+      readyState: mediaElement.readyState,
+      networkState: mediaElement.networkState,
+      currentSrc: mediaElement.currentSrc,
+      paused: mediaElement.paused
+    });
 
     try {
       if (player.isPlaying) {
+        console.log('[PlayPause] Pausing media');
         mediaElement.pause();
       } else {
+        console.log('[PlayPause] Starting playback');
         // Track meditation playback start
         if (meditation && !player.isPlaying) {
           trackMeditationPlayed(meditation.id, meditation.title);
@@ -277,23 +296,29 @@ const MeditationPlayer = () => {
         if ('wakeLock' in navigator) {
           try {
             await (navigator as any).wakeLock.request('screen');
+            console.log('[PlayPause] Wake lock acquired');
           } catch (err) {
             // Wake lock not supported or denied
-            console.log('Wake lock not available');
+            console.log('[PlayPause] Wake lock not available:', err);
           }
         }
 
         const playPromise = mediaElement.play();
+        console.log('[PlayPause] Play promise created');
         if (playPromise !== undefined) {
-          playPromise.catch((error) => {
-            console.error('Playback failed:', error);
-            setError('Playback failed. Please try again.');
-            setPlaying(false);
-          });
+          playPromise
+            .then(() => {
+              console.log('[PlayPause] Playback started successfully');
+            })
+            .catch((error) => {
+              console.error('[PlayPause] Playback failed:', error);
+              setError('Playback failed. Please try again.');
+              setPlaying(false);
+            });
         }
       }
     } catch (error) {
-      console.error('Playback error:', error);
+      console.error('[PlayPause] Playback error:', error);
       setError('Playback failed. Please try again.');
       setPlaying(false);
     }

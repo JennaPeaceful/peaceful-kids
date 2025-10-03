@@ -2,10 +2,13 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 
-// Initialize app with conditional Capacitor support
-async function initializeApp() {
-  // Only load Capacitor/native features if enabled via environment variable
-  if (import.meta.env.VITE_CAPACITOR_ENABLED === 'true') {
+// Render the app immediately
+const root = createRoot(document.getElementById("root")!);
+root.render(<App />);
+
+// Initialize native features asynchronously (doesn't block render)
+if (import.meta.env.VITE_CAPACITOR_ENABLED === 'true') {
+  (async () => {
     try {
       // Dynamically import native-only modules
       const [
@@ -32,10 +35,5 @@ async function initializeApp() {
       console.error('Failed to initialize native features:', error);
       // Continue anyway - app should work without native features
     }
-  }
-
-  // Render the app
-  createRoot(document.getElementById("root")!).render(<App />);
+  })();
 }
-
-initializeApp();

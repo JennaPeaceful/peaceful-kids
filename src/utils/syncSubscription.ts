@@ -76,18 +76,35 @@ export async function syncSubscriptionStatus(userId: string): Promise<SyncResult
     // Update Supabase with the current status
     console.log('[SubscriptionSync] Updating Supabase:', { planType, isActive });
 
-    const { error: upsertError } = await supabase
+    // Check if subscription exists first
+    const { data: existing } = await supabase
       .from('user_subscriptions')
-      .upsert(
-        {
+      .select('id')
+      .eq('user_id', userId)
+      .single();
+
+    let upsertError;
+    if (existing) {
+      // Update existing subscription
+      const { error } = await supabase
+        .from('user_subscriptions')
+        .update({
+          plan_type: planType,
+          is_active: isActive,
+        })
+        .eq('user_id', userId);
+      upsertError = error;
+    } else {
+      // Insert new subscription
+      const { error } = await supabase
+        .from('user_subscriptions')
+        .insert({
           user_id: userId,
           plan_type: planType,
           is_active: isActive,
-        },
-        {
-          onConflict: 'user_id',
-        }
-      );
+        });
+      upsertError = error;
+    }
 
     if (upsertError) {
       console.error('[SubscriptionSync] Failed to update Supabase:', upsertError);
