@@ -5,6 +5,7 @@ import { useMeditationStore } from '../stores/meditationStore';
 import { useProgressStore } from '../stores/progressStore';
 import { useUserStore } from '../stores/userStore';
 import { useFavorites } from '../hooks/useFavorites';
+import { useAuth } from '../hooks/useAuth';
 import { Button } from '../components/ui/button';
 import { Progress } from '../components/ui/progress';
 import { Slider } from '../components/ui/slider';
@@ -57,6 +58,7 @@ const MeditationPlayer = () => {
   const { meditations, themes, player, setCurrentMeditation, setPlaying, setCurrentTime, fetchMeditations } = useMeditationStore();
   const { completeSession } = useProgressStore();
   const { subscription } = useUserStore();
+  const { user } = useAuth();
   const { toggleFavorite, isFavorite } = useFavorites();
   
   // Media state
@@ -79,8 +81,14 @@ const MeditationPlayer = () => {
 
   const meditation = meditations.find(m => m.id === id);
   const isFav = meditation ? isFavorite(meditation.id) : false;
-  // Re-enabled premium content gating for RevenueCat integration
-  const isLocked = meditation && !meditation.is_free && !subscription?.is_active;
+  // Premium content gating - respects free content and plan tiers
+  const isCourse = meditation?.category === 'Courses';
+  const isLocked = meditation && !meditation.is_free && (
+    !user ||
+    !subscription?.is_active ||
+    subscription?.plan_type === 'free' ||
+    (subscription?.plan_type === 'peace_plan' && isCourse)
+  );
   const isAudio = meditation?.media_type === 'audio';
 
   useEffect(() => {
