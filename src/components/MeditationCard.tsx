@@ -19,15 +19,13 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
   const { subscription } = useUserStore();
   const { themes } = useMeditationStore();
   
-  // Check if content is locked based on plan type
-  const planType = subscription?.plan_type;
-  const isActive = subscription?.is_active;
+  // Check if content is locked - treat inactive subscriptions as 'free' plan
+  const effectivePlanType = (subscription?.is_active && subscription?.plan_type) || 'free';
   const isCourse = meditation.category === 'Courses';
   const isLocked = !meditation.is_free && (
     !user || 
-    !isActive || 
-    planType === 'free' ||
-    (planType === 'peace_plan' && isCourse)
+    effectivePlanType === 'free' ||
+    (effectivePlanType === 'peace_plan' && isCourse)
   );
 
   // Get theme objects with icons for this meditation

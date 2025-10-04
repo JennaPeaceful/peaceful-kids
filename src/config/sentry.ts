@@ -40,7 +40,7 @@ export function initSentry(): void {
           // Filter out non-critical errors in production
           if (import.meta.env.MODE === 'production') {
             // Don't send network errors
-            if (hint.originalException?.message?.includes('Network')) {
+            if (hint.originalException instanceof Error && hint.originalException.message?.includes('Network')) {
               return null;
             }
           }

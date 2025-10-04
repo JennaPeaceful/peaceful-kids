@@ -81,13 +81,14 @@ const MeditationPlayer = () => {
 
   const meditation = meditations.find(m => m.id === id);
   const isFav = meditation ? isFavorite(meditation.id) : false;
-  // Premium content gating - respects free content and plan tiers
+  
+  // Premium content gating - treat inactive subscriptions as 'free' plan
+  const effectivePlanType = (subscription?.is_active && subscription?.plan_type) || 'free';
   const isCourse = meditation?.category === 'Courses';
   const isLocked = meditation && !meditation.is_free && (
     !user ||
-    !subscription?.is_active ||
-    subscription?.plan_type === 'free' ||
-    (subscription?.plan_type === 'peace_plan' && isCourse)
+    effectivePlanType === 'free' ||
+    (effectivePlanType === 'peace_plan' && isCourse)
   );
   const isAudio = meditation?.media_type === 'audio';
 
