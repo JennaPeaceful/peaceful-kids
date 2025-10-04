@@ -92,6 +92,19 @@ const MeditationPlayer = () => {
   );
   const isAudio = meditation?.media_type === 'audio';
 
+  // Debug logging
+  console.log('[MeditationPlayer] Debug:', {
+    meditationId: meditation?.id,
+    meditationTitle: meditation?.title,
+    isFree: meditation?.is_free,
+    category: meditation?.category,
+    hasUser: !!user,
+    subscriptionActive: subscription?.is_active,
+    planType: subscription?.plan_type,
+    isCourse,
+    isLocked
+  });
+
   useEffect(() => {
     // Fetch meditations if not loaded yet
     if (meditations.length === 0) {
