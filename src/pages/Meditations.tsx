@@ -23,7 +23,7 @@ const Meditations = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { ageGroup } = useUserStore();
+  const { ageGroup, subscription } = useUserStore();
   const { 
     filteredMeditations, 
     filters, 
@@ -179,8 +179,11 @@ const Meditations = () => {
     : filteredByMediaType;
 
   const sortedMeditations = [...filteredByFavorites].sort((a, b) => {
-    // If user is not authenticated, prioritize free meditations
-    if (!user) {
+    // Calculate effective plan type (inactive subscriptions = free)
+    const effectivePlanType = (subscription?.is_active && subscription?.plan_type) || 'free';
+    
+    // Prioritize free meditations for non-authenticated users OR free plan users
+    if (!user || effectivePlanType === 'free') {
       if (a.is_free && !b.is_free) return -1;
       if (!a.is_free && b.is_free) return 1;
     }
