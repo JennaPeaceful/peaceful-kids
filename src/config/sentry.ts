@@ -25,34 +25,5 @@ export function initSentry(): void {
     return;
   }
 
-  try {
-    // Dynamic import of Sentry when in native mode
-    import('@sentry/capacitor').then((Sentry) => {
-      Sentry.init({
-        dsn,
-        environment: import.meta.env.MODE || 'development',
-        integrations: [
-          // Add any Capacitor-specific integrations here
-        ],
-        tracesSampleRate: import.meta.env.MODE === 'production' ? 0.1 : 1.0,
-        debug: import.meta.env.MODE !== 'production',
-        beforeSend(event, hint) {
-          // Filter out non-critical errors in production
-          if (import.meta.env.MODE === 'production') {
-            // Don't send network errors
-            if (hint.originalException instanceof Error && hint.originalException.message?.includes('Network')) {
-              return null;
-            }
-          }
-          return event;
-        },
-      });
-
-      console.log('[Sentry] Initialized for', import.meta.env.MODE);
-    }).catch((error) => {
-      console.log('[Sentry] Failed to initialize:', error);
-    });
-  } catch (error) {
-    console.log('[Sentry] Failed to initialize:', error);
-  }
+  console.log('[Sentry] Capacitor mode enabled but Sentry packages not installed');
 }
