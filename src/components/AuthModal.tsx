@@ -87,13 +87,29 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModalProps) 
 
         if (error) {
           if (error.message.includes('already registered')) {
-            toast.error('This email is already registered. Try signing in instead.');
+            // Auto-switch to sign-in mode with email pre-filled
+            toast.info('Account already exists. Switched to sign in - just enter your password.');
+            setIsSignUp(false);
+            // Email is already in formData, so it will be pre-filled
           } else {
             toast.error(error.message);
           }
         } else {
-          toast.success('Account created successfully! You can now sign in.');
-          onClose();
+          // Auto-login after successful signup
+          toast.success('Account created! Signing you in...');
+
+          // Automatically sign in with the same credentials
+          const { error: signInError } = await supabase.auth.signInWithPassword({
+            email: formData.email,
+            password: formData.password,
+          });
+
+          if (signInError) {
+            toast.error('Account created but login failed. Please sign in manually.');
+          } else {
+            toast.success('Welcome to Peaceful!');
+            onClose();
+          }
         }
       } else {
         const { error } = await supabase.auth.signInWithPassword({

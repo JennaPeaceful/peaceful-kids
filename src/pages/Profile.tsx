@@ -199,7 +199,7 @@ const Profile = () => {
         console.error('Error deleting subscriptions:', subError);
       }
 
-      // 6. Finally, delete user profile (most critical)
+      // 6. Delete user profile
       const { error: profileError } = await supabase
         .from('user_profiles')
         .delete()
@@ -207,6 +207,14 @@ const Profile = () => {
 
       if (profileError) {
         throw profileError;
+      }
+
+      // 7. Finally, delete the auth user account itself (CRITICAL)
+      const { error: authError } = await supabase.rpc('delete_user');
+
+      if (authError) {
+        console.error('Error deleting auth user:', authError);
+        throw authError;
       }
 
       // Show success message
