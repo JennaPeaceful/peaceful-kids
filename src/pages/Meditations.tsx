@@ -14,6 +14,7 @@ import { ScrollArea } from '../components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Badge } from '../components/ui/badge';
 import { formatCategoryName } from '@/lib/utils';
+import categoryBackground from '@/assets/category-icon-background.svg';
 
 type MediaType = 'all' | 'audio' | 'video';
 
@@ -288,11 +289,16 @@ const Meditations = () => {
                   className="flex flex-col items-center gap-2 h-auto py-4 hover:shadow-primary transition-all"
                 >
                   {category.thumbnail_svg_url && (
-                    <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-primary via-secondary to-accent p-2">
+                    <div className="relative w-12 h-12 rounded-xl overflow-hidden">
+                      <img 
+                        src={categoryBackground}
+                        alt=""
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
                       <img 
                         src={category.thumbnail_svg_url} 
                         alt={category.display_name}
-                        className="w-full h-full object-contain filter brightness-0 invert"
+                        className="relative w-full h-full object-contain p-2 filter brightness-0 invert mix-blend-overlay"
                       />
                     </div>
                   )}

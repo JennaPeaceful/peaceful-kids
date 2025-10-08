@@ -1,6 +1,5 @@
 import { useState, useCallback } from 'react';
 import { toast } from '@/hooks/use-toast';
-import * as Sentry from '@sentry/react';
 
 export type ErrorType = 'network' | 'payment' | 'auth' | 'generic';
 
@@ -85,16 +84,6 @@ export const useErrorHandler = (options: ErrorHandlerOptions = {}) => {
       if (process.env.NODE_ENV === 'development') {
         console.error('Error handled:', error);
       }
-
-      // Send to Sentry with error type context
-      Sentry.captureException(error, {
-        tags: {
-          errorType: errorType,
-        },
-        extra: {
-          errorMessage: errorMessage,
-        },
-      });
     },
     [showToast, toastDuration, onError]
   );
