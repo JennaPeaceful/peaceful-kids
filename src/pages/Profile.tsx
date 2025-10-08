@@ -265,41 +265,27 @@ const Profile = () => {
       {/* Profile Card */}
       <div className="px-4 mb-8">
         <Card className="card-gradient p-6">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center">
-              <User className="w-8 h-8 text-primary-foreground" />
-            </div>
-            <div className="flex-1">
-              <h2 className="text-xl font-bold">{profile?.display_name || user?.email || 'User'}</h2>
-              <div className="flex flex-col gap-2 mt-2">
-                <div className="flex items-center gap-2">
-                  {subscription?.is_active ? (
-                    <div className="flex items-center gap-1 text-warning font-semibold">
-                      <Crown className="w-4 h-4" />
-                      Premium Member
-                    </div>
-                  ) : (
-                    <span className="text-muted-foreground">Free Account</span>
-                  )}
-                </div>
-                {ageGroup && (
-                  <Badge variant="outline" className="w-fit">
-                    Age Group: {ageGroup === 'child' ? 'Under 13' : '13+'}
-                  </Badge>
+          <div className="flex flex-col gap-3">
+            <h2 className="text-xl font-bold">{profile?.display_name || user?.email || 'User'}</h2>
+            <p className="text-sm text-muted-foreground">{user?.email}</p>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                {subscription?.is_active ? (
+                  <div className="flex items-center gap-1 text-warning font-semibold">
+                    <Crown className="w-4 h-4" />
+                    Premium Member
+                  </div>
+                ) : (
+                  <span className="text-muted-foreground">Free Account</span>
                 )}
               </div>
+              {ageGroup && (
+                <Badge variant="outline" className="w-fit">
+                  Age Group: {ageGroup === 'child' ? 'Under 13' : '13+'}
+                </Badge>
+              )}
             </div>
           </div>
-
-          {!subscription?.is_active && (
-            <Button 
-              className="btn-premium w-full"
-              onClick={() => navigate('/explore')}
-            >
-              <Crown className="w-4 h-4 mr-2" />
-              Subscribe
-            </Button>
-          )}
         </Card>
       </div>
 
