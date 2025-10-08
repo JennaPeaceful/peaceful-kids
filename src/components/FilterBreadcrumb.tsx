@@ -92,6 +92,34 @@ const FilterBreadcrumb = ({
         </Badge>
       )}
 
+      {/* Age Group Pill */}
+      {selectedAgeGroup && (
+        <Badge 
+          variant="secondary" 
+          className="h-8 px-3 cursor-pointer hover:bg-secondary/80 transition-colors flex items-center gap-2"
+          onClick={() => toggleExpand('age-group')}
+        >
+          <div 
+            className="w-2 h-2 rounded-full flex-shrink-0"
+            style={{ backgroundColor: getAgeGroupColor(selectedAgeGroup) }}
+          />
+          <span className="text-sm">
+            {expandedPills.has('age-group') ? selectedAgeGroup : truncateText(selectedAgeGroup, 10)}
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-4 w-4 p-0 ml-1 hover:bg-transparent"
+            onClick={(e) => {
+              e.stopPropagation();
+              onAgeGroupSelect(null);
+            }}
+          >
+            <X className="w-3 h-3" />
+          </Button>
+        </Badge>
+      )}
+
       {/* Content Category Pills */}
       {selectedContentCategories.map((categoryName) => {
         const pillId = `content-${categoryName}`;
@@ -147,34 +175,6 @@ const FilterBreadcrumb = ({
           </Badge>
         );
       })}
-
-      {/* Age Group Pill */}
-      {selectedAgeGroup && (
-        <Badge 
-          variant="secondary" 
-          className="h-8 px-3 cursor-pointer hover:bg-secondary/80 transition-colors flex items-center gap-2"
-          onClick={() => toggleExpand('age-group')}
-        >
-          <div 
-            className="w-2 h-2 rounded-full flex-shrink-0"
-            style={{ backgroundColor: getAgeGroupColor(selectedAgeGroup) }}
-          />
-          <span className="text-sm">
-            {expandedPills.has('age-group') ? selectedAgeGroup : truncateText(selectedAgeGroup, 10)}
-          </span>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-4 w-4 p-0 ml-1 hover:bg-transparent"
-            onClick={(e) => {
-              e.stopPropagation();
-              onAgeGroupSelect(null);
-            }}
-          >
-            <X className="w-3 h-3" />
-          </Button>
-        </Badge>
-      )}
 
       {/* Theme Pills */}
       {selectedThemes.map((themeName) => {
