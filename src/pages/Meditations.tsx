@@ -398,7 +398,7 @@ const Meditations = () => {
             </label>
             <div className="grid grid-cols-2 gap-3">
               {availableContentCategories.map((category) => {
-                const thumbnailUrl = category.thumbnail_svg_url || category.thumbnail_png_url;
+                const iconUrl = category.thumbnail_svg_url || category.thumbnail_png_url;
                 
                 return (
                   <Button
@@ -407,22 +407,24 @@ const Meditations = () => {
                     onClick={() => handleContentCategoryToggle(category.name)}
                     className="flex flex-col items-center gap-2 h-auto py-4 hover:shadow-primary transition-all"
                   >
-                    {thumbnailUrl ? (
-                      <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-gradient-to-br from-secondary via-primary to-accent">
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary/40 via-secondary/40 to-accent/40 z-10" />
+                    <div className="relative w-16 h-16 rounded-xl overflow-hidden">
+                      <img 
+                        src={categoryBackground}
+                        alt=""
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                      {iconUrl ? (
                         <img 
-                          src={thumbnailUrl} 
+                          src={iconUrl} 
                           alt={category.name}
-                          className="w-full h-full object-cover relative z-0"
+                          className="absolute inset-0 w-full h-full object-contain p-2 mix-blend-overlay"
                         />
-                      </div>
-                    ) : (
-                      <div className="relative w-16 h-16 rounded-xl bg-gradient-to-br from-secondary via-primary to-accent p-3 flex items-center justify-center">
-                        <div className="text-white font-bold text-lg">
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center text-white font-bold text-lg mix-blend-overlay">
                           {category.name.split(' ').slice(0, 2).map((word: string) => word[0]).join('').toUpperCase()}
                         </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
                     <span className="text-xs font-medium text-center leading-tight px-2 whitespace-normal min-h-[2rem] flex items-center">{category.name}</span>
                   </Button>
                 );
