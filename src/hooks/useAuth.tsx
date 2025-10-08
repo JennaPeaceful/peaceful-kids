@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserStore } from '@/stores/userStore';
-import { toast } from 'sonner';
+import { toast } from './use-toast';
 import { identifyUser as identifyAnalyticsUser, resetAnalytics, trackSignIn } from '@/config/analytics';
 import { identifyUser as identifyRevenueCatUser, logoutUser as logoutRevenueCatUser } from '@/utils/revenuecat';
 import { syncOnAppLaunch } from '@/utils/syncSubscription';
@@ -26,13 +26,35 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const { setProfile, setSubscription, setPreferences, login, logout } = useUserStore();
 
-  const fetchUserProfile = async (userId: string) => {
+  const fetchUserProfile = async (userId: string, userMetadata?: any) => {
     try {
-      const { data: profile } = await supabase
+      let { data: profile } = await supabase
         .from('user_profiles')
         .select('*')
         .eq('user_id', userId)
         .single();
+
+      // If no profile exists and we have metadata, create one
+      if (!profile && userMetadata) {
+        const { error: insertError } = await supabase
+          .from('user_profiles')
+          .insert({
+            user_id: userId,
+            display_name: userMetadata.display_name || userMetadata.name || '',
+            age: userMetadata.age || null,
+            category_preference: userMetadata.category_preference || 'Kids'
+          });
+
+        if (!insertError) {
+          // Fetch the newly created profile
+          const { data: newProfile } = await supabase
+            .from('user_profiles')
+            .select('*')
+            .eq('user_id', userId)
+            .single();
+          profile = newProfile;
+        }
+      }
 
       const { data: subscription } = await supabase
         .from('user_subscriptions')
@@ -114,15 +136,29 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) {
-        toast.error('Error signing out');
+        toast({
+          title: 'Error signing out',
+          variant: 'destructive',
+        });
       } else {
         logout();
         resetAnalytics(); // Clear analytics user identity
         await logoutRevenueCatUser(); // Log out from RevenueCat
-        toast.success('Signed out successfully');
+        toast({
+          title: 'Signed out successfully',
+        });
+
+        // Redirect to home/explore page after sign out
+        // This will trigger the auth modal to show
+        if (window.location.pathname !== '/') {
+          window.location.href = '/';
+        }
       }
     } catch (error) {
-      toast.error('An error occurred while signing out');
+      toast({
+        title: 'An error occurred while signing out',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -136,7 +172,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         if (session?.user) {
           // Defer Supabase calls to avoid deadlock
           setTimeout(() => {
-            fetchUserProfile(session.user.id);
+            fetchUserProfile(session.user.id, session.user.user_metadata);
           }, 0);
         } else {
           logout();
@@ -153,7 +189,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       
       if (session?.user) {
         setTimeout(() => {
-          fetchUserProfile(session.user.id);
+          fetchUserProfile(session.user.id, session.user.user_metadata);
         }, 0);
       }
       

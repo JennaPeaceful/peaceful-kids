@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
-import { toast } from 'sonner';
+import { toast } from './use-toast';
 
 export const useFavorites = () => {
   const { user } = useAuth();
@@ -37,10 +37,17 @@ export const useFavorites = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['favorites', user?.id] });
-      toast.success('Added to favorites');
+      toast({
+        title: 'Added to favorites',
+      });
     },
-    onError: () => {
-      toast.error('Failed to add to favorites');
+    onError: (error) => {
+      console.error('[Favorites] Add error:', error);
+      toast({
+        title: 'Failed to add to favorites',
+        description: error instanceof Error ? error.message : 'Please try again',
+        variant: 'destructive',
+      });
     },
   });
 
@@ -59,10 +66,17 @@ export const useFavorites = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['favorites', user?.id] });
-      toast.success('Removed from favorites');
+      toast({
+        title: 'Removed from favorites',
+      });
     },
-    onError: () => {
-      toast.error('Failed to remove from favorites');
+    onError: (error) => {
+      console.error('[Favorites] Remove error:', error);
+      toast({
+        title: 'Failed to remove from favorites',
+        description: error instanceof Error ? error.message : 'Please try again',
+        variant: 'destructive',
+      });
     },
   });
 

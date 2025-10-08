@@ -22,9 +22,7 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModalProps) 
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    displayName: '',
-    age: '',
-    categoryPreference: 'Kids' as 'Kids' | 'Adults'
+    displayName: ''
   });
 
   const handleDevLogin = async () => {
@@ -44,9 +42,7 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModalProps) 
           options: {
             emailRedirectTo: `${window.location.origin}/`,
             data: {
-              display_name: 'Dev User',
-              age: 8,
-              category_preference: 'Kids'
+              display_name: 'Dev User'
             }
           }
         });
@@ -84,9 +80,7 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModalProps) 
           options: {
             emailRedirectTo: `${window.location.origin}/`,
             data: {
-              display_name: formData.displayName,
-              age: parseInt(formData.age),
-              category_preference: formData.categoryPreference
+              display_name: formData.displayName
             }
           }
         });
@@ -158,40 +152,6 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModalProps) 
                     className="pl-10"
                     required
                   />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="age" className="text-sm font-medium">
-                    Age
-                  </Label>
-                  <Input
-                    id="age"
-                    type="number"
-                    placeholder="Age"
-                    value={formData.age}
-                    onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-                    min="1"
-                    max="120"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="category" className="text-sm font-medium">
-                    Content
-                  </Label>
-                  <select
-                    id="category"
-                    value={formData.categoryPreference}
-                    onChange={(e) => setFormData({ ...formData, categoryPreference: e.target.value as 'Kids' | 'Adults' })}
-                    className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                    required
-                  >
-                    <option value="Kids">Kids</option>
-                    <option value="Adults">Adults</option>
-                  </select>
                 </div>
               </div>
             </>

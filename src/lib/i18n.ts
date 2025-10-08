@@ -135,7 +135,7 @@ const resources = {
         title: 'Premium Content',
         description: 'Unlock access to {{feature}} and hundreds of premium meditations with Peaceful Kids Premium',
         thisContent: 'this content',
-        upgradeToPremium: 'Upgrade to Premium',
+        upgradeToPremium: 'Subscribe',
         signInToContinue: 'Sign In to Continue',
         goBack: '← Go Back',
         features: {

@@ -289,7 +289,7 @@ const Profile = () => {
               onClick={() => navigate('/explore')}
             >
               <Crown className="w-4 h-4 mr-2" />
-              Upgrade to Premium
+              Subscribe
             </Button>
           )}
         </Card>
@@ -363,7 +363,7 @@ const Profile = () => {
               onClick={() => navigate('/explore')}
             >
               <Crown className="w-4 h-4 mr-2" />
-              Upgrade to Premium
+              Subscribe
             </Button>
           )}
         </Card>

@@ -181,19 +181,37 @@ const MeditationPlayer = () => {
   };
 
   const handleError = (e: any) => {
+    const mediaElement = e.target;
+    const errorCode = mediaElement?.error?.code;
     const errorDetails = {
-      type: e.target?.tagName,
-      error: e.target?.error,
-      networkState: e.target?.networkState,
-      readyState: e.target?.readyState,
-      src: e.target?.src,
-      currentSrc: e.target?.currentSrc
+      type: mediaElement?.tagName,
+      errorCode: errorCode,
+      errorMessage: mediaElement?.error?.message,
+      networkState: mediaElement?.networkState,
+      readyState: mediaElement?.readyState,
+      src: mediaElement?.src,
+      currentSrc: mediaElement?.currentSrc
     };
     console.error('Media error details:', errorDetails);
-    
+
     setIsLoading(false);
     const mediaType = isAudio ? 'audio' : 'video';
-    setError(`${mediaType} file not found (404). The content may not be uploaded to the CDN yet.`);
+
+    // More specific error messages based on error code
+    let errorMessage = `Unable to load ${mediaType}`;
+    if (errorCode === 1) {
+      errorMessage = `${mediaType} loading was aborted`;
+    } else if (errorCode === 2) {
+      errorMessage = `Network error loading ${mediaType}. Please check your connection.`;
+    } else if (errorCode === 3) {
+      errorMessage = `${mediaType} format not supported or decoding failed`;
+    } else if (errorCode === 4) {
+      errorMessage = `${mediaType} source not supported`;
+    } else if (mediaElement?.networkState === 3) {
+      errorMessage = `${mediaType} file not found (404). The content may not be uploaded to the CDN yet.`;
+    }
+
+    setError(errorMessage);
     setPlaying(false);
   };
 
@@ -558,17 +576,25 @@ const MeditationPlayer = () => {
                 src={meditation.media_url}
                 playsInline
                 webkit-playsinline="true"
+                crossOrigin="anonymous"
+                muted={isMuted}
                 onLoadStart={() => {
-                  console.log('Loading video from:', meditation.media_url);
+                  console.log('[Video] Loading from:', meditation.media_url);
+                  console.log('[Video] Media type:', meditation.media_type);
                   handleLoadStart();
                 }}
                 onCanPlay={handleCanPlay}
+                onCanPlayThrough={() => {
+                  console.log('[Video] Can play through');
+                }}
                 onLoadedMetadata={handleLoadedMetadata}
                 onTimeUpdate={handleTimeUpdate}
                 onPlay={() => setPlaying(true)}
                 onPause={() => setPlaying(false)}
                 onEnded={handleEnded}
                 onError={handleError}
+                onWaiting={() => console.log('[Video] Waiting for data')}
+                onStalled={() => console.log('[Video] Stalled')}
                 preload="metadata"
                 className="w-full h-full object-cover rounded-3xl shadow-2xl"
               />

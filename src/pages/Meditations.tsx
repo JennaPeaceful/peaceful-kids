@@ -179,15 +179,10 @@ const Meditations = () => {
     : filteredByMediaType;
 
   const sortedMeditations = [...filteredByFavorites].sort((a, b) => {
-    // Calculate effective plan type (inactive subscriptions = free)
-    const effectivePlanType = (subscription?.is_active && subscription?.plan_type) || 'free';
-    
-    // Prioritize free meditations for non-authenticated users OR free plan users
-    if (!user || effectivePlanType === 'free') {
-      if (a.is_free && !b.is_free) return -1;
-      if (!a.is_free && b.is_free) return 1;
-    }
-    
+    // Always prioritize free meditations first
+    if (a.is_free && !b.is_free) return -1;
+    if (!a.is_free && b.is_free) return 1;
+
     // Then sort alphabetically
     const aTitle = (a.title || '').toLowerCase();
     const bTitle = (b.title || '').toLowerCase();
