@@ -7,7 +7,6 @@
 
 import { App } from '@capacitor/app';
 import { StatusBar, Style } from '@capacitor/status-bar';
-import { SplashScreen } from '@capacitor/splash-screen';
 import { Keyboard } from '@capacitor/keyboard';
 import { isNativePlatform, isAndroid } from './utils/platform';
 import { initRevenueCat } from './utils/revenuecat';
@@ -40,8 +39,8 @@ export async function initializeCapacitor(): Promise<void> {
     // This must happen before any purchase UI is shown
     await initRevenueCat();
 
-    // Hide Splash Screen after app loads
-    await SplashScreen.hide();
+    // Note: SplashScreen.hide() is called in App.tsx as soon as the web app loads
+    // This ensures the splash screen is hidden promptly, while native init continues in background
 
     console.log('[Capacitor] Native plugins initialized successfully');
   } catch (error) {

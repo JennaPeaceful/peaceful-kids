@@ -36,10 +36,26 @@ const App = () => {
   const [showAgeGate, setShowAgeGate] = useState(false);
   const { setAgeGroup } = useUserStore();
 
+  // Hide native Capacitor splash screen as soon as web app is loaded
+  useEffect(() => {
+    const hideNativeSplash = async () => {
+      if (import.meta.env.VITE_CAPACITOR_ENABLED === 'true') {
+        try {
+          const { SplashScreen } = await import('@capacitor/splash-screen');
+          await SplashScreen.hide();
+        } catch (error) {
+          // SplashScreen not available in this environment
+          console.log('SplashScreen not available:', error);
+        }
+      }
+    };
+    hideNativeSplash();
+  }, []);
+
   useEffect(() => {
     const ageGateCompleted = localStorage.getItem('age-gate-completed');
     const savedAgeGroup = localStorage.getItem('user-age-group');
-    
+
     if (!ageGateCompleted) {
       setShowAgeGate(true);
     } else if (savedAgeGroup) {

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
 
@@ -92,7 +92,7 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModalProps) 
             toast.error(error.message);
           }
         } else {
-          toast.success('Account created! Please check your email for verification.');
+          toast.success('Account created successfully! You can now sign in.');
           onClose();
         }
       } else {
@@ -128,9 +128,9 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModalProps) 
             <DialogTitle className="text-2xl font-bold text-gradient-primary mb-2">
               {isSignUp ? t('auth.joinPeaceful') : t('auth.welcomeBack')}
             </DialogTitle>
-            <p className="text-muted-foreground text-sm">
+            <DialogDescription className="text-muted-foreground text-sm">
               {isSignUp ? t('auth.createJourney') : t('auth.continueJourney')}
-            </p>
+            </DialogDescription>
           </div>
         </DialogHeader>
 
@@ -212,22 +212,24 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModalProps) 
           </Button>
         </form>
 
-        {/* Dev Mode Section */}
-        <div className="mt-4 p-3 bg-muted/30 rounded-lg border border-dashed border-muted-foreground/30">
-          <h3 className="text-xs font-medium text-muted-foreground mb-2 text-center">
-            🚧 Developer Mode
-          </h3>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={handleDevLogin}
-            disabled={isLoading}
-            className="w-full text-xs"
-          >
-            Quick Dev Login (dev@peacefulkids.app)
-          </Button>
-        </div>
+        {/* Dev Mode Section - Only visible in development */}
+        {import.meta.env.DEV && (
+          <div className="mt-4 p-3 bg-muted/30 rounded-lg border border-dashed border-muted-foreground/30">
+            <h3 className="text-xs font-medium text-muted-foreground mb-2 text-center">
+              🚧 Developer Mode
+            </h3>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleDevLogin}
+              disabled={isLoading}
+              className="w-full text-xs"
+            >
+              Quick Dev Login (dev@peacefulkids.app)
+            </Button>
+          </div>
+        )}
 
         <div className="mt-3 text-center">
           <button
