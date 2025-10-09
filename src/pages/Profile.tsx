@@ -34,12 +34,68 @@ import { useTranslation } from 'react-i18next';
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { profile, subscription, preferences, setPreferences, ageGroup } = useUserStore();
+  const { profile, subscription, preferences, setPreferences, ageGroup, setSubscription } = useUserStore();
   const { signOut, user } = useAuth();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [isRestoringPurchases, setIsRestoringPurchases] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const { t, i18n } = useTranslation();
+
+  const handleRefreshSubscription = async () => {
+    if (!user?.id) {
+      toast({
+        title: "Sign In Required",
+        description: "Please sign in to refresh subscription.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsRefreshing(true);
+
+    try {
+      // Fetch the latest subscription from Supabase
+      const { data: latestSub, error } = await supabase
+        .from('user_subscriptions')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      if (latestSub) {
+        // Update the Zustand store with fresh data
+        setSubscription({
+          id: latestSub.id,
+          user_id: latestSub.user_id,
+          plan_type: latestSub.plan_type,
+          is_active: latestSub.is_active,
+        });
+
+        toast({
+          title: "Subscription Refreshed",
+          description: `Current plan: ${latestSub.plan_type} (${latestSub.is_active ? 'Active' : 'Inactive'})`,
+        });
+      } else {
+        toast({
+          title: "No Subscription Found",
+          description: "No subscription record found for this account.",
+        });
+      }
+    } catch (error: any) {
+      console.error('Refresh subscription error:', error);
+      toast({
+        title: "Refresh Failed",
+        description: error.message || "Failed to refresh subscription.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   const handleRestorePurchases = async () => {
     if (!isNativePlatform()) {
@@ -314,6 +370,26 @@ const Profile = () => {
               <span className="text-muted-foreground text-sm">Inactive</span>
             )}
           </div>
+
+          {/* Refresh Subscription - Web */}
+          {!isNativePlatform() && (
+            <Button
+              variant="outline"
+              className="w-full justify-between"
+              onClick={handleRefreshSubscription}
+              disabled={isRefreshing}
+            >
+              <span className="flex items-center gap-2">
+                {isRefreshing ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="w-4 h-4" />
+                )}
+                Refresh Subscription
+              </span>
+              {!isRefreshing && <ChevronRight className="w-4 h-4" />}
+            </Button>
+          )}
 
           {/* Restore Purchases - Native only */}
           {isNativePlatform() && (

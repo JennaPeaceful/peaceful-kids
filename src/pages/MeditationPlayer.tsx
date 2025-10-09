@@ -121,6 +121,25 @@ const MeditationPlayer = () => {
     }
   }, [meditation]); // Removed setCurrentMeditation from dependencies to prevent infinite loop
 
+  // Diagnostic: Log video element properties on mount
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const videoEl = videoRef.current;
+      const containerEl = videoContainerRef.current;
+      if (videoEl && !isAudio) {
+        console.log('[Video Diagnostics] Video element loaded:', {
+          hasControls: videoEl.controls,
+          controlsList: videoEl.getAttribute('controlsList'),
+          padding: videoEl.style.padding,
+          className: videoEl.className,
+          hasOnClick: containerEl ? 'Container has onClick' : 'NO ONCLICK',
+          containerClassName: containerEl?.className
+        });
+      }
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [meditation, isAudio]);
+
   // Media event handlers
   const handleLoadStart = () => {
     setIsLoading(true);
@@ -445,6 +464,26 @@ const MeditationPlayer = () => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const handleVideoClick = () => {
+    const videoEl = videoRef.current;
+    if (!videoEl) return;
+
+    console.log('[VideoClick] Clicked! Video element:', {
+      paused: videoEl.paused,
+      controls: videoEl.controls,
+      currentTime: videoEl.currentTime,
+      hasOnClick: 'TRUE - This handler is running'
+    });
+
+    // Trigger native controls by toggling play state
+    // This makes the controls reappear on iOS
+    if (videoEl.paused) {
+      videoEl.play();
+    } else {
+      videoEl.pause();
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/5 pb-24">
       {/* Header - with safe area padding for mobile */}
@@ -543,6 +582,7 @@ const MeditationPlayer = () => {
             <div
               ref={videoContainerRef}
               className="relative w-full h-full"
+              onClick={handleVideoClick}
             >
               <video
                 ref={videoRef}
@@ -552,6 +592,7 @@ const MeditationPlayer = () => {
                 controls={true}
                 controlsList="nodownload"
                 preload="auto"
+                style={{ padding: '8px' }}
                 onLoadStart={() => {
                   console.log('[Video] Loading from:', meditation.media_url);
                   console.log('[Video] Media type:', meditation.media_type);
@@ -614,8 +655,8 @@ const MeditationPlayer = () => {
             </div>
           )}
           
-          {/* Loading Overlay */}
-          {isLoading && (
+          {/* Loading Overlay - Only for audio, video uses native loading indicator */}
+          {isLoading && isAudio && (
             <div className="absolute inset-0 bg-black/60 rounded-3xl flex items-center justify-center">
               <div className="text-center text-white">
                 <div className="animate-spin w-8 h-8 border-2 border-white border-t-transparent rounded-full mx-auto mb-2"></div>

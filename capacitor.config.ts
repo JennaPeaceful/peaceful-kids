@@ -11,6 +11,16 @@ const config: CapacitorConfig = {
     url: process.env.CAP_SERVER_URL || undefined,
     cleartext: true, // Allow HTTP connections (required for local dev)
   },
+  plugins: {
+    SplashScreen: {
+      launchShowDuration: 2000,
+      backgroundColor: '#ffffff',
+      androidScaleType: 'CENTER_INSIDE',
+      showSpinner: false,
+      iosSpinnerStyle: 'small',
+      spinnerColor: '#449dbd',
+    },
+  },
   ios: {
     contentInset: 'automatic',
   },

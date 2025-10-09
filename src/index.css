@@ -159,6 +159,8 @@ All colors MUST be HSL for proper theming.
     @apply bg-gradient-to-br from-background to-muted text-foreground font-sans;
     font-size: 16px;
     line-height: 1.6;
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
   }
 
   h1, h2, h3, h4, h5, h6 {
