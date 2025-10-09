@@ -413,10 +413,13 @@ const MeditationPlayer = () => {
 
     try {
       // Use the video element's native fullscreen for iOS (no toast)
-      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+      const doc = document as any;
+      const video = videoEl as any;
+      
+      if (!document.fullscreenElement && !doc.webkitFullscreenElement) {
         // Try webkit fullscreen first (iOS Safari)
-        if (videoEl.webkitEnterFullscreen) {
-          videoEl.webkitEnterFullscreen();
+        if (video.webkitEnterFullscreen) {
+          video.webkitEnterFullscreen();
           setIsFullscreen(true);
         } else if (videoEl.requestFullscreen) {
           await videoEl.requestFullscreen();
@@ -424,8 +427,8 @@ const MeditationPlayer = () => {
         }
       } else {
         // Exit fullscreen
-        if (document.webkitExitFullscreen) {
-          document.webkitExitFullscreen();
+        if (doc.webkitExitFullscreen) {
+          doc.webkitExitFullscreen();
         } else if (document.exitFullscreen) {
           await document.exitFullscreen();
         }
