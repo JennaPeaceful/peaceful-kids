@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace "com.peacefulkids.app"
+    namespace "com.peaceful.kids"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.peacefulkids.app"
+        applicationId "com.peaceful.kids"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.peacefulkids.app',
+  appId: 'com.peaceful.kids',
   appName: 'Peaceful',
   webDir: 'dist',
   server: {

@@ -13,6 +13,7 @@ import { toast } from '../hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import Skip10Icon from '@/components/icons/Skip10Icon';
 import { ParentalGate } from '@/components/ParentalGate';
+import AuthModal from '@/components/AuthModal';
 
 // Safe analytics imports - no-op if not available
 const trackMeditationPlayed = async (meditationId: string, title: string) => {
@@ -70,14 +71,14 @@ const MeditationPlayer = () => {
   const [canPlay, setCanPlay] = useState(false);
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
-  const [showControls, setShowControls] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showParentalGate, setShowParentalGate] = useState(false);
-  
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [hasCompletedOnce, setHasCompletedOnce] = useState(false);
+
   const audioRef = useRef<HTMLAudioElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const videoContainerRef = useRef<HTMLDivElement>(null);
-  const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const meditation = meditations.find(m => m.id === id);
   const isFav = meditation ? isFavorite(meditation.id) : false;
@@ -163,6 +164,9 @@ const MeditationPlayer = () => {
   };
 
   const handleMediaComplete = async () => {
+    if (hasCompletedOnce) return; // Prevent double-firing
+
+    setHasCompletedOnce(true);
     setIsCompleted(true);
     setPlaying(false);
     if (meditation) {
@@ -206,7 +210,10 @@ const MeditationPlayer = () => {
     } else if (errorCode === 3) {
       errorMessage = `${mediaType} format not supported or decoding failed`;
     } else if (errorCode === 4) {
-      errorMessage = `${mediaType} source not supported`;
+      // Error code 4 = MEDIA_ERR_SRC_NOT_SUPPORTED
+      // This usually means the video codec is not iOS-compatible
+      errorMessage = `${mediaType} format not supported by this device. iOS requires H.264 or HEVC codec. Video may need to be re-encoded.`;
+      console.error('[Video Codec Error] iOS requires H.264 (baseline/main profile) or HEVC codec with AAC audio. Current video may use an incompatible codec.');
     } else if (mediaElement?.networkState === 3) {
       errorMessage = `${mediaType} file not found (404). The content may not be uploaded to the CDN yet.`;
     }
@@ -219,23 +226,6 @@ const MeditationPlayer = () => {
     handleMediaComplete();
   };
 
-  // Auto-hide controls for video
-  useEffect(() => {
-    if (!isAudio && player.isPlaying && showControls) {
-      if (controlsTimeoutRef.current) {
-        clearTimeout(controlsTimeoutRef.current);
-      }
-      controlsTimeoutRef.current = setTimeout(() => {
-        setShowControls(false);
-      }, 3000);
-    }
-
-    return () => {
-      if (controlsTimeoutRef.current) {
-        clearTimeout(controlsTimeoutRef.current);
-      }
-    };
-  }, [player.isPlaying, isAudio, showControls]);
 
   // Cleanup function
   useEffect(() => {
@@ -377,18 +367,17 @@ const MeditationPlayer = () => {
   const handleVolumeChange = (newVolume: number[]) => {
     const vol = newVolume[0];
     setVolume(vol);
+    setIsMuted(vol === 0);
     const mediaElement = isAudio ? audioRef.current : videoRef.current;
     if (mediaElement) {
       mediaElement.volume = vol;
-      setIsMuted(vol === 0);
     }
-    revealControls();
   };
 
   const toggleMute = () => {
     const mediaElement = isAudio ? audioRef.current : videoRef.current;
     if (!mediaElement) return;
-    
+
     if (isMuted) {
       mediaElement.volume = volume || 0.5;
       setIsMuted(false);
@@ -396,7 +385,6 @@ const MeditationPlayer = () => {
       mediaElement.volume = 0;
       setIsMuted(true);
     }
-    revealControls();
   };
 
   const handleSeek = (newTime: number[]) => {
@@ -405,59 +393,44 @@ const MeditationPlayer = () => {
     if (mediaElement && canPlay) {
       mediaElement.currentTime = time;
     }
-    revealControls();
   };
 
   const handleFavoriteClick = () => {
+    if (!user) {
+      // Not authenticated - show auth modal
+      setShowAuthModal(true);
+      return;
+    }
+
     if (meditation) {
       toggleFavorite(meditation.id);
     }
   };
 
-  const handleVideoClick = () => {
-    if (!isAudio) {
-      setShowControls((prev) => {
-        const next = !prev;
-        if (next) {
-          // reveal and reset hide timer
-          if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
-          setShowControls(true);
-          if (player.isPlaying) {
-            controlsTimeoutRef.current = setTimeout(() => setShowControls(false), 3000);
-          }
-        } else {
-          if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
-        }
-        return next;
-      });
-    }
-  };
-
-  const revealControls = () => {
-    if (isAudio) return;
-    setShowControls(true);
-    if (controlsTimeoutRef.current) {
-      clearTimeout(controlsTimeoutRef.current);
-    }
-    if (player.isPlaying) {
-      controlsTimeoutRef.current = setTimeout(() => {
-        setShowControls(false);
-      }, 3000);
-    }
-  };
-
   const toggleFullscreen = async () => {
-    if (!videoContainerRef.current) return;
-    
+    const videoEl = videoRef.current;
+    if (!videoEl) return;
+
     try {
-      if (!document.fullscreenElement) {
-        await videoContainerRef.current.requestFullscreen();
-        setIsFullscreen(true);
+      // Use the video element's native fullscreen for iOS (no toast)
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        // Try webkit fullscreen first (iOS Safari)
+        if (videoEl.webkitEnterFullscreen) {
+          videoEl.webkitEnterFullscreen();
+          setIsFullscreen(true);
+        } else if (videoEl.requestFullscreen) {
+          await videoEl.requestFullscreen();
+          setIsFullscreen(true);
+        }
       } else {
-        await document.exitFullscreen();
+        // Exit fullscreen
+        if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        } else if (document.exitFullscreen) {
+          await document.exitFullscreen();
+        }
         setIsFullscreen(false);
       }
-      revealControls();
     } catch (err) {
       console.error('Fullscreen error:', err);
     }
@@ -563,21 +536,19 @@ const MeditationPlayer = () => {
               }}
             />
           ) : (
-            /* Video player with controls */
-            <div 
+            /* Video player */
+            <div
               ref={videoContainerRef}
               className="relative w-full h-full"
-              onClick={handleVideoClick}
-              onMouseMove={revealControls}
-              onTouchStart={revealControls}
             >
               <video
                 ref={videoRef}
-                src={meditation.media_url}
                 playsInline
                 webkit-playsinline="true"
-                crossOrigin="anonymous"
-                muted={isMuted}
+                x-webkit-airplay="allow"
+                controls={true}
+                controlsList="nodownload"
+                preload="auto"
                 onLoadStart={() => {
                   console.log('[Video] Loading from:', meditation.media_url);
                   console.log('[Video] Media type:', meditation.media_type);
@@ -593,92 +564,50 @@ const MeditationPlayer = () => {
                 onPause={() => setPlaying(false)}
                 onEnded={handleEnded}
                 onError={handleError}
-                onWaiting={() => console.log('[Video] Waiting for data')}
-                onStalled={() => console.log('[Video] Stalled')}
-                preload="metadata"
+                onWaiting={() => {
+                  const videoEl = videoRef.current;
+                  console.log('[Video] Waiting for data', {
+                    readyState: videoEl?.readyState,
+                    networkState: videoEl?.networkState,
+                    currentTime: videoEl?.currentTime,
+                    buffered: videoEl?.buffered.length > 0 ? `${videoEl.buffered.start(0)}-${videoEl.buffered.end(0)}` : 'none'
+                  });
+                }}
+                onStalled={() => {
+                  const videoEl = videoRef.current;
+                  console.log('[Video] Stalled', {
+                    readyState: videoEl?.readyState,
+                    networkState: videoEl?.networkState,
+                    currentTime: videoEl?.currentTime,
+                    buffered: videoEl?.buffered.length > 0 ? `${videoEl.buffered.start(0)}-${videoEl.buffered.end(0)}` : 'none',
+                    error: videoEl?.error
+                  });
+                }}
+                onSuspend={() => {
+                  const videoEl = videoRef.current;
+                  console.log('[Video] Suspended', {
+                    readyState: videoEl?.readyState,
+                    networkState: videoEl?.networkState,
+                    currentTime: videoEl?.currentTime,
+                    buffered: videoEl?.buffered.length > 0 ? `${videoEl.buffered.start(0)}-${videoEl.buffered.end(0)}` : 'none'
+                  });
+                }}
+                onProgress={() => {
+                  const videoEl = videoRef.current;
+                  if (videoEl && videoEl.buffered.length > 0) {
+                    console.log('[Video] Buffering progress:', {
+                      buffered: `${videoEl.buffered.start(0)}-${videoEl.buffered.end(0)}`,
+                      duration: videoEl.duration,
+                      percentBuffered: ((videoEl.buffered.end(0) / videoEl.duration) * 100).toFixed(1) + '%'
+                    });
+                  }
+                }}
                 className="w-full h-full object-cover rounded-3xl shadow-2xl"
-              />
-              {/* Video Controls Overlay */}
-              <div 
-                className={`absolute z-20 bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 via-black/50 to-transparent rounded-b-3xl transition-opacity duration-300 ${
-                  showControls ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-                }`}
-                onClick={(e) => e.stopPropagation()}
-                onMouseEnter={() => !isAudio && setShowControls(true)}
               >
-                {/* Seek Bar */}
-                <div className="mb-3">
-                  <Slider
-                    value={[localCurrentTime]}
-                    max={duration}
-                    step={1}
-                    onValueChange={handleSeek}
-                    className="cursor-pointer"
-                    disabled={!canPlay}
-                  />
-                  <div className="flex justify-between text-xs text-white/90 mt-1">
-                    <span>{formatTime(localCurrentTime)}</span>
-                    <span>{formatTime(duration)}</span>
-                  </div>
-                </div>
-                {/* Volume and Fullscreen Controls */}
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2 flex-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleMute();
-                      }}
-                      className="text-white hover:bg-white/20"
-                    >
-                      {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-                    </Button>
-                    <Slider
-                      value={[isMuted ? 0 : volume]}
-                      max={1}
-                      step={0.1}
-                      onValueChange={handleVolumeChange}
-                      className="w-24 cursor-pointer"
-                    />
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleFullscreen();
-                    }}
-                    className="text-white hover:bg-white/20"
-                  >
-                    {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
-                  </Button>
-                </div>
-              </div>
-              
-              {/* Center Play/Pause Button Overlay */}
-              <div 
-                className={`absolute z-10 inset-0 flex items-center justify-center transition-opacity duration-300 ${
-                  showControls ? 'opacity-100 pointer-events-none' : 'opacity-0 pointer-events-none'
-                }`}
-              >
-                <Button
-                  variant="ghost"
-                  size="lg"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handlePlayPause();
-                  }}
-                  className="w-20 h-20 rounded-full bg-black/60 hover:bg-black/80 text-white backdrop-blur-sm pointer-events-auto"
-                >
-                  {player.isPlaying ? (
-                    <Pause className="w-10 h-10" />
-                  ) : (
-                    <Play className="w-10 h-10 ml-1" />
-                  )}
-                </Button>
-              </div>
+                <source src={meditation.media_url} type="video/mp4; codecs=avc1.42E01E,mp4a.40.2" />
+                <source src={meditation.media_url} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
             </div>
           )}
           
@@ -751,68 +680,69 @@ const MeditationPlayer = () => {
           </div>
         </div>
 
-        {/* Audio Waveform - Removed (now overlaid on thumbnail) */}
-
-        {/* Seek Slider for Audio */}
-        {isAudio && (
-          <div className="w-full max-w-md mb-6 px-4">
-            <Slider
-              value={[localCurrentTime]}
-              max={duration}
-              step={1}
-              onValueChange={handleSeek}
-              className="cursor-pointer"
-              disabled={!canPlay || isLocked}
-            />
-            <div className="flex justify-between text-xs text-muted-foreground mt-2">
-              <span>{formatTime(localCurrentTime)}</span>
-              <span>{formatTime(duration)}</span>
+        {/* Controls for Audio only - Video uses native controls */}
+        {isAudio && !isCompleted && (
+          <>
+            {/* Seek Slider */}
+            <div className="w-full max-w-md mb-6 px-4">
+              <Slider
+                value={[localCurrentTime]}
+                max={duration}
+                step={1}
+                onValueChange={handleSeek}
+                className="cursor-pointer"
+                disabled={!canPlay || isLocked}
+              />
+              <div className="flex justify-between text-xs text-muted-foreground mt-2">
+                <span>{formatTime(localCurrentTime)}</span>
+                <span>{formatTime(duration)}</span>
+              </div>
             </div>
-          </div>
+
+            {/* Play/Pause and Skip Controls */}
+            <div className="flex items-center justify-center gap-6 mb-8">
+              <Button
+                variant="ghost"
+                size="lg"
+                onClick={() => handleSkip(-10)}
+                disabled={isLocked || !canPlay}
+                className="w-16 h-16 rounded-full relative group"
+              >
+                <Skip10Icon
+                  className="w-8 h-8"
+                  direction="backward"
+                />
+              </Button>
+
+              <Button
+                onClick={handlePlayPause}
+                className="w-20 h-20 rounded-full btn-hero flex items-center justify-center"
+                disabled={isLocked || (!canPlay && !isLoading)}
+              >
+                {isLoading ? (
+                  <div className="animate-spin w-6 h-6 border-2 border-white border-t-transparent rounded-full"></div>
+                ) : player.isPlaying ? (
+                  <Pause className="w-8 h-8" />
+                ) : (
+                  <Play className="w-8 h-8 ml-1" />
+                )}
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="lg"
+                onClick={() => handleSkip(10)}
+                disabled={isLocked || !canPlay}
+                className="w-16 h-16 rounded-full relative group"
+              >
+                <Skip10Icon
+                  className="w-8 h-8"
+                  direction="forward"
+                />
+              </Button>
+            </div>
+          </>
         )}
-
-        {/* Controls */}
-        <div className="flex items-center justify-center gap-6 mb-8">
-          <Button
-            variant="ghost"
-            size="lg"
-            onClick={() => handleSkip(-10)}
-            disabled={isLocked || !canPlay}
-            className="w-16 h-16 rounded-full relative group"
-          >
-            <Skip10Icon 
-              className="w-8 h-8"
-              direction="backward"
-            />
-          </Button>
-
-          <Button
-            onClick={handlePlayPause}
-            className="w-20 h-20 rounded-full btn-hero flex items-center justify-center"
-            disabled={isLocked || (!canPlay && !isLoading)}
-          >
-            {isLoading ? (
-              <div className="animate-spin w-6 h-6 border-2 border-white border-t-transparent rounded-full"></div>
-            ) : player.isPlaying ? (
-              <Pause className="w-8 h-8" />
-            ) : (
-              <Play className="w-8 h-8 ml-1" />
-            )}
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="lg"
-            onClick={() => handleSkip(10)}
-            disabled={isLocked || !canPlay}
-            className="w-16 h-16 rounded-full relative group"
-          >
-            <Skip10Icon 
-              className="w-8 h-8"
-              direction="forward"
-            />
-          </Button>
-        </div>
 
         {/* Completion Celebration */}
         {isCompleted && (
@@ -825,12 +755,27 @@ const MeditationPlayer = () => {
               You've added {Math.round(duration / 60)} mindful minutes to your day
             </p>
             <div className="flex gap-3">
-              <Button onClick={() => navigate('/tracking')} className="btn-soft">
-                View Progress
-              </Button>
-              <Button onClick={() => navigate('/meditations')} variant="outline">
-                Find Another
-              </Button>
+              {user ? (
+                // Logged-in users: Show progress tracking
+                <>
+                  <Button onClick={() => navigate('/tracking')} className="btn-soft">
+                    View Progress
+                  </Button>
+                  <Button onClick={() => navigate('/meditations')} variant="outline">
+                    Find Another
+                  </Button>
+                </>
+              ) : (
+                // Non-logged-in users: Encourage account creation
+                <>
+                  <Button onClick={() => navigate('/explore')} className="btn-premium">
+                    Create Account to Track Progress
+                  </Button>
+                  <Button onClick={() => navigate('/meditations')} variant="outline">
+                    Try Another Free Meditation
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         )}
@@ -841,6 +786,12 @@ const MeditationPlayer = () => {
         isOpen={showParentalGate}
         onClose={() => setShowParentalGate(false)}
         onSuccess={() => navigate('/explore')}
+      />
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
       />
     </div>
   );

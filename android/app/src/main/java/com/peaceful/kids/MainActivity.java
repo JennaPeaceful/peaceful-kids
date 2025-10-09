@@ -1,4 +1,4 @@
-package com.peaceful.app;
+package com.peaceful.kids;
 
 import com.getcapacitor.BridgeActivity;
 

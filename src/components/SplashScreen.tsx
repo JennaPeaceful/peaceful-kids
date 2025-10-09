@@ -34,11 +34,11 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
       <div className="flex flex-col items-center animate-fade-in">
         <img
           src={logo}
-          alt="Peaceful Kids"
+          alt="Peaceful"
           className="w-32 h-32 mb-6 animate-float"
         />
         <h1 className="text-2xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
-          Peaceful Kids
+          Peaceful
         </h1>
         <p className="text-sm text-muted-foreground mt-2 animate-fade-in">
           Find Your Peace
