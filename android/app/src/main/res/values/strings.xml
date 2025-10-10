@@ -4,4 +4,7 @@
     <string name="title_activity_main">Peaceful</string>
     <string name="package_name">com.peacefulkids.app</string>
     <string name="custom_url_scheme">com.peacefulkids.app</string>
+
+    <!-- Meta SDK Configuration for App Ads -->
+    <string name="facebook_app_id">1526753138763557</string>
 </resources>

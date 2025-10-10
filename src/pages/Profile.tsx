@@ -266,7 +266,8 @@ const Profile = () => {
       }
 
       // 7. Finally, delete the auth user account itself (CRITICAL)
-      const { error: authError } = await supabase.auth.admin.deleteUser(user.id);
+      // Use RPC function because admin.deleteUser requires service role key
+      const { error: authError } = await supabase.rpc('delete_user_account');
 
       if (authError) {
         console.error('Error deleting auth user:', authError);

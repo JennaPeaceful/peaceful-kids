@@ -20,6 +20,11 @@ const config: CapacitorConfig = {
       iosSpinnerStyle: 'small',
       spinnerColor: '#449dbd',
     },
+    Keyboard: {
+      resize: 'none', // Prevent viewport resize on keyboard show (iOS only)
+      style: 'dark',
+      resizeOnFullScreen: true,
+    },
   },
   ios: {
     contentInset: 'automatic',

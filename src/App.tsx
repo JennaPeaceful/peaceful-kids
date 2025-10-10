@@ -13,6 +13,7 @@ import { AgeGate } from "./components/AgeGate";
 import { WellnessDisclaimer } from "./components/WellnessDisclaimer";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import BottomNavigation from "./components/BottomNavigation";
+import ScrollToTop from "./components/ScrollToTop";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Explore from "./pages/Explore";
 import Meditations from "./pages/Meditations";
@@ -25,7 +26,7 @@ import { useUserStore } from "./stores/userStore";
 const queryClient = new QueryClient();
 
 const AppLayout = ({ children }: { children: React.ReactNode }) => (
-  <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/5">
+  <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/5 pt-safe">
     {children}
     <BottomNavigation />
   </div>
@@ -84,6 +85,7 @@ const App = () => {
               <SplashScreen onComplete={completeSplash} />
             ) : (
               <BrowserRouter>
+                <ScrollToTop />
                 <AuthProvider>
                   <Routes>
                     <Route path="/" element={<AppLayout><Explore /></AppLayout>} />

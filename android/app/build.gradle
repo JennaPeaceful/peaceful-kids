@@ -40,6 +40,9 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
     implementation project(':capacitor-cordova-android-plugins')
+
+    // Meta SDK for Android ad attribution tracking (required for Google Play)
+    implementation 'com.facebook.android:facebook-android-sdk:[8,9)'
 }
 
 apply from: 'capacitor.build.gradle'

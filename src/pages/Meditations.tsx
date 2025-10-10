@@ -449,9 +449,9 @@ const Meditations = () => {
                   <button
                     key={theme.id}
                     onClick={() => handleThemeToggle(theme.name)}
-                    className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all ${
-                      isSelected 
-                        ? 'bg-primary/20 border-2 border-primary' 
+                    className={`no-touch-highlight flex flex-col items-center gap-2 p-3 rounded-xl transition-all ${
+                      isSelected
+                        ? 'bg-primary/20 border-2 border-primary'
                         : 'bg-card border-2 border-border hover:border-primary/50'
                     }`}
                   >

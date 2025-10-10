@@ -14,6 +14,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import Skip10Icon from '@/components/icons/Skip10Icon';
 import { ParentalGate } from '@/components/ParentalGate';
 import AuthModal from '@/components/AuthModal';
+import logoSvg from '@/assets/logo.svg';
 
 // Safe analytics imports - no-op if not available
 const trackMeditationPlayed = async (meditationId: string, title: string) => {
@@ -78,7 +79,6 @@ const MeditationPlayer = () => {
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const videoContainerRef = useRef<HTMLDivElement>(null);
 
   const meditation = meditations.find(m => m.id === id);
   const isFav = meditation ? isFavorite(meditation.id) : false;
@@ -125,15 +125,13 @@ const MeditationPlayer = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       const videoEl = videoRef.current;
-      const containerEl = videoContainerRef.current;
       if (videoEl && !isAudio) {
         console.log('[Video Diagnostics] Video element loaded:', {
           hasControls: videoEl.controls,
           controlsList: videoEl.getAttribute('controlsList'),
-          padding: videoEl.style.padding,
           className: videoEl.className,
-          hasOnClick: containerEl ? 'Container has onClick' : 'NO ONCLICK',
-          containerClassName: containerEl?.className
+          touchAction: videoEl.style.touchAction,
+          pointerEvents: videoEl.style.pointerEvents
         });
       }
     }, 1000);
@@ -464,25 +462,7 @@ const MeditationPlayer = () => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const handleVideoClick = () => {
-    const videoEl = videoRef.current;
-    if (!videoEl) return;
-
-    console.log('[VideoClick] Clicked! Video element:', {
-      paused: videoEl.paused,
-      controls: videoEl.controls,
-      currentTime: videoEl.currentTime,
-      hasOnClick: 'TRUE - This handler is running'
-    });
-
-    // Trigger native controls by toggling play state
-    // This makes the controls reappear on iOS
-    if (videoEl.paused) {
-      videoEl.play();
-    } else {
-      videoEl.pause();
-    }
-  };
+  // Removed handleVideoClick - using native controls only to avoid interference
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/5 pb-24">
@@ -513,16 +493,57 @@ const MeditationPlayer = () => {
           ref={audioRef}
           src={meditation.media_url}
           onLoadStart={() => {
-            console.log('Loading audio from:', meditation.media_url);
+            console.log('[Audio] Loading from:', meditation.media_url);
+            console.log('[Audio] Media type:', meditation.media_type);
             handleLoadStart();
           }}
-          onCanPlay={handleCanPlay}
-          onLoadedMetadata={handleLoadedMetadata}
+          onCanPlay={() => {
+            console.log('[Audio] Can play event fired');
+            handleCanPlay();
+          }}
+          onCanPlayThrough={() => {
+            console.log('[Audio] Can play through');
+          }}
+          onLoadedMetadata={() => {
+            console.log('[Audio] Loaded metadata event fired');
+            handleLoadedMetadata();
+          }}
           onTimeUpdate={handleTimeUpdate}
-          onPlay={() => setPlaying(true)}
-          onPause={() => setPlaying(false)}
+          onPlay={() => {
+            console.log('[Audio] Play event fired');
+            setPlaying(true);
+          }}
+          onPause={() => {
+            console.log('[Audio] Pause event fired');
+            setPlaying(false);
+          }}
           onEnded={handleEnded}
-          onError={handleError}
+          onError={(e) => {
+            console.error('[Audio] Error occurred');
+            handleError(e);
+          }}
+          onWaiting={() => {
+            console.log('[Audio] Waiting for data');
+          }}
+          onSuspend={() => {
+            console.log('[Audio] Suspended - attempting to resume');
+            const audioEl = audioRef.current;
+            if (audioEl && audioEl.readyState < 3) {
+              // If not fully loaded, try to resume loading
+              setTimeout(() => {
+                console.log('[Audio] Calling load() to resume');
+                audioEl.load();
+              }, 100);
+            }
+          }}
+          onProgress={() => {
+            const audioEl = audioRef.current;
+            if (audioEl && audioEl.buffered.length > 0) {
+              console.log('[Audio] Buffering:',
+                ((audioEl.buffered.end(0) / audioEl.duration) * 100).toFixed(1) + '%'
+              );
+            }
+          }}
           preload="metadata"
           className="hidden"
         />
@@ -578,24 +599,26 @@ const MeditationPlayer = () => {
               }}
             />
           ) : (
-            /* Video player */
-            <div
-              ref={videoContainerRef}
-              className="relative w-full h-full"
-              onClick={handleVideoClick}
-            >
-              <video
-                ref={videoRef}
-                playsInline
-                webkit-playsinline="true"
-                x-webkit-airplay="allow"
-                controls={true}
-                controlsList="nodownload"
-                preload="auto"
-                style={{ padding: '8px' }}
-                onLoadStart={() => {
+            /* Video player - simplified for iOS compatibility */
+            <video
+              ref={videoRef}
+              playsInline
+              controls
+              preload="metadata"
+              poster={
+                meditation.thumbnail_url?.includes('/api/placeholder') || !meditation.thumbnail_url
+                  ? logoSvg
+                  : meditation.thumbnail_url
+              }
+              className="w-full h-full rounded-lg shadow-2xl"
+              style={{
+                objectFit: 'contain',
+                WebkitUserSelect: 'none',
+                WebkitTouchCallout: 'none'
+              }}
+              onLoadStart={() => {
                   console.log('[Video] Loading from:', meditation.media_url);
-                  console.log('[Video] Media type:', meditation.media_type);
+                  console.log('[Video] Poster URL:', meditation.thumbnail_url || meditation.thumbnail || 'none');
                   handleLoadStart();
                 }}
                 onCanPlay={handleCanPlay}
@@ -604,55 +627,49 @@ const MeditationPlayer = () => {
                 }}
                 onLoadedMetadata={handleLoadedMetadata}
                 onTimeUpdate={handleTimeUpdate}
-                onPlay={() => setPlaying(true)}
-                onPause={() => setPlaying(false)}
+                onPlay={() => {
+                  console.log('[Video] Play event - native controls');
+                  setPlaying(true);
+                }}
+                onPause={() => {
+                  console.log('[Video] Pause event - native controls');
+                  setPlaying(false);
+                }}
                 onEnded={handleEnded}
-                onError={handleError}
+                onError={(e) => {
+                  const videoEl = e.target as HTMLVideoElement;
+                  // Only handle actual video errors, not poster image errors
+                  // Poster errors don't set videoEl.error, so we check for that
+                  if (videoEl.error && videoEl.error.code) {
+                    console.error('[Video] Actual video error occurred:', {
+                      code: videoEl.error.code,
+                      message: videoEl.error.message
+                    });
+                    handleError(e);
+                  } else {
+                    // Just a poster image error - log but don't show error toast
+                    console.warn('[Video] Poster image may have failed (not critical):', videoEl.poster);
+                  }
+                }}
                 onWaiting={() => {
                   const videoEl = videoRef.current;
-                  console.log('[Video] Waiting for data', {
+                  console.log('[Video] Waiting', {
                     readyState: videoEl?.readyState,
-                    networkState: videoEl?.networkState,
-                    currentTime: videoEl?.currentTime,
-                    buffered: videoEl?.buffered.length > 0 ? `${videoEl.buffered.start(0)}-${videoEl.buffered.end(0)}` : 'none'
-                  });
-                }}
-                onStalled={() => {
-                  const videoEl = videoRef.current;
-                  console.log('[Video] Stalled', {
-                    readyState: videoEl?.readyState,
-                    networkState: videoEl?.networkState,
-                    currentTime: videoEl?.currentTime,
-                    buffered: videoEl?.buffered.length > 0 ? `${videoEl.buffered.start(0)}-${videoEl.buffered.end(0)}` : 'none',
-                    error: videoEl?.error
-                  });
-                }}
-                onSuspend={() => {
-                  const videoEl = videoRef.current;
-                  console.log('[Video] Suspended', {
-                    readyState: videoEl?.readyState,
-                    networkState: videoEl?.networkState,
-                    currentTime: videoEl?.currentTime,
-                    buffered: videoEl?.buffered.length > 0 ? `${videoEl.buffered.start(0)}-${videoEl.buffered.end(0)}` : 'none'
+                    networkState: videoEl?.networkState
                   });
                 }}
                 onProgress={() => {
                   const videoEl = videoRef.current;
                   if (videoEl && videoEl.buffered.length > 0) {
-                    console.log('[Video] Buffering progress:', {
-                      buffered: `${videoEl.buffered.start(0)}-${videoEl.buffered.end(0)}`,
-                      duration: videoEl.duration,
-                      percentBuffered: ((videoEl.buffered.end(0) / videoEl.duration) * 100).toFixed(1) + '%'
-                    });
+                    console.log('[Video] Buffering:',
+                      ((videoEl.buffered.end(0) / videoEl.duration) * 100).toFixed(1) + '%'
+                    );
                   }
                 }}
-                className="w-full h-full object-cover rounded-3xl shadow-2xl"
               >
-                <source src={meditation.media_url} type="video/mp4; codecs=avc1.42E01E,mp4a.40.2" />
                 <source src={meditation.media_url} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
-            </div>
           )}
           
           {/* Loading Overlay - Only for audio, video uses native loading indicator */}
@@ -686,10 +703,11 @@ const MeditationPlayer = () => {
           
           {/* Floating Animation for Free Content */}
           {!isLocked && player.isPlaying && (
-            <div className="absolute inset-0 rounded-3xl animate-pulse-celebration" 
-                 style={{ 
-                   boxShadow: '0 0 40px rgba(139, 69, 255, 0.3)' 
-                 }} 
+            <div className="absolute inset-0 rounded-3xl animate-pulse-celebration"
+                 style={{
+                   boxShadow: '0 0 40px rgba(139, 69, 255, 0.3)',
+                   pointerEvents: 'none' // Allow touches to pass through to video controls
+                 }}
             />
           )}
         </div>

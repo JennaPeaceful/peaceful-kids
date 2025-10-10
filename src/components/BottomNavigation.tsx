@@ -32,8 +32,16 @@ const BottomNavigation = () => {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-border z-50 overscroll-none">
-      <div className="flex items-center justify-around px-4 py-2 safe-bottom">
+    <nav
+      className="fixed bottom-0 left-0 right-0 bg-card border-t border-border z-50"
+      style={{
+        transform: 'translate3d(0, 0, 0)', // Hardware acceleration for better iOS fixed positioning
+        WebkitTransform: 'translate3d(0, 0, 0)',
+        position: 'fixed', // Explicitly set
+        paddingBottom: 'env(safe-area-inset-bottom)', // iOS safe area
+      }}
+    >
+      <div className="flex items-center justify-around px-4 py-2">
         {navItems.map(({ to, icon, label, requiresAuth }) => (
           requiresAuth && !user ? (
             <button

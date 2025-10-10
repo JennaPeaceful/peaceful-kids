@@ -155,12 +155,23 @@ All colors MUST be HSL for proper theming.
     @apply border-border;
   }
 
+  html {
+    overscroll-behavior: none; /* Prevent bounce scroll on iOS */
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    height: 100%;
+  }
+
   body {
     @apply bg-gradient-to-br from-background to-muted text-foreground font-sans;
     font-size: 16px;
     line-height: 1.6;
     overscroll-behavior: none;
     -webkit-overflow-scrolling: touch;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto; /* Allow body to scroll */
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -216,6 +227,14 @@ All colors MUST be HSL for proper theming.
 
   .text-gradient-premium {
     @apply bg-gradient-to-r from-accent to-warning bg-clip-text text-transparent;
+  }
+
+  /* Prevent touch highlight on iOS */
+  .no-touch-highlight {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
   }
 
   /* Safe area utilities for mobile notches/status bars */

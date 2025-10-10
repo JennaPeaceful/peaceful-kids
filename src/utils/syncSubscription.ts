@@ -41,19 +41,39 @@ export async function syncSubscriptionStatus(userId: string): Promise<SyncResult
     if (isCapacitorEnabled() && isNativePlatform()) {
       console.log('[SubscriptionSync] Checking RevenueCat entitlements...');
 
-      // Dynamic import of RevenueCat functions
-      const { getCustomerInfo, getHighestTierEntitlement } = await import('./revenuecat');
+      try {
+        // Dynamic import of RevenueCat functions
+        const { getCustomerInfo, getHighestTierEntitlement } = await import('./revenuecat');
 
-      const customerInfo = await getCustomerInfo();
+        const customerInfo = await getCustomerInfo();
 
-      if (customerInfo) {
-        const activeEntitlements = Object.keys(customerInfo.entitlements.active);
-        console.log('[SubscriptionSync] Active entitlements:', activeEntitlements);
+        if (customerInfo) {
+          const activeEntitlements = Object.keys(customerInfo.entitlements.active);
+          console.log('[SubscriptionSync] Active entitlements:', activeEntitlements);
 
-        if (activeEntitlements.length > 0) {
-          isActive = true;
-          const highestTier = await getHighestTierEntitlement();
-          planType = (highestTier as 'peace_plan' | 'peace_plus_plan') || 'peace_plan'; // Default to peace_plan if we can't determine
+          if (activeEntitlements.length > 0) {
+            isActive = true;
+            const highestTier = await getHighestTierEntitlement();
+            planType = (highestTier as 'peace_plan' | 'peace_plus_plan') || 'peace_plan'; // Default to peace_plan if we can't determine
+          }
+        }
+      } catch (error) {
+        console.warn('[SubscriptionSync] RevenueCat check failed, falling back to Supabase:', error);
+      }
+
+      // If RevenueCat didn't return entitlements (or failed), fall back to Supabase
+      if (!isActive) {
+        console.log('[SubscriptionSync] No RevenueCat entitlements, checking Supabase...');
+        const { data: existingSub } = await supabase
+          .from('user_subscriptions')
+          .select('plan_type, is_active')
+          .eq('user_id', userId)
+          .single();
+
+        if (existingSub) {
+          planType = existingSub.plan_type as 'free' | 'peace_plan' | 'peace_plus_plan';
+          isActive = existingSub.is_active;
+          console.log('[SubscriptionSync] Using Supabase subscription:', planType, isActive);
         }
       }
     } else {
