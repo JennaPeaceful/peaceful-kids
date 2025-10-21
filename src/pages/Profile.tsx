@@ -71,7 +71,7 @@ const Profile = () => {
         setSubscription({
           id: latestSub.id,
           user_id: latestSub.user_id,
-          plan_type: latestSub.plan_type,
+          plan_type: latestSub.plan_type as 'free' | 'peace_plan' | 'peace_plus_plan',
           is_active: latestSub.is_active,
         });
 
@@ -259,7 +259,7 @@ const Profile = () => {
 
       // 7. Finally, delete the auth user account itself (CRITICAL)
       // Use RPC function because admin.deleteUser requires service role key
-      const { error: authError } = await supabase.rpc('delete_user_account');
+      const { error: authError } = await supabase.rpc('delete_user');
 
       if (authError) {
         console.error('Error deleting auth user:', authError);

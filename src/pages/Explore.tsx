@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import logo from '@/assets/logo.svg';
 import { ParentalGate } from '@/components/ParentalGate';
+import { useAuth } from '@/hooks/useAuth';
 import { useUserStore } from '@/stores/userStore';
 import { useMeditationStore } from '@/stores/meditationStore';
 import MeditationCard from '@/components/MeditationCard';
@@ -17,6 +18,7 @@ import { forceRefreshSubscription } from '@/utils/syncSubscription';
 const Explore = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [showParentalGate, setShowParentalGate] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const { subscription } = useUserStore();
@@ -119,7 +121,6 @@ const Explore = () => {
       console.log('[Explore] Purchase result:', result);
 
       // Purchase successful - sync to Supabase
-      const { user } = useUserStore.getState();
       if (user?.id) {
         await forceRefreshSubscription(
           user.id,
