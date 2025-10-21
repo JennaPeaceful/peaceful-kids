@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CheckCircle, Sparkles, Music } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card } from './ui/card';
 import { ParentalGate } from './ParentalGate';
+import { getSubscriptionIcon } from '@/utils/revenuecat';
 
 interface SubscriptionCardProps {
   onSubscribe?: (plan: string) => void;
@@ -11,6 +12,22 @@ interface SubscriptionCardProps {
 const SubscriptionCard = ({ onSubscribe }: SubscriptionCardProps) => {
   const [showParentalGate, setShowParentalGate] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [peacePlanIcon, setPeacePlanIcon] = useState<string | null>(null);
+  const [peacePlusIcon, setPeacePlusIcon] = useState<string | null>(null);
+
+  // Fetch subscription icons from RevenueCat metadata
+  useEffect(() => {
+    const fetchIcons = async () => {
+      const [peaceIcon, plusIcon] = await Promise.all([
+        getSubscriptionIcon('meditations_monthly'),
+        getSubscriptionIcon('all_monthly')
+      ]);
+      setPeacePlanIcon(peaceIcon);
+      setPeacePlusIcon(plusIcon);
+    };
+
+    fetchIcons();
+  }, []);
 
   const handleSelectPlan = (plan: string) => {
     setSelectedPlan(plan);
@@ -34,7 +51,11 @@ const SubscriptionCard = ({ onSubscribe }: SubscriptionCardProps) => {
         <Card className="card-gradient p-6 flex flex-col">
           <div className="mb-4">
             <div className="inline-flex items-center justify-center w-12 h-12 bg-primary/20 rounded-full mb-3">
-              <Music className="w-6 h-6 text-primary" />
+              {peacePlanIcon ? (
+                <img src={peacePlanIcon} alt="Peace Plan" className="w-6 h-6" />
+              ) : (
+                <Music className="w-6 h-6 text-primary" />
+              )}
             </div>
             <h3 className="text-xl font-bold mb-1">Peace Plan</h3>
             <div className="text-3xl font-bold mt-2">
@@ -70,10 +91,14 @@ const SubscriptionCard = ({ onSubscribe }: SubscriptionCardProps) => {
           <div className="absolute top-3 right-3 bg-accent text-accent-foreground text-xs font-semibold px-3 py-1 rounded-full">
             Recommended
           </div>
-          
+
           <div className="mb-4">
             <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-accent to-warning rounded-full mb-3">
-              <Sparkles className="w-6 h-6 text-accent-foreground" />
+              {peacePlusIcon ? (
+                <img src={peacePlusIcon} alt="Peace Plus Plan" className="w-6 h-6" />
+              ) : (
+                <Sparkles className="w-6 h-6 text-accent-foreground" />
+              )}
             </div>
             <h3 className="text-xl font-bold text-gradient-premium mb-1">
               Peace Plus Plan

@@ -132,7 +132,9 @@ export async function restorePurchases(): Promise<any> {
   try {
     const { Purchases } = await import('@revenuecat/purchases-capacitor');
     const result = await Purchases.restorePurchases();
-    return result;
+    console.log('[RevenueCat] Restore result:', result);
+    // Return the customerInfo object directly, not the wrapper
+    return result.customerInfo;
   } catch (error) {
     console.error('[RevenueCat] Restore failed:', error);
     throw error;
@@ -246,6 +248,54 @@ export async function getHighestTierEntitlement(): Promise<string | null> {
     return null;
   } catch (error) {
     console.error('[RevenueCat] Failed to get highest tier:', error);
+    return null;
+  }
+}
+
+/**
+ * Get offering metadata
+ * Returns null in web builds or if metadata is not available
+ */
+export async function getOfferingMetadata(): Promise<Record<string, any> | null> {
+  if (!isCapacitorEnabled() || !isNativePlatform()) {
+    return null;
+  }
+
+  try {
+    const offerings = await getOfferings();
+    if (!offerings?.current?.metadata) {
+      console.log('[RevenueCat] No metadata found in current offering');
+      return null;
+    }
+
+    // Parse metadata if it's a string, otherwise return as-is
+    const metadata = typeof offerings.current.metadata === 'string'
+      ? JSON.parse(offerings.current.metadata)
+      : offerings.current.metadata;
+
+    console.log('[RevenueCat] Offering metadata:', metadata);
+    return metadata;
+  } catch (error) {
+    console.error('[RevenueCat] Failed to get offering metadata:', error);
+    return null;
+  }
+}
+
+/**
+ * Get subscription icon URL from offering metadata
+ * Returns null if not found or in web builds
+ */
+export async function getSubscriptionIcon(packageId: 'meditations_monthly' | 'all_monthly'): Promise<string | null> {
+  try {
+    const metadata = await getOfferingMetadata();
+    if (!metadata?.subscription_icons?.[packageId]) {
+      console.log(`[RevenueCat] No icon found for package: ${packageId}`);
+      return null;
+    }
+
+    return metadata.subscription_icons[packageId];
+  } catch (error) {
+    console.error('[RevenueCat] Failed to get subscription icon:', error);
     return null;
   }
 }
