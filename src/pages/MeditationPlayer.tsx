@@ -612,7 +612,7 @@ const MeditationPlayer = () => {
               }
               className="w-full h-full rounded-lg shadow-2xl"
               style={{
-                objectFit: 'contain',
+                objectFit: 'cover',
                 WebkitUserSelect: 'none',
                 WebkitTouchCallout: 'none'
               }}

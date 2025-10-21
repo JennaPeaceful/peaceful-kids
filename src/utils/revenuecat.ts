@@ -8,8 +8,15 @@
 
 import { isNativePlatform, isIOS, isAndroid } from './platform';
 
-// Check if we're in a Capacitor-enabled build
-const isCapacitorEnabled = () => import.meta.env.VITE_CAPACITOR_ENABLED === 'true';
+// Check if we're in a Capacitor-enabled build (runtime check)
+const isCapacitorEnabled = () => {
+  try {
+    // @ts-ignore
+    return !!window.Capacitor;
+  } catch {
+    return false;
+  }
+};
 
 /**
  * Initialize RevenueCat SDK
@@ -147,9 +154,17 @@ export async function checkEntitlements(): Promise<Map<string, boolean>> {
     const customerInfo = await Purchases.getCustomerInfo();
 
     const entitlementMap = new Map<string, boolean>();
+
+    // Check for Peace Plan (premium_meditations)
     entitlementMap.set(
-      ENTITLEMENT_IDS.PREMIUM,
-      customerInfo.customerInfo.entitlements.active[ENTITLEMENT_IDS.PREMIUM] !== undefined
+      'peace_plan',
+      customerInfo.customerInfo.entitlements.active[ENTITLEMENT_IDS.PREMIUM_MEDITATIONS] !== undefined
+    );
+
+    // Check for Peace Plus Plan (premium_all)
+    entitlementMap.set(
+      'peace_plus_plan',
+      customerInfo.customerInfo.entitlements.active[ENTITLEMENT_IDS.PREMIUM_ALL] !== undefined
     );
 
     return entitlementMap;
@@ -219,9 +234,12 @@ export async function getHighestTierEntitlement(): Promise<string | null> {
     const activeEntitlements = customerInfo.customerInfo.entitlements.active;
 
     // Check from highest to lowest tier
-    if (activeEntitlements[ENTITLEMENT_IDS.PEACE_PLUS]) {
+    // Peace Plus Plan (premium_all) - $9.99/mo - Everything + Courses
+    if (activeEntitlements[ENTITLEMENT_IDS.PREMIUM_ALL]) {
       return 'peace_plus_plan';
-    } else if (activeEntitlements[ENTITLEMENT_IDS.PEACE_PLAN] || activeEntitlements[ENTITLEMENT_IDS.PREMIUM]) {
+    }
+    // Peace Plan (premium_meditations) - $5.99/mo - All meditations
+    else if (activeEntitlements[ENTITLEMENT_IDS.PREMIUM_MEDITATIONS]) {
       return 'peace_plan';
     }
 

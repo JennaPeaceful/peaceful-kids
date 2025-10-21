@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
+import { Keyboard } from '@capacitor/keyboard';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -24,6 +25,40 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModalProps) 
     password: '',
     displayName: ''
   });
+
+  // Handle keyboard show/hide for iOS scrolling
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyboardShow = (info: any) => {
+      console.log('🎹 Keyboard shown:', info);
+      // Scroll the focused element into view after a short delay
+      setTimeout(() => {
+        const activeElement = document.activeElement as HTMLElement;
+        if (activeElement && activeElement.tagName === 'INPUT') {
+          console.log('📍 Scrolling to input:', activeElement.id);
+          activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+    };
+
+    const handleKeyboardHide = () => {
+      console.log('🎹 Keyboard hidden');
+    };
+
+    // Add listeners
+    Keyboard.addListener('keyboardWillShow', handleKeyboardShow);
+    Keyboard.addListener('keyboardDidShow', handleKeyboardShow);
+    Keyboard.addListener('keyboardWillHide', handleKeyboardHide);
+
+    console.log('✅ Keyboard listeners added');
+
+    // Cleanup
+    return () => {
+      Keyboard.removeAllListeners();
+      console.log('🧹 Keyboard listeners removed');
+    };
+  }, [isOpen]);
 
   const handleDevLogin = async () => {
     setIsLoading(true);
@@ -140,7 +175,6 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModalProps) 
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <div className="text-center mb-4">
-            <div className="text-4xl mb-4">🧘‍♂️</div>
             <DialogTitle className="text-2xl font-bold text-gradient-primary mb-2">
               {isSignUp ? t('auth.joinPeaceful') : t('auth.welcomeBack')}
             </DialogTitle>
@@ -166,6 +200,7 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModalProps) 
                     value={formData.displayName}
                     onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
                     className="pl-10"
+                    enterKeyHint="next"
                     required
                   />
                 </div>
@@ -186,6 +221,8 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModalProps) 
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 className="pl-10"
+                enterKeyHint="next"
+                autoComplete="email"
                 required
               />
             </div>
@@ -204,6 +241,8 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModalProps) 
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 className="pl-10 pr-10"
+                enterKeyHint="done"
+                autoComplete={isSignUp ? "new-password" : "current-password"}
                 minLength={6}
                 required
               />
@@ -221,6 +260,16 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModalProps) 
                 )}
               </Button>
             </div>
+          </div>
+
+          <div className="text-center pt-2">
+            <button
+              type="button"
+              onClick={() => setIsSignUp(!isSignUp)}
+              className="text-sm text-primary hover:underline"
+            >
+              {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
+            </button>
           </div>
 
           <Button type="submit" className="w-full" disabled={isLoading}>
@@ -246,16 +295,6 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModalProps) 
             </Button>
           </div>
         )}
-
-        <div className="mt-3 text-center">
-          <button
-            type="button"
-            onClick={() => setIsSignUp(!isSignUp)}
-            className="text-sm text-primary hover:underline"
-          >
-            {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
-          </button>
-        </div>
       </DialogContent>
     </Dialog>
   );

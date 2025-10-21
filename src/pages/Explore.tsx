@@ -9,6 +9,10 @@ import { ParentalGate } from '@/components/ParentalGate';
 import { useUserStore } from '@/stores/userStore';
 import { useMeditationStore } from '@/stores/meditationStore';
 import MeditationCard from '@/components/MeditationCard';
+import { toast } from '@/hooks/use-toast';
+import { isNativePlatform } from '@/utils/platform';
+import { getOfferings, purchasePackage } from '@/utils/revenuecat';
+import { forceRefreshSubscription } from '@/utils/syncSubscription';
 
 const Explore = () => {
   const { t } = useTranslation();
@@ -52,9 +56,115 @@ const Explore = () => {
     setShowParentalGate(true);
   };
 
-  const handleParentalGateSuccess = () => {
-    console.log('Selected plan:', selectedPlan);
-    // TODO: Implement subscription flow
+  const handleParentalGateSuccess = async () => {
+    console.log('[Explore] Parental gate passed, selected plan:', selectedPlan);
+
+    // Check if we're on native platform
+    if (!isNativePlatform()) {
+      toast({
+        title: "Not Available",
+        description: "In-app purchases are only available on iOS and Android apps.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Determine which package to purchase
+    const packageId = selectedPlan === 'peace-plus' ? 'all_monthly' : 'meditations_monthly';
+
+    try {
+      toast({
+        title: "Loading Subscription Options",
+        description: "Please wait...",
+      });
+
+      // Get offerings from RevenueCat
+      const offerings = await getOfferings();
+      console.log('[Explore] RevenueCat offerings:', offerings);
+
+      if (!offerings?.current) {
+        console.error('[Explore] No current offering found');
+        toast({
+          title: "Error Loading Plans",
+          description: "Could not load subscription options. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Find the selected package
+      const selectedPackage = offerings.current.availablePackages.find(
+        (pkg: any) => pkg.identifier === packageId
+      );
+
+      if (!selectedPackage) {
+        console.error('[Explore] Package not found:', packageId);
+        toast({
+          title: "Error Loading Plan",
+          description: "Could not find the selected subscription plan.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      console.log('[Explore] Purchasing package:', selectedPackage.identifier);
+
+      toast({
+        title: "Processing Purchase",
+        description: "Please complete the purchase in the popup...",
+      });
+
+      // Make the purchase
+      const result = await purchasePackage(selectedPackage);
+      console.log('[Explore] Purchase result:', result);
+
+      // Purchase successful - sync to Supabase
+      const { user } = useUserStore.getState();
+      if (user?.id) {
+        await forceRefreshSubscription(
+          user.id,
+          (syncResult) => {
+            toast({
+              title: "Welcome to " + (selectedPlan === 'peace-plus' ? 'Peace Plus!' : 'Peace Plan!'),
+              description: "Your subscription is now active. Enjoy unlimited access!",
+            });
+            // Refresh subscription state
+            window.location.reload();
+          },
+          (error) => {
+            console.error('[Explore] Sync error:', error);
+            toast({
+              title: "Purchase Successful",
+              description: "Please restart the app to activate your subscription.",
+            });
+          }
+        );
+      } else {
+        toast({
+          title: "Purchase Successful!",
+          description: "Please restart the app to activate your subscription.",
+        });
+      }
+
+    } catch (error: any) {
+      console.error('[Explore] Purchase error:', error);
+
+      // Check if user cancelled
+      if (error?.message?.includes('cancelled') || error?.userCancelled) {
+        toast({
+          title: "Purchase Cancelled",
+          description: "You can subscribe anytime from this page.",
+        });
+        return;
+      }
+
+      // Other error
+      toast({
+        title: "Purchase Failed",
+        description: error.message || "Could not complete purchase. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleTryFreeSamples = () => {
@@ -138,7 +248,7 @@ const Explore = () => {
             <div className="max-w-2xl mx-auto">
               <h2 className="text-2xl font-bold text-center mb-6">Upgrade to Peace Plus</h2>
               <Card className="card-premium p-8 border-2 border-accent/50 hover:border-accent transition-all relative">
-                <div className="absolute top-4 right-4 bg-accent text-accent-foreground text-xs font-semibold px-3 py-1 rounded-full">
+                <div className="absolute -top-3 right-4 bg-accent text-accent-foreground text-xs font-semibold px-3 py-1 rounded-full shadow-md">
                   Unlock More Content
                 </div>
                 
@@ -154,7 +264,19 @@ const Explore = () => {
                     <div className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                       <Check className="w-3 h-3 text-accent" />
                     </div>
-                    <span className="text-sm font-medium">Meditations + Courses (Audio + Video)</span>
+                    <span className="text-sm">Everything in Peace Plan</span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-3 h-3 text-accent" />
+                    </div>
+                    <span className="text-sm font-medium">Highly Meditated Course</span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-3 h-3 text-accent" />
+                    </div>
+                    <span className="text-sm font-medium">Rainbow Array Course</span>
                   </div>
                 </div>
 
@@ -189,7 +311,13 @@ const Explore = () => {
                   <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                     <Check className="w-3 h-3 text-primary" />
                   </div>
-                  <span className="text-sm">Access to full audio meditation library</span>
+                  <span className="text-sm">Meditations for Kids</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Check className="w-3 h-3 text-primary" />
+                  </div>
+                  <span className="text-sm">Meditations for Adults</span>
                 </div>
               </div>
 
@@ -204,7 +332,7 @@ const Explore = () => {
 
             {/* Peace Plus Plan - Highlighted */}
             <Card className="card-premium p-8 border-2 border-accent/50 hover:border-accent transition-all relative flex flex-col">
-              <div className="absolute top-4 right-4 bg-accent text-accent-foreground text-xs font-semibold px-3 py-1 rounded-full">
+              <div className="absolute -top-3 right-4 bg-accent text-accent-foreground text-xs font-semibold px-3 py-1 rounded-full shadow-md">
                 Recommended
               </div>
               
@@ -220,7 +348,25 @@ const Explore = () => {
                   <div className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                     <Check className="w-3 h-3 text-accent" />
                   </div>
-                  <span className="text-sm font-medium">Meditations + Courses (Audio + Video)</span>
+                  <span className="text-sm">Meditations for Kids</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Check className="w-3 h-3 text-accent" />
+                  </div>
+                  <span className="text-sm">Meditations for Adults</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Check className="w-3 h-3 text-accent" />
+                  </div>
+                  <span className="text-sm font-medium">Highly Meditated Course</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Check className="w-3 h-3 text-accent" />
+                  </div>
+                  <span className="text-sm font-medium">Rainbow Array Course</span>
                 </div>
               </div>
 

@@ -9,6 +9,17 @@
  * Check if Capacitor is available and enabled
  */
 const isCapacitorEnabled = (): boolean => {
+  // First check if Capacitor is actually present (runtime check)
+  try {
+    // @ts-ignore - Capacitor might not be available
+    if (window.Capacitor) {
+      return true;
+    }
+  } catch {
+    // Fall through to environment variable check
+  }
+
+  // Fallback to environment variable
   return import.meta.env.VITE_CAPACITOR_ENABLED === 'true';
 };
 
@@ -17,15 +28,20 @@ const isCapacitorEnabled = (): boolean => {
  * Returns false in web builds
  */
 export const isNativePlatform = (): boolean => {
-  if (!isCapacitorEnabled()) return false;
-
   try {
     // @ts-ignore - Capacitor might not be available
     const { Capacitor } = window;
-    return Capacitor?.isNativePlatform?.() || false;
+    if (Capacitor?.isNativePlatform) {
+      return Capacitor.isNativePlatform();
+    }
   } catch {
-    return false;
+    // Capacitor not available
   }
+
+  // If Capacitor check fails, fall back to environment variable check
+  if (!isCapacitorEnabled()) return false;
+
+  return false;
 };
 
 /**
@@ -33,15 +49,17 @@ export const isNativePlatform = (): boolean => {
  * Returns false in web builds
  */
 export const isIOS = (): boolean => {
-  if (!isCapacitorEnabled()) return false;
-
   try {
     // @ts-ignore - Capacitor might not be available
     const { Capacitor } = window;
-    return Capacitor?.getPlatform?.() === 'ios';
+    if (Capacitor?.getPlatform) {
+      return Capacitor.getPlatform() === 'ios';
+    }
   } catch {
     return false;
   }
+
+  return false;
 };
 
 /**
@@ -49,15 +67,17 @@ export const isIOS = (): boolean => {
  * Returns false in web builds
  */
 export const isAndroid = (): boolean => {
-  if (!isCapacitorEnabled()) return false;
-
   try {
     // @ts-ignore - Capacitor might not be available
     const { Capacitor } = window;
-    return Capacitor?.getPlatform?.() === 'android';
+    if (Capacitor?.getPlatform) {
+      return Capacitor.getPlatform() === 'android';
+    }
   } catch {
     return false;
   }
+
+  return false;
 };
 
 /**
@@ -81,13 +101,15 @@ export const isWeb = (): boolean => {
  * @returns 'ios' | 'android' | 'web'
  */
 export const getPlatform = (): string => {
-  if (!isCapacitorEnabled()) return 'web';
-
   try {
     // @ts-ignore - Capacitor might not be available
     const { Capacitor } = window;
-    return Capacitor?.getPlatform?.() || 'web';
+    if (Capacitor?.getPlatform) {
+      return Capacitor.getPlatform();
+    }
   } catch {
     return 'web';
   }
+
+  return 'web';
 };

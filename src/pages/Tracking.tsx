@@ -106,7 +106,16 @@ const Tracking = () => {
               {stats.weeklyActivity.reduce((sum, day) => sum + day.minutes, 0)} {t('tracking.minutesThisWeek')}
             </div>
             <div className="text-sm text-muted-foreground">
-              {t('tracking.keepWork')}
+              {(() => {
+                const weeklyMinutes = stats.weeklyActivity.reduce((sum, day) => sum + day.minutes, 0);
+                if (weeklyMinutes === 0) {
+                  return t('tracking.startJourney');
+                } else if (weeklyMinutes < 50) {
+                  return t('tracking.greatStart');
+                } else {
+                  return t('tracking.keepWork');
+                }
+              })()}
             </div>
           </div>
         </Card>
@@ -137,7 +146,7 @@ const Tracking = () => {
               {stats.totalMeditations}
             </div>
             <div className="text-sm text-muted-foreground">
-              {t('tracking.sessions')}
+              Total {t('tracking.sessions')}
             </div>
           </Card>
         </div>
@@ -151,7 +160,7 @@ const Tracking = () => {
             {stats.totalMinutes}
           </div>
           <div className="text-lg text-muted-foreground">
-            {t('tracking.mindfulMinutes')}
+            Total {t('tracking.mindfulMinutes')}
           </div>
           <div className="text-sm text-muted-foreground mt-1">
             {t('tracking.hoursOfPeace', { hours: Math.round(stats.totalMinutes / 60 * 10) / 10 })}

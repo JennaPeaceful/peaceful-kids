@@ -14,8 +14,15 @@ import { supabase } from '@/integrations/supabase/client';
 import { isNativePlatform } from './platform';
 import { useUserStore } from '@/stores/userStore';
 
-// Check if we're in a Capacitor-enabled build
-const isCapacitorEnabled = () => import.meta.env.VITE_CAPACITOR_ENABLED === 'true';
+// Check if we're in a Capacitor-enabled build (runtime check)
+const isCapacitorEnabled = () => {
+  try {
+    // @ts-ignore
+    return !!window.Capacitor;
+  } catch {
+    return false;
+  }
+};
 
 export interface SyncResult {
   success: boolean;

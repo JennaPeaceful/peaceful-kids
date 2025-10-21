@@ -49,7 +49,11 @@ const SubscriptionCard = ({ onSubscribe }: SubscriptionCardProps) => {
           <div className="space-y-3 mb-6 flex-grow">
             <div className="flex items-start gap-3 text-sm">
               <CheckCircle className="w-4 h-4 text-success flex-shrink-0 mt-0.5" />
-              <span>Access to full audio meditation library</span>
+              <span>Meditations for Kids</span>
+            </div>
+            <div className="flex items-start gap-3 text-sm">
+              <CheckCircle className="w-4 h-4 text-success flex-shrink-0 mt-0.5" />
+              <span>Meditations for Adults</span>
             </div>
           </div>
 
@@ -86,7 +90,19 @@ const SubscriptionCard = ({ onSubscribe }: SubscriptionCardProps) => {
           <div className="space-y-3 mb-6 flex-grow">
             <div className="flex items-start gap-3 text-sm">
               <CheckCircle className="w-4 h-4 text-success flex-shrink-0 mt-0.5" />
-              <span className="font-medium">Meditations + Courses (Audio + Video)</span>
+              <span>Meditations for Kids</span>
+            </div>
+            <div className="flex items-start gap-3 text-sm">
+              <CheckCircle className="w-4 h-4 text-success flex-shrink-0 mt-0.5" />
+              <span>Meditations for Adults</span>
+            </div>
+            <div className="flex items-start gap-3 text-sm">
+              <CheckCircle className="w-4 h-4 text-success flex-shrink-0 mt-0.5" />
+              <span className="font-medium">Highly Meditated Course</span>
+            </div>
+            <div className="flex items-start gap-3 text-sm">
+              <CheckCircle className="w-4 h-4 text-success flex-shrink-0 mt-0.5" />
+              <span className="font-medium">Rainbow Array Course</span>
             </div>
           </div>
 

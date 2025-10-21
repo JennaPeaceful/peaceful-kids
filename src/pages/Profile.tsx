@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   User, Settings, LogOut, Crown,
-  Shield, FileText, HelpCircle, Trash2, Database,
+  Shield, FileText, HelpCircle, Trash2,
   ChevronRight, Lock, RefreshCw, ExternalLink, Loader2
 } from 'lucide-react';
 import { isNativePlatform, isIOS, isAndroid } from '@/utils/platform';
@@ -180,14 +180,6 @@ const Profile = () => {
         variant: "destructive",
       });
     }
-  };
-
-  const handleExportData = () => {
-    toast({
-      title: "Exporting Data",
-      description: "Your data will be sent to your email within 24 hours.",
-    });
-    // TODO: Implement data export
   };
 
   const handleDeleteAccount = async () => {
@@ -517,20 +509,8 @@ const Profile = () => {
           {t('profile.account')}
         </h3>
         <Card className="card-gradient p-6 space-y-2">
-          <Button 
-            variant="ghost" 
-            className="w-full justify-between"
-            onClick={handleExportData}
-          >
-            <span className="flex items-center gap-2">
-              <Database className="w-4 h-4" />
-              Export My Data
-            </span>
-            <ChevronRight className="w-4 h-4" />
-          </Button>
-
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             className="w-full justify-between"
             onClick={handleSignOutEverywhere}
           >

@@ -136,14 +136,23 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) {
+        console.error('Supabase signOut error:', error);
         toast({
           title: 'Error signing out',
+          description: error.message || 'Please try again',
           variant: 'destructive',
         });
       } else {
         logout();
         resetAnalytics(); // Clear analytics user identity
-        await logoutRevenueCatUser(); // Log out from RevenueCat
+
+        // Log out from RevenueCat (fail silently if not configured)
+        try {
+          await logoutRevenueCatUser();
+        } catch (rcError) {
+          console.log('[Auth] RevenueCat logout skipped (not configured)');
+        }
+
         toast({
           title: 'Signed out successfully',
         });
@@ -155,8 +164,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
       }
     } catch (error) {
+      console.error('Sign out exception:', error);
       toast({
         title: 'An error occurred while signing out',
+        description: error instanceof Error ? error.message : 'Unknown error',
         variant: 'destructive',
       });
     }

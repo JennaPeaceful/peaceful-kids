@@ -21,7 +21,7 @@ const config: CapacitorConfig = {
       spinnerColor: '#449dbd',
     },
     Keyboard: {
-      resize: 'none', // Prevent viewport resize on keyboard show (iOS only)
+      resize: 'body', // Allow viewport resize when keyboard shows - enables scrolling to see covered fields
       style: 'dark',
       resizeOnFullScreen: true,
     },
