@@ -54,6 +54,18 @@ const Explore = () => {
   }, [meditations, subscription]);
 
   const handleSelectPlan = (plan: string) => {
+    // Check if user is authenticated before showing purchase flow
+    if (!user) {
+      toast({
+        title: "Sign In Required",
+        description: "Please sign in to subscribe to a plan.",
+        variant: "destructive",
+      });
+      // Redirect to home where auth modal will appear
+      navigate('/');
+      return;
+    }
+
     setSelectedPlan(plan);
     setShowParentalGate(true);
   };
