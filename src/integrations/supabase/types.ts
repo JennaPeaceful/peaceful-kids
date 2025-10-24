@@ -789,10 +789,7 @@ export type Database = {
       }
     }
     Functions: {
-      delete_user: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      delete_user: { Args: never; Returns: undefined }
       get_meditations_for_age: {
         Args: { user_age: number }
         Returns: {
@@ -820,6 +817,12 @@ export type Database = {
           thumbnail_url: string | null
           title: string
         }[]
+        SetofOptions: {
+          from: "*"
+          to: "meditations"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
     }
     Enums: {
