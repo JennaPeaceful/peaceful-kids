@@ -317,25 +317,33 @@ const Meditations = () => {
               Select an Emotion
             </label>
             <div className="grid grid-cols-2 gap-3">
-              {availableThemes.map((themeName) => (
-                <Button
-                  key={themeName}
-                  variant="outline"
-                  onClick={() => handleThemeToggle(themeName)}
-                  className="flex flex-col items-center gap-2 h-auto py-4 hover:shadow-primary transition-all"
-                >
-                  <div className="relative w-16 h-16 rounded-xl overflow-hidden">
-                    <img 
-                      src={categoryBackground}
-                      alt=""
-                      className="absolute inset-0 w-full h-full object-cover"
-                    />
-                  </div>
-                  <span className="text-xs font-medium text-center leading-tight">
-                    {themeName}
-                  </span>
-                </Button>
-              ))}
+              {availableThemes.map((themeName) => {
+                const themeIconUrl = `https://cdn.peacefulkids.app/SVG%20FILES%20NO%20COLOR/CONTENT%20CATEGORY%20NO%20COLOR/${encodeURIComponent(themeName)}.svg`;
+                return (
+                  <Button
+                    key={themeName}
+                    variant="outline"
+                    onClick={() => handleThemeToggle(themeName)}
+                    className="flex flex-col items-center gap-2 h-auto py-4 hover:shadow-primary transition-all"
+                  >
+                    <div className="relative w-16 h-16 rounded-xl overflow-hidden">
+                      <img 
+                        src={categoryBackground}
+                        alt=""
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                      <img 
+                        src={themeIconUrl}
+                        alt={themeName}
+                        className="absolute inset-0 w-full h-full object-contain p-3"
+                      />
+                    </div>
+                    <span className="text-xs font-medium text-center leading-tight">
+                      {themeName}
+                    </span>
+                  </Button>
+                );
+              })}
             </div>
           </div>
         )}
