@@ -33,6 +33,7 @@ const Meditations = () => {
     courses, 
     themes, 
     ageGroups, 
+    availableThemes,
     setFilters, 
     clearFilters, 
     fetchMeditations, 
@@ -155,8 +156,8 @@ const Meditations = () => {
     return colorMap[ageGroup] || '#6b7280';
   };
   
-  // Get filtered themes that don't overlap with content categories
-  const availableThemes = themes.filter(theme => 
+  // Get filtered theme objects that don't overlap with content categories (for FilterBreadcrumb and theme display)
+  const availableThemeObjects = themes.filter(theme => 
     (!filters.selectedCategory || theme.category?.includes(filters.selectedCategory)) &&
     !filters.selectedContentCategories.includes(theme.name)
   );
@@ -260,7 +261,7 @@ const Meditations = () => {
           contentCategories={availableContentCategories}
           courses={courses}
           ageGroups={ageGroups}
-          themes={availableThemes}
+          themes={availableThemeObjects}
           onCategorySelect={handleCategorySelect}
           onContentCategoryToggle={handleContentCategoryToggle}
           onCourseToggle={handleCourseToggle}
@@ -303,6 +304,36 @@ const Meditations = () => {
                     </div>
                   )}
                   <span className="text-sm font-medium">{category.display_name}</span>
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Emotions (Themes) - Show when Emotions category is selected */}
+        {filters.selectedCategory === 'Emotions' && !filters.selectedThemes.length && availableThemes.length > 0 && (
+          <div className="mb-6">
+            <label className="text-sm font-medium text-muted-foreground mb-3 block">
+              Select an Emotion
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              {availableThemes.map((themeName) => (
+                <Button
+                  key={themeName}
+                  variant="outline"
+                  onClick={() => handleThemeToggle(themeName)}
+                  className="flex flex-col items-center gap-2 h-auto py-4 hover:shadow-primary transition-all"
+                >
+                  <div className="relative w-16 h-16 rounded-xl overflow-hidden">
+                    <img 
+                      src={categoryBackground}
+                      alt=""
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  </div>
+                  <span className="text-xs font-medium text-center leading-tight">
+                    {themeName}
+                  </span>
                 </Button>
               ))}
             </div>
@@ -443,7 +474,7 @@ const Meditations = () => {
               Themes
             </label>
             <div className="grid grid-cols-4 gap-3">
-              {availableThemes.map((theme) => {
+              {availableThemeObjects.map((theme) => {
                 const isSelected = filters.selectedThemes.includes(theme.name);
                 return (
                   <button

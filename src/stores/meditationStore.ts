@@ -12,6 +12,7 @@ interface MeditationState {
   courses: string[];
   themes: Array<{id: string; name: string; icon: string; color: string; category: string[]; icon_svg_url?: string; icon_png_url?: string; sort_order?: number}>;
   ageGroups: string[];
+  availableThemes: string[];
   filters: FilterState;
   player: PlayerState;
   isLoading: boolean;
@@ -107,6 +108,7 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
   courses: [],
   themes: [],
   ageGroups: [],
+  availableThemes: [],
   filters: initialFilters,
   player: initialPlayer,
   isLoading: false,
@@ -141,6 +143,11 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
         return ageOrder.indexOf(a) - ageOrder.indexOf(b);
       });
       set({ ageGroups: sortedAgeGroups });
+      
+      // Extract unique themes from meditations
+      const allThemes = meditations.flatMap(m => m.themes || []);
+      const uniqueThemes = [...new Set(allThemes)].sort();
+      set({ availableThemes: uniqueThemes });
       
       // Fetch additional data
       await get().fetchCategories();
