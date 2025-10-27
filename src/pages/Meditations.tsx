@@ -335,7 +335,7 @@ const Meditations = () => {
                       <img 
                         src={categoryBackground}
                         alt=""
-                        className="absolute inset-0 w-full h-full object-cover opacity-30"
+                        className="absolute inset-0 w-full h-full object-cover opacity-50"
                       />
                       <img 
                         src={themeIconUrl}
