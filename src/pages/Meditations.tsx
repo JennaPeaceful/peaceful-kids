@@ -294,12 +294,12 @@ const Meditations = () => {
                       <img 
                         src={categoryBackground}
                         alt=""
-                        className="absolute inset-0 w-full h-full object-cover"
+                        className="absolute inset-0 w-full h-full object-cover opacity-70"
                       />
                       <img 
                         src={category.thumbnail_svg_url} 
                         alt={category.display_name}
-                        className="relative w-full h-full object-contain p-2 filter brightness-0 invert mix-blend-overlay"
+                        className="absolute inset-0 w-full h-full object-contain p-2 filter brightness-0"
                       />
                     </div>
                   )}
@@ -455,16 +455,16 @@ const Meditations = () => {
                       <img 
                         src={categoryBackground}
                         alt=""
-                        className="absolute inset-0 w-full h-full object-cover"
+                        className="absolute inset-0 w-full h-full object-cover opacity-70"
                       />
                       {iconUrl ? (
                         <img 
                           src={iconUrl} 
                           alt={category.name}
-                          className="absolute inset-0 w-full h-full object-contain p-2 mix-blend-overlay"
+                          className="absolute inset-0 w-full h-full object-contain p-3 filter brightness-0"
                         />
                       ) : (
-                        <div className="absolute inset-0 flex items-center justify-center text-white font-bold text-lg mix-blend-overlay">
+                        <div className="absolute inset-0 flex items-center justify-center text-foreground font-bold text-lg">
                           {category.name.split(' ').slice(0, 2).map((word: string) => word[0]).join('').toUpperCase()}
                         </div>
                       )}
