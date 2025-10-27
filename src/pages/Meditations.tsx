@@ -318,8 +318,11 @@ const Meditations = () => {
             </label>
             <div className="grid grid-cols-2 gap-3">
               {availableThemes.map((themeName) => {
-                // Map theme names to CDN filenames (handle special characters)
-                const themeFileName = themeName.replace(/\\/g, '-').replace(/\//g, '-');
+                // Map theme names to CDN filenames (handle special characters and misspellings)
+                let themeFileName = themeName.replace(/\\/g, '-').replace(/\//g, '-');
+                if (themeName === 'Miscellaneous') {
+                  themeFileName = 'Misellaneous'; // CDN has misspelled version
+                }
                 const themeIconUrl = `https://cdn.peacefulkids.app/SVG%20FILES%20NO%20COLOR/CONTENT%20CATEGORY%20NO%20COLOR/${encodeURIComponent(themeFileName)}.svg`;
                 return (
                   <Button
