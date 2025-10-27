@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Badge } from '../components/ui/badge';
 import { formatCategoryName } from '@/lib/utils';
 import categoryBackground from '@/assets/category-icon-background.svg';
+import emotionsIcon from '@/assets/emotions.svg';
 
 type MediaType = 'all' | 'audio' | 'video';
 
@@ -289,7 +290,7 @@ const Meditations = () => {
                   onClick={() => handleCategorySelect(category.name)}
                   className="flex flex-col items-center gap-2 h-auto py-4 hover:shadow-primary transition-all"
                 >
-                  {category.thumbnail_svg_url && (
+                  {(category.thumbnail_svg_url || category.name === 'Emotions') && (
                     <div className="relative w-12 h-12 rounded-xl overflow-hidden">
                       <img 
                         src={categoryBackground}
@@ -297,7 +298,7 @@ const Meditations = () => {
                         className="absolute inset-0 w-full h-full object-cover opacity-70"
                       />
                       <img 
-                        src={category.thumbnail_svg_url} 
+                        src={category.name === 'Emotions' ? emotionsIcon : category.thumbnail_svg_url} 
                         alt={category.display_name}
                         className="absolute inset-0 w-full h-full object-contain p-2 filter brightness-0"
                       />
