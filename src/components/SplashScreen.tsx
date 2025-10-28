@@ -43,6 +43,9 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
         <p className="text-sm text-muted-foreground mt-2 animate-fade-in">
           Find Your Peace
         </p>
+        <p className="text-xs text-muted-foreground/80 mt-1 animate-fade-in">
+          Mindful Moments for Every Age
+        </p>
       </div>
     </div>
   );
