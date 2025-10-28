@@ -281,6 +281,17 @@ const Meditations = () => {
                   if (ageGroup === 'child' && category.name === 'Courses') {
                     return false;
                   }
+                  // Hide specific categories
+                  const hiddenCategories = [
+                    'Mindfulness Exercises Teeth Brushing',
+                    'Mindfulness Exercises Walking',
+                    'Mindfulness Exercises Eating',
+                    'Mindfulness Exercises Grounding',
+                    'Miscellaneous'
+                  ];
+                  if (hiddenCategories.includes(category.name)) {
+                    return false;
+                  }
                   return true;
                 })
                 .map((category) => (
