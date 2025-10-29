@@ -8,6 +8,7 @@
     <!-- Trust Supabase domains -->
     <domain-config cleartextTrafficPermitted="false">
         <domain includeSubdomains="true">supabase.co</domain>
-        <domain includeSubdomains="true">peaceful-legal.vercel.app</domain>
+        <domain includeSubdomains="true">support.peacefulkids.app</domain>
+        <domain includeSubdomains="true">peacefulkids.app</domain>
     </domain-config>
 </network-security-config>

@@ -1,6 +1,7 @@
 import { AlertCircle, RefreshCw, WifiOff, CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { APP_URLS } from '@/config/urls';
 
 export type ErrorType = 'network' | 'payment' | 'generic' | 'auth';
 
@@ -77,7 +78,7 @@ export const ErrorState = ({
 
           {showSupport && (
             <p className="text-xs text-muted-foreground">
-              Need help? Contact us at dev@peacefulkids.app
+              Need help? Contact us at {APP_URLS.supportEmail}
             </p>
           )}
         </div>

@@ -32,6 +32,7 @@ import logo from '@/assets/logo.svg';
 import { formatCategoryName } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 import { logger } from '@/utils/logger';
+import { APP_URLS } from '@/config/urls';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -166,7 +167,7 @@ const Profile = () => {
   const handleManageSubscription = async () => {
     if (!isNativePlatform()) {
       // On web, open App Store subscription page
-      window.open('https://apps.apple.com/account/subscriptions', '_blank');
+      window.open(APP_URLS.appStore.subscriptions, '_blank');
       return;
     }
 
@@ -283,7 +284,7 @@ const Profile = () => {
       logger.error('Account deletion error:', error);
       toast({
         title: "Deletion Failed",
-        description: "Unable to delete account. Please contact support at dev@peacefulkids.app",
+        description: `Unable to delete account. Please contact support at ${APP_URLS.supportEmail}`,
         variant: "destructive",
       });
     } finally {
@@ -444,7 +445,7 @@ const Profile = () => {
           <Button 
             variant="ghost" 
             className="w-full justify-between"
-            onClick={() => window.open('https://support.peacefulkids.app/privacy', '_blank')}
+            onClick={() => window.open(APP_URLS.privacy, '_blank')}
           >
             <span className="flex items-center gap-2">
               <Shield className="w-4 h-4" />
@@ -456,7 +457,7 @@ const Profile = () => {
           <Button 
             variant="ghost" 
             className="w-full justify-between"
-            onClick={() => window.open('https://support.peacefulkids.app/terms', '_blank')}
+            onClick={() => window.open(APP_URLS.terms, '_blank')}
           >
             <span className="flex items-center gap-2">
               <FileText className="w-4 h-4" />
@@ -468,7 +469,7 @@ const Profile = () => {
           <Button 
             variant="ghost" 
             className="w-full justify-between"
-            onClick={() => window.open('https://support.peacefulkids.app/support', '_blank')}
+            onClick={() => window.open(APP_URLS.support, '_blank')}
           >
             <span className="flex items-center gap-2">
               <HelpCircle className="w-4 h-4" />

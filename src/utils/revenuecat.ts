@@ -8,6 +8,7 @@
 
 import { isNativePlatform, isIOS, isAndroid } from './platform';
 import { logger } from './logger';
+import { APP_URLS, getSubscriptionManagementUrl } from '@/config/urls';
 
 // Check if we're in a Capacitor-enabled build (runtime check)
 const isCapacitorEnabled = () => {
@@ -191,7 +192,8 @@ export async function checkEntitlements(): Promise<Map<string, boolean>> {
 export async function openSubscriptionManagement(): Promise<void> {
   if (!isCapacitorEnabled() || !isNativePlatform()) {
     // Open web-based subscription management
-    window.open('https://peacefulkids.app/account/subscription', '_blank');
+    const platform = isIOS() ? 'ios' : isAndroid() ? 'android' : 'web';
+    window.open(getSubscriptionManagementUrl(platform), '_blank');
     return;
   }
 
