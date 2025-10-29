@@ -35,13 +35,16 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
         <img
           src={logo}
           alt="Peaceful"
-          className="w-32 h-32 mb-6 animate-float"
+          className="w-32 h-32 mb-8 animate-float"
         />
-        <h1 className="text-2xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
+        <h1 className="text-2xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent mb-3">
           Peaceful
         </h1>
-        <p className="text-sm text-muted-foreground mt-2 animate-fade-in">
+        <p className="text-base text-muted-foreground font-medium animate-fade-in">
           Find Your Peace
+        </p>
+        <p className="text-sm text-muted-foreground/70 mt-2 font-light animate-fade-in">
+          Mindful Moments for Every Age
         </p>
       </div>
     </div>

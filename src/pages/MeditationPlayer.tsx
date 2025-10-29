@@ -573,7 +573,7 @@ const MeditationPlayer = () => {
       {/* Main Content */}
       <div className="flex flex-col items-center px-6 pb-8">
         {/* Media Display */}
-        <div className="relative w-80 h-80 mb-8">
+        <div className="relative w-full max-w-2xl mb-8" style={{ maxHeight: '50vh' }}>
           {isAudio ? (
             /* Thumbnail for audio meditations */
             <img
@@ -599,19 +599,37 @@ const MeditationPlayer = () => {
               }}
             />
           ) : (
-            /* Video player - simplified for iOS compatibility */
-            <video
+            /* Video player with custom poster overlay */
+            <>
+              {/* Custom Poster Overlay - show when video is not playing */}
+              {!player.isPlaying && (
+                <div className="absolute inset-0 flex items-center justify-center rounded-lg z-10 pointer-events-none">
+                  <img
+                    src={logoSvg}
+                    alt={meditation.title}
+                    className="w-auto h-auto max-w-[60%] max-h-[60%] object-contain"
+                    onError={(e) => {
+                      e.currentTarget.src = logoSvg;
+                    }}
+                  />
+                  {/* Play button overlay */}
+                  {canPlay && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-20 h-20 bg-black/30 rounded-full flex items-center justify-center backdrop-blur-sm">
+                        <Play className="w-10 h-10 text-white ml-1" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+              <video
               ref={videoRef}
               playsInline
               controls
               preload="metadata"
-              poster={
-                meditation.thumbnail_url?.includes('/api/placeholder') || !meditation.thumbnail_url
-                  ? logoSvg
-                  : meditation.thumbnail_url
-              }
-              className="w-full h-full rounded-lg shadow-2xl"
+              className="w-full rounded-lg shadow-2xl"
               style={{
+                maxHeight: '50vh',
                 objectFit: 'cover',
                 WebkitUserSelect: 'none',
                 WebkitTouchCallout: 'none'
@@ -619,6 +637,17 @@ const MeditationPlayer = () => {
               onLoadStart={() => {
                   console.log('[Video] Loading from:', meditation.media_url);
                   console.log('[Video] Poster URL:', meditation.thumbnail_url || meditation.thumbnail || 'none');
+                  const videoEl = videoRef.current;
+                  if (videoEl) {
+                    console.log('[Video Debug] Container dimensions:', {
+                      parentWidth: videoEl.parentElement?.offsetWidth,
+                      parentHeight: videoEl.parentElement?.offsetHeight,
+                      videoWidth: videoEl.offsetWidth,
+                      videoHeight: videoEl.offsetHeight,
+                      videoClientWidth: videoEl.clientWidth,
+                      videoClientHeight: videoEl.clientHeight
+                    });
+                  }
                   handleLoadStart();
                 }}
                 onCanPlay={handleCanPlay}
@@ -670,6 +699,7 @@ const MeditationPlayer = () => {
                 <source src={meditation.media_url} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
+            </>
           )}
           
           {/* Loading Overlay - Only for audio, video uses native loading indicator */}
