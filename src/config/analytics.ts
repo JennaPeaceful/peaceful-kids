@@ -12,9 +12,16 @@ let posthogInstance: any = null;
 
 /**
  * Initialize PostHog analytics
- * No-op in web builds
+ * No-op in web builds and for under-13 users (COPPA compliance)
  */
 export function initAnalytics(): void {
+  // Check if user is under 13 (COPPA compliance)
+  const ageGroup = localStorage.getItem('user-age-group');
+  if (ageGroup === 'child') {
+    console.log('[Analytics] Under-13 user detected - analytics disabled for COPPA compliance');
+    return;
+  }
+
   if (!isCapacitorEnabled()) {
     console.log('[Analytics] Web mode - analytics disabled');
     return;
@@ -45,9 +52,16 @@ export function initAnalytics(): void {
 
 /**
  * Identify user for analytics
- * No-op in web builds
+ * No-op in web builds and for under-13 users (COPPA compliance)
  */
 export function identifyUser(userId: string, properties?: Record<string, any>): void {
+  // Check if user is under 13 (COPPA compliance)
+  const ageGroup = localStorage.getItem('user-age-group');
+  if (ageGroup === 'child') {
+    // Silently skip identification for under-13 users
+    return;
+  }
+
   if (!isCapacitorEnabled() || !posthogInstance) return;
 
   try {
@@ -75,9 +89,16 @@ export function resetAnalytics(): void {
 
 /**
  * Track event
- * No-op in web builds
+ * No-op in web builds and for under-13 users (COPPA compliance)
  */
 function trackEvent(eventName: string, properties?: Record<string, any>): void {
+  // Check if user is under 13 (COPPA compliance)
+  const ageGroup = localStorage.getItem('user-age-group');
+  if (ageGroup === 'child') {
+    // Silently skip tracking for under-13 users
+    return;
+  }
+
   if (!isCapacitorEnabled() || !posthogInstance) return;
 
   try {

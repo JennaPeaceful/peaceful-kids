@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
+import { logger } from './utils/logger';
 
 // Render the app immediately
 const root = createRoot(document.getElementById("root")!);
@@ -30,9 +31,9 @@ root.render(<App />);
     // Initialize Capacitor plugins (no-op on web)
     await initializeCapacitor();
 
-    console.log('[Main] Initialization complete');
+    logger.log('[Main] Initialization complete');
   } catch (error) {
-    console.error('[Main] Failed to initialize:', error);
+    logger.error('[Main] Failed to initialize:', error);
     // Continue anyway - app should work without native features
   }
 })();

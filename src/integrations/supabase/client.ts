@@ -3,8 +3,8 @@ import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 import { CapacitorStorage } from './capacitor-storage';
 
-const SUPABASE_URL = "https://cvlsvztdyuqzutzwtank.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN2bHN2enRkeXVxenV0end0YW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc1NDA5NDEsImV4cCI6MjA3MzExNjk0MX0.2g1Aw2Kij_9qc0T2_0Zpj22nahieUm4eg388ZGvpVC0";
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://cvlsvztdyuqzutzwtank.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN2bHN2enRkeXVxenV0end0YW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc1NDA5NDEsImV4cCI6MjA3MzExNjk0MX0.2g1Aw2Kij_9qc0T2_0Zpj22nahieUm4eg388ZGvpVC0";
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";

@@ -7,6 +7,7 @@
  */
 
 import { isNativePlatform, isIOS, isAndroid } from './platform';
+import { logger } from './logger';
 
 // Check if we're in a Capacitor-enabled build (runtime check)
 const isCapacitorEnabled = () => {
@@ -24,7 +25,7 @@ const isCapacitorEnabled = () => {
  */
 export async function initRevenueCat(): Promise<boolean> {
   if (!isCapacitorEnabled() || !isNativePlatform()) {
-    console.log('[RevenueCat] Web mode - skipping initialization');
+    logger.log('[RevenueCat] Web mode - skipping initialization');
     return false;
   }
 
@@ -36,12 +37,19 @@ export async function initRevenueCat(): Promise<boolean> {
     Purchases.setLogLevel({ level: LOG_LEVEL.INFO });
 
     const apiKey = isIOS() ? REVENUECAT_CONFIG.ios : REVENUECAT_CONFIG.android;
+
+    // Safety check: Never use placeholder keys in production
+    if (apiKey.includes('placeholder')) {
+      logger.error('[RevenueCat] ERROR: Placeholder API key detected! Please configure real RevenueCat keys in environment variables.');
+      throw new Error('RevenueCat API key not properly configured. Please set VITE_REVENUECAT_IOS_KEY or VITE_REVENUECAT_ANDROID_KEY in your environment.');
+    }
+
     await Purchases.configure({ apiKey, appUserID: undefined });
 
-    console.log('[RevenueCat] Successfully initialized');
+    logger.log('[RevenueCat] Successfully initialized');
     return true;
   } catch (error) {
-    console.error('[RevenueCat] Initialization failed:', error);
+    logger.error('[RevenueCat] Initialization failed:', error);
     return false;
   }
 }
@@ -58,9 +66,9 @@ export async function identifyUser(userId: string): Promise<void> {
   try {
     const { Purchases } = await import('@revenuecat/purchases-capacitor');
     await Purchases.logIn({ appUserID: userId });
-    console.log('[RevenueCat] User identified:', userId);
+    logger.log('[RevenueCat] User identified:', userId);
   } catch (error) {
-    console.error('[RevenueCat] Failed to identify user:', error);
+    logger.error('[RevenueCat] Failed to identify user:', error);
   }
 }
 
@@ -76,9 +84,9 @@ export async function logoutUser(): Promise<void> {
   try {
     const { Purchases } = await import('@revenuecat/purchases-capacitor');
     await Purchases.logOut();
-    console.log('[RevenueCat] User logged out');
+    logger.log('[RevenueCat] User logged out');
   } catch (error) {
-    console.error('[RevenueCat] Failed to logout user:', error);
+    logger.error('[RevenueCat] Failed to logout user:', error);
   }
 }
 
@@ -96,7 +104,7 @@ export async function getOfferings(): Promise<any> {
     const offerings = await Purchases.getOfferings();
     return offerings;
   } catch (error) {
-    console.error('[RevenueCat] Failed to get offerings:', error);
+    logger.error('[RevenueCat] Failed to get offerings:', error);
     return null;
   }
 }
@@ -115,7 +123,7 @@ export async function purchasePackage(pkg: any): Promise<any> {
     const result = await Purchases.purchasePackage({ aPackage: pkg });
     return result;
   } catch (error) {
-    console.error('[RevenueCat] Purchase failed:', error);
+    logger.error('[RevenueCat] Purchase failed:', error);
     throw error;
   }
 }
@@ -132,11 +140,11 @@ export async function restorePurchases(): Promise<any> {
   try {
     const { Purchases } = await import('@revenuecat/purchases-capacitor');
     const result = await Purchases.restorePurchases();
-    console.log('[RevenueCat] Restore result:', result);
+    logger.log('[RevenueCat] Restore result:', result);
     // Return the customerInfo object directly, not the wrapper
     return result.customerInfo;
   } catch (error) {
-    console.error('[RevenueCat] Restore failed:', error);
+    logger.error('[RevenueCat] Restore failed:', error);
     throw error;
   }
 }
@@ -171,7 +179,7 @@ export async function checkEntitlements(): Promise<Map<string, boolean>> {
 
     return entitlementMap;
   } catch (error) {
-    console.error('[RevenueCat] Failed to check entitlements:', error);
+    logger.error('[RevenueCat] Failed to check entitlements:', error);
     return new Map();
   }
 }
@@ -196,7 +204,7 @@ export async function openSubscriptionManagement(): Promise<void> {
       window.open('https://play.google.com/store/account/subscriptions', '_blank');
     }
   } catch (error) {
-    console.error('[RevenueCat] Failed to open subscription management:', error);
+    logger.error('[RevenueCat] Failed to open subscription management:', error);
   }
 }
 
@@ -214,7 +222,7 @@ export async function getCustomerInfo(): Promise<any> {
     const result = await Purchases.getCustomerInfo();
     return result.customerInfo;
   } catch (error) {
-    console.error('[RevenueCat] Failed to get customer info:', error);
+    logger.error('[RevenueCat] Failed to get customer info:', error);
     return null;
   }
 }
@@ -247,7 +255,7 @@ export async function getHighestTierEntitlement(): Promise<string | null> {
 
     return null;
   } catch (error) {
-    console.error('[RevenueCat] Failed to get highest tier:', error);
+    logger.error('[RevenueCat] Failed to get highest tier:', error);
     return null;
   }
 }
@@ -264,7 +272,7 @@ export async function getOfferingMetadata(): Promise<Record<string, any> | null>
   try {
     const offerings = await getOfferings();
     if (!offerings?.current?.metadata) {
-      console.log('[RevenueCat] No metadata found in current offering');
+      logger.log('[RevenueCat] No metadata found in current offering');
       return null;
     }
 
@@ -273,10 +281,10 @@ export async function getOfferingMetadata(): Promise<Record<string, any> | null>
       ? JSON.parse(offerings.current.metadata)
       : offerings.current.metadata;
 
-    console.log('[RevenueCat] Offering metadata:', metadata);
+    logger.log('[RevenueCat] Offering metadata:', metadata);
     return metadata;
   } catch (error) {
-    console.error('[RevenueCat] Failed to get offering metadata:', error);
+    logger.error('[RevenueCat] Failed to get offering metadata:', error);
     return null;
   }
 }
@@ -289,13 +297,13 @@ export async function getSubscriptionIcon(packageId: 'meditations_monthly' | 'al
   try {
     const metadata = await getOfferingMetadata();
     if (!metadata?.subscription_icons?.[packageId]) {
-      console.log(`[RevenueCat] No icon found for package: ${packageId}`);
+      logger.log(`[RevenueCat] No icon found for package: ${packageId}`);
       return null;
     }
 
     return metadata.subscription_icons[packageId];
   } catch (error) {
-    console.error('[RevenueCat] Failed to get subscription icon:', error);
+    logger.error('[RevenueCat] Failed to get subscription icon:', error);
     return null;
   }
 }

@@ -18,6 +18,7 @@ import logoSvg from '@/assets/logo.svg';
 import { supabase } from '@/integrations/supabase/client';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { logger } from '@/utils/logger';
 
 // Safe analytics imports - no-op if not available
 const trackMeditationPlayed = async (meditationId: string, title: string) => {
@@ -100,7 +101,7 @@ const MeditationPlayer = () => {
   const isAudio = meditation?.media_type === 'audio';
 
   // Debug logging
-  console.log('[MeditationPlayer] Debug:', {
+  logger.log('[MeditationPlayer] Debug:', {
     meditationId: meditation?.id,
     meditationTitle: meditation?.title,
     isFree: meditation?.is_free,
@@ -132,7 +133,7 @@ const MeditationPlayer = () => {
     const timer = setTimeout(() => {
       const videoEl = videoRef.current;
       if (videoEl && !isAudio) {
-        console.log('[Video Diagnostics] Video element loaded:', {
+        logger.log('[Video Diagnostics] Video element loaded:', {
           hasControls: videoEl.controls,
           controlsList: videoEl.getAttribute('controlsList'),
           className: videoEl.className,
@@ -149,25 +150,25 @@ const MeditationPlayer = () => {
     setIsLoading(true);
     setError(null);
     setCanPlay(false);
-    console.log(`Starting to load ${isAudio ? 'audio' : 'video'}:`, meditation?.media_url);
+    logger.log(`Starting to load ${isAudio ? 'audio' : 'video'}:`, meditation?.media_url);
   };
 
   const handleCanPlay = () => {
-    console.log('[Video] Can play event fired');
+    logger.log('[Video] Can play event fired');
     setIsLoading(false);
     setCanPlay(true);
     const mediaElement = isAudio ? audioRef.current : videoRef.current;
     if (mediaElement && mediaElement.duration) {
-      console.log('[Video] Duration:', mediaElement.duration);
+      logger.log('[Video] Duration:', mediaElement.duration);
       setDuration(mediaElement.duration);
     }
   };
 
   const handleLoadedMetadata = () => {
-    console.log('[Video] Loaded metadata event fired');
+    logger.log('[Video] Loaded metadata event fired');
     const mediaElement = isAudio ? audioRef.current : videoRef.current;
     if (mediaElement && mediaElement.duration) {
-      console.log('[Video] Metadata duration:', mediaElement.duration);
+      logger.log('[Video] Metadata duration:', mediaElement.duration);
       setDuration(mediaElement.duration);
     }
   };
@@ -250,7 +251,7 @@ const MeditationPlayer = () => {
       src: mediaElement?.src,
       currentSrc: mediaElement?.currentSrc
     };
-    console.error('Media error details:', errorDetails);
+    logger.error('Media error details:', errorDetails);
 
     setIsLoading(false);
     const mediaType = isAudio ? 'audio' : 'video';
@@ -267,7 +268,7 @@ const MeditationPlayer = () => {
       // Error code 4 = MEDIA_ERR_SRC_NOT_SUPPORTED
       // This usually means the video codec is not iOS-compatible
       errorMessage = `${mediaType} format not supported by this device. iOS requires H.264 or HEVC codec. Video may need to be re-encoded.`;
-      console.error('[Video Codec Error] iOS requires H.264 (baseline/main profile) or HEVC codec with AAC audio. Current video may use an incompatible codec.');
+      logger.error('[Video Codec Error] iOS requires H.264 (baseline/main profile) or HEVC codec with AAC audio. Current video may use an incompatible codec.');
     } else if (mediaElement?.networkState === 3) {
       errorMessage = `${mediaType} file not found (404). The content may not be uploaded to the CDN yet.`;
     }
@@ -331,7 +332,7 @@ const MeditationPlayer = () => {
   }
 
   const handlePlayPause = async () => {
-    console.log('[PlayPause] Button clicked, isLocked:', isLocked, 'canPlay:', canPlay, 'isPlaying:', player.isPlaying);
+    logger.log('[PlayPause] Button clicked, isLocked:', isLocked, 'canPlay:', canPlay, 'isPlaying:', player.isPlaying);
 
     if (isLocked) {
       trackPaywallViewed('meditation_player');
@@ -344,7 +345,7 @@ const MeditationPlayer = () => {
     }
 
     if (!canPlay) {
-      console.log('[PlayPause] Media not ready yet, showing loading toast');
+      logger.log('[PlayPause] Media not ready yet, showing loading toast');
       toast({
         title: "Media Loading",
         description: "Please wait for the meditation to load completely.",
@@ -354,11 +355,11 @@ const MeditationPlayer = () => {
 
     const mediaElement = isAudio ? audioRef.current : videoRef.current;
     if (!mediaElement) {
-      console.log('[PlayPause] No media element found!');
+      logger.log('[PlayPause] No media element found!');
       return;
     }
 
-    console.log('[PlayPause] Media element ready:', {
+    logger.log('[PlayPause] Media element ready:', {
       readyState: mediaElement.readyState,
       networkState: mediaElement.networkState,
       currentSrc: mediaElement.currentSrc,
@@ -367,10 +368,10 @@ const MeditationPlayer = () => {
 
     try {
       if (player.isPlaying) {
-        console.log('[PlayPause] Pausing media');
+        logger.log('[PlayPause] Pausing media');
         mediaElement.pause();
       } else {
-        console.log('[PlayPause] Starting playback');
+        logger.log('[PlayPause] Starting playback');
         // Track meditation playback start
         if (meditation && !player.isPlaying) {
           trackMeditationPlayed(meditation.id, meditation.title);
@@ -404,29 +405,29 @@ const MeditationPlayer = () => {
         if ('wakeLock' in navigator) {
           try {
             await (navigator as any).wakeLock.request('screen');
-            console.log('[PlayPause] Wake lock acquired');
+            logger.log('[PlayPause] Wake lock acquired');
           } catch (err) {
             // Wake lock not supported or denied
-            console.log('[PlayPause] Wake lock not available:', err);
+            logger.log('[PlayPause] Wake lock not available:', err);
           }
         }
 
         const playPromise = mediaElement.play();
-        console.log('[PlayPause] Play promise created');
+        logger.log('[PlayPause] Play promise created');
         if (playPromise !== undefined) {
           playPromise
             .then(() => {
-              console.log('[PlayPause] Playback started successfully');
+              logger.log('[PlayPause] Playback started successfully');
             })
             .catch((error) => {
-              console.error('[PlayPause] Playback failed:', error);
+              logger.error('[PlayPause] Playback failed:', error);
               setError('Playback failed. Please try again.');
               setPlaying(false);
             });
         }
       }
     } catch (error) {
-      console.error('[PlayPause] Playback error:', error);
+      logger.error('[PlayPause] Playback error:', error);
       setError('Playback failed. Please try again.');
       setPlaying(false);
     }
@@ -513,7 +514,7 @@ const MeditationPlayer = () => {
         setIsFullscreen(false);
       }
     } catch (err) {
-      console.error('Fullscreen error:', err);
+      logger.error('Fullscreen error:', err);
     }
   };
 
@@ -554,45 +555,45 @@ const MeditationPlayer = () => {
           ref={audioRef}
           src={meditation.media_url}
           onLoadStart={() => {
-            console.log('[Audio] Loading from:', meditation.media_url);
-            console.log('[Audio] Media type:', meditation.media_type);
+            logger.log('[Audio] Loading from:', meditation.media_url);
+            logger.log('[Audio] Media type:', meditation.media_type);
             handleLoadStart();
           }}
           onCanPlay={() => {
-            console.log('[Audio] Can play event fired');
+            logger.log('[Audio] Can play event fired');
             handleCanPlay();
           }}
           onCanPlayThrough={() => {
-            console.log('[Audio] Can play through');
+            logger.log('[Audio] Can play through');
           }}
           onLoadedMetadata={() => {
-            console.log('[Audio] Loaded metadata event fired');
+            logger.log('[Audio] Loaded metadata event fired');
             handleLoadedMetadata();
           }}
           onTimeUpdate={handleTimeUpdate}
           onPlay={() => {
-            console.log('[Audio] Play event fired');
+            logger.log('[Audio] Play event fired');
             setPlaying(true);
           }}
           onPause={() => {
-            console.log('[Audio] Pause event fired');
+            logger.log('[Audio] Pause event fired');
             setPlaying(false);
           }}
           onEnded={handleEnded}
           onError={(e) => {
-            console.error('[Audio] Error occurred');
+            logger.error('[Audio] Error occurred');
             handleError(e);
           }}
           onWaiting={() => {
-            console.log('[Audio] Waiting for data');
+            logger.log('[Audio] Waiting for data');
           }}
           onSuspend={() => {
-            console.log('[Audio] Suspended - attempting to resume');
+            logger.log('[Audio] Suspended - attempting to resume');
             const audioEl = audioRef.current;
             if (audioEl && audioEl.readyState < 3) {
               // If not fully loaded, try to resume loading
               setTimeout(() => {
-                console.log('[Audio] Calling load() to resume');
+                logger.log('[Audio] Calling load() to resume');
                 audioEl.load();
               }, 100);
             }
@@ -600,7 +601,7 @@ const MeditationPlayer = () => {
           onProgress={() => {
             const audioEl = audioRef.current;
             if (audioEl && audioEl.buffered.length > 0) {
-              console.log('[Audio] Buffering:',
+              logger.log('[Audio] Buffering:',
                 ((audioEl.buffered.end(0) / audioEl.duration) * 100).toFixed(1) + '%'
               );
             }
@@ -643,7 +644,7 @@ const MeditationPlayer = () => {
               className="w-full h-full object-cover rounded-3xl shadow-2xl"
               onError={(e) => {
                 if (!e.currentTarget.src.includes('data:')) {
-                  console.warn('Thumbnail failed to load, using placeholder');
+                  logger.warn('Thumbnail failed to load, using placeholder');
                   e.currentTarget.src = 'data:image/svg+xml;base64,' + btoa(`
                     <svg width="300" height="300" xmlns="http://www.w3.org/2000/svg">
                       <defs>
@@ -696,11 +697,11 @@ const MeditationPlayer = () => {
                 WebkitTouchCallout: 'none'
               }}
               onLoadStart={() => {
-                  console.log('[Video] Loading from:', meditation.media_url);
-                  console.log('[Video] Poster URL:', meditation.thumbnail_url || meditation.thumbnail || 'none');
+                  logger.log('[Video] Loading from:', meditation.media_url);
+                  logger.log('[Video] Poster URL:', meditation.thumbnail_url || meditation.thumbnail || 'none');
                   const videoEl = videoRef.current;
                   if (videoEl) {
-                    console.log('[Video Debug] Container dimensions:', {
+                    logger.log('[Video Debug] Container dimensions:', {
                       parentWidth: videoEl.parentElement?.offsetWidth,
                       parentHeight: videoEl.parentElement?.offsetHeight,
                       videoWidth: videoEl.offsetWidth,
@@ -713,16 +714,16 @@ const MeditationPlayer = () => {
                 }}
                 onCanPlay={handleCanPlay}
                 onCanPlayThrough={() => {
-                  console.log('[Video] Can play through');
+                  logger.log('[Video] Can play through');
                 }}
                 onLoadedMetadata={handleLoadedMetadata}
                 onTimeUpdate={handleTimeUpdate}
                 onPlay={() => {
-                  console.log('[Video] Play event - native controls');
+                  logger.log('[Video] Play event - native controls');
                   setPlaying(true);
                 }}
                 onPause={() => {
-                  console.log('[Video] Pause event - native controls');
+                  logger.log('[Video] Pause event - native controls');
                   setPlaying(false);
                 }}
                 onEnded={handleEnded}
@@ -731,19 +732,19 @@ const MeditationPlayer = () => {
                   // Only handle actual video errors, not poster image errors
                   // Poster errors don't set videoEl.error, so we check for that
                   if (videoEl.error && videoEl.error.code) {
-                    console.error('[Video] Actual video error occurred:', {
+                    logger.error('[Video] Actual video error occurred:', {
                       code: videoEl.error.code,
                       message: videoEl.error.message
                     });
                     handleError(e);
                   } else {
                     // Just a poster image error - log but don't show error toast
-                    console.warn('[Video] Poster image may have failed (not critical):', videoEl.poster);
+                    logger.warn('[Video] Poster image may have failed (not critical):', videoEl.poster);
                   }
                 }}
                 onWaiting={() => {
                   const videoEl = videoRef.current;
-                  console.log('[Video] Waiting', {
+                  logger.log('[Video] Waiting', {
                     readyState: videoEl?.readyState,
                     networkState: videoEl?.networkState
                   });
@@ -751,7 +752,7 @@ const MeditationPlayer = () => {
                 onProgress={() => {
                   const videoEl = videoRef.current;
                   if (videoEl && videoEl.buffered.length > 0) {
-                    console.log('[Video] Buffering:',
+                    logger.log('[Video] Buffering:',
                       ((videoEl.buffered.end(0) / videoEl.duration) * 100).toFixed(1) + '%'
                     );
                   }

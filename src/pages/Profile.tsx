@@ -17,20 +17,21 @@ import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Switch } from '../components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
-import { 
-  AlertDialog, 
-  AlertDialogAction, 
-  AlertDialogCancel, 
-  AlertDialogContent, 
-  AlertDialogDescription, 
-  AlertDialogFooter, 
-  AlertDialogHeader, 
-  AlertDialogTitle 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
 } from '../components/ui/alert-dialog';
 import { toast } from '../hooks/use-toast';
 import logo from '@/assets/logo.svg';
 import { formatCategoryName } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
+import { logger } from '@/utils/logger';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -86,7 +87,7 @@ const Profile = () => {
         });
       }
     } catch (error: any) {
-      console.error('Refresh subscription error:', error);
+      logger.error('Refresh subscription error:', error);
       toast({
         title: "Refresh Failed",
         description: error.message || "Failed to refresh subscription.",
@@ -136,7 +137,7 @@ const Profile = () => {
             });
           },
           (error) => {
-            console.error('Sync error:', error);
+            logger.error('Sync error:', error);
             toast({
               title: "Sync Warning",
               description: "Purchases restored but sync failed. Please restart the app.",
@@ -151,7 +152,7 @@ const Profile = () => {
         });
       }
     } catch (error: any) {
-      console.error('Restore purchases error:', error);
+      logger.error('Restore purchases error:', error);
       toast({
         title: "Restore Failed",
         description: error.message || "Failed to restore purchases. Please try again.",
@@ -173,7 +174,7 @@ const Profile = () => {
       // Use RevenueCat's native subscription management
       await openSubscriptionManagement();
     } catch (error) {
-      console.error('Failed to open subscription management:', error);
+      logger.error('Failed to open subscription management:', error);
       toast({
         title: "Error",
         description: "Failed to open subscription management.",
@@ -204,7 +205,7 @@ const Profile = () => {
         .eq('user_id', user.id);
 
       if (usageError) {
-        console.error('Error deleting meditation usage:', usageError);
+        logger.error('Error deleting meditation usage:', usageError);
       }
 
       // 2. Delete user favorites
@@ -214,7 +215,7 @@ const Profile = () => {
         .eq('user_id', user.id);
 
       if (favError) {
-        console.error('Error deleting favorites:', favError);
+        logger.error('Error deleting favorites:', favError);
       }
 
       // 3. Delete user progress
@@ -224,7 +225,7 @@ const Profile = () => {
         .eq('user_id', user.id);
 
       if (progressError) {
-        console.error('Error deleting progress:', progressError);
+        logger.error('Error deleting progress:', progressError);
       }
 
       // 4. Delete user preferences
@@ -234,7 +235,7 @@ const Profile = () => {
         .eq('user_id', user.id);
 
       if (prefError) {
-        console.error('Error deleting preferences:', prefError);
+        logger.error('Error deleting preferences:', prefError);
       }
 
       // 5. Delete user subscriptions
@@ -244,7 +245,7 @@ const Profile = () => {
         .eq('user_id', user.id);
 
       if (subError) {
-        console.error('Error deleting subscriptions:', subError);
+        logger.error('Error deleting subscriptions:', subError);
       }
 
       // 6. Delete user profile
@@ -262,7 +263,7 @@ const Profile = () => {
       const { error: authError } = await supabase.rpc('delete_user');
 
       if (authError) {
-        console.error('Error deleting auth user:', authError);
+        logger.error('Error deleting auth user:', authError);
         throw authError;
       }
 
@@ -279,7 +280,7 @@ const Profile = () => {
       }, 1500);
 
     } catch (error) {
-      console.error('Account deletion error:', error);
+      logger.error('Account deletion error:', error);
       toast({
         title: "Deletion Failed",
         description: "Unable to delete account. Please contact support at dev@peacefulkids.app",
@@ -443,7 +444,7 @@ const Profile = () => {
           <Button 
             variant="ghost" 
             className="w-full justify-between"
-            onClick={() => window.open('https://peaceful-legal-a6ew5bxei-davids-projects-2b73b5ac.vercel.app/privacy', '_blank')}
+            onClick={() => window.open('https://support.peacefulkids.app/privacy', '_blank')}
           >
             <span className="flex items-center gap-2">
               <Shield className="w-4 h-4" />
@@ -455,7 +456,7 @@ const Profile = () => {
           <Button 
             variant="ghost" 
             className="w-full justify-between"
-            onClick={() => window.open('https://peaceful-legal-a6ew5bxei-davids-projects-2b73b5ac.vercel.app/terms', '_blank')}
+            onClick={() => window.open('https://support.peacefulkids.app/terms', '_blank')}
           >
             <span className="flex items-center gap-2">
               <FileText className="w-4 h-4" />
@@ -467,7 +468,7 @@ const Profile = () => {
           <Button 
             variant="ghost" 
             className="w-full justify-between"
-            onClick={() => window.open('https://peaceful-legal-a6ew5bxei-davids-projects-2b73b5ac.vercel.app/support', '_blank')}
+            onClick={() => window.open('https://support.peacefulkids.app/support', '_blank')}
           >
             <span className="flex items-center gap-2">
               <HelpCircle className="w-4 h-4" />
