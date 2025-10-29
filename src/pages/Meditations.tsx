@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Badge } from '../components/ui/badge';
 import { formatCategoryName } from '@/lib/utils';
 import categoryBackground from '@/assets/category-icon-background.svg';
+import emotionsIcon from '@/assets/emotions.svg';
 
 type MediaType = 'all' | 'audio' | 'video';
 
@@ -33,6 +34,7 @@ const Meditations = () => {
     courses, 
     themes, 
     ageGroups, 
+    availableThemes,
     setFilters, 
     clearFilters, 
     fetchMeditations, 
@@ -155,8 +157,8 @@ const Meditations = () => {
     return colorMap[ageGroup] || '#6b7280';
   };
   
-  // Get filtered themes that don't overlap with content categories
-  const availableThemes = themes.filter(theme => 
+  // Get filtered theme objects that don't overlap with content categories (for FilterBreadcrumb and theme display)
+  const availableThemeObjects = themes.filter(theme => 
     (!filters.selectedCategory || theme.category?.includes(filters.selectedCategory)) &&
     !filters.selectedContentCategories.includes(theme.name)
   );
@@ -260,7 +262,7 @@ const Meditations = () => {
           contentCategories={availableContentCategories}
           courses={courses}
           ageGroups={ageGroups}
-          themes={availableThemes}
+          themes={availableThemeObjects}
           onCategorySelect={handleCategorySelect}
           onContentCategoryToggle={handleContentCategoryToggle}
           onCourseToggle={handleCourseToggle}
@@ -279,6 +281,17 @@ const Meditations = () => {
                   if (ageGroup === 'child' && category.name === 'Courses') {
                     return false;
                   }
+                  // Hide specific categories
+                  const hiddenCategories = [
+                    'Mindfulness Exercises Teeth Brushing',
+                    'Mindfulness Exercises Walking',
+                    'Mindfulness Exercises Eating',
+                    'Mindfulness Exercises Grounding',
+                    'Miscellaneous'
+                  ];
+                  if (hiddenCategories.includes(category.name)) {
+                    return false;
+                  }
                   return true;
                 })
                 .map((category) => (
@@ -288,23 +301,66 @@ const Meditations = () => {
                   onClick={() => handleCategorySelect(category.name)}
                   className="flex flex-col items-center gap-2 h-auto py-4 hover:shadow-primary transition-all"
                 >
-                  {category.thumbnail_svg_url && (
+                  {(category.thumbnail_svg_url || category.name === 'Emotions') && (
                     <div className="relative w-12 h-12 rounded-xl overflow-hidden">
                       <img 
                         src={categoryBackground}
                         alt=""
-                        className="absolute inset-0 w-full h-full object-cover"
+                        className="absolute inset-0 w-full h-full object-cover opacity-70"
                       />
                       <img 
-                        src={category.thumbnail_svg_url} 
+                        src={category.name === 'Emotions' ? emotionsIcon : category.thumbnail_svg_url} 
                         alt={category.display_name}
-                        className="relative w-full h-full object-contain p-2 filter brightness-0 invert mix-blend-overlay"
+                        className="absolute inset-0 w-full h-full object-contain p-2 filter brightness-0"
                       />
                     </div>
                   )}
                   <span className="text-sm font-medium">{category.display_name}</span>
                 </Button>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Emotions (Themes) - Show when Emotions category is selected */}
+        {filters.selectedCategory === 'Emotions' && !filters.selectedThemes.length && availableThemes.length > 0 && (
+          <div className="mb-6">
+            <label className="text-sm font-medium text-muted-foreground mb-3 block">
+              Select an Emotion
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              {availableThemes.map((themeName) => {
+                // Map theme names to CDN filenames (handle special characters and misspellings)
+                let themeFileName = themeName.replace(/\\/g, '-').replace(/\//g, '-');
+                if (themeName === 'Miscellaneous') {
+                  themeFileName = 'Misellaneous'; // CDN has misspelled version
+                }
+                const themeIconUrl = `https://cdn.peacefulkids.app/SVG%20FILES%20NO%20COLOR/CONTENT%20CATEGORY%20NO%20COLOR/${encodeURIComponent(themeFileName)}.svg`;
+                return (
+                  <Button
+                    key={themeName}
+                    variant="outline"
+                    onClick={() => handleThemeToggle(themeName)}
+                    className="flex flex-col items-center gap-2 h-auto py-4 hover:shadow-primary transition-all"
+                  >
+                    <div className="relative w-16 h-16 rounded-xl overflow-hidden">
+                      <img 
+                        src={categoryBackground}
+                        alt=""
+                        className="absolute inset-0 w-full h-full object-cover opacity-70"
+                      />
+                      <img 
+                        src={themeIconUrl}
+                        alt={themeName}
+                        className="absolute inset-0 w-full h-full object-contain p-3"
+                      />
+                    </div>
+                    <span className="text-xs font-medium text-center leading-tight">
+                      {themeName}
+                    </span>
+                  </Button>
+                );
+              })}
             </div>
           </div>
         )}
@@ -411,16 +467,16 @@ const Meditations = () => {
                       <img 
                         src={categoryBackground}
                         alt=""
-                        className="absolute inset-0 w-full h-full object-cover"
+                        className="absolute inset-0 w-full h-full object-cover opacity-70"
                       />
                       {iconUrl ? (
                         <img 
                           src={iconUrl} 
                           alt={category.name}
-                          className="absolute inset-0 w-full h-full object-contain p-2 mix-blend-overlay"
+                          className="absolute inset-0 w-full h-full object-contain p-3 filter brightness-0"
                         />
                       ) : (
-                        <div className="absolute inset-0 flex items-center justify-center text-white font-bold text-lg mix-blend-overlay">
+                        <div className="absolute inset-0 flex items-center justify-center text-foreground font-bold text-lg">
                           {category.name.split(' ').slice(0, 2).map((word: string) => word[0]).join('').toUpperCase()}
                         </div>
                       )}
@@ -443,7 +499,7 @@ const Meditations = () => {
               Themes
             </label>
             <div className="grid grid-cols-4 gap-3">
-              {availableThemes.map((theme) => {
+              {availableThemeObjects.map((theme) => {
                 const isSelected = filters.selectedThemes.includes(theme.name);
                 return (
                   <button
