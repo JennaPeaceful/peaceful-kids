@@ -843,7 +843,7 @@ const MeditationPlayer = () => {
                 
                 <CollapsibleContent>
                   <div className="border-t border-border/40">
-                    <ScrollArea className="h-[300px] w-full">
+                    <ScrollArea className="h-[450px] w-full">
                       <div className="p-4 text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed text-left">
                         {meditation.transcript}
                       </div>
