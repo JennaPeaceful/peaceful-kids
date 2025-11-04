@@ -85,6 +85,7 @@ const transformMeditation = (dbMeditation: any): Meditation => ({
   title: dbMeditation.title,
   public_title: dbMeditation.public_title,
   description: dbMeditation.description || '',
+  transcript: dbMeditation.transcript || undefined,
   thumbnail: dbMeditation.thumbnail_url || '/api/placeholder/300/200',
   thumbnail_url: dbMeditation.thumbnail_url || '/api/placeholder/300/200',
   duration: dbMeditation.duration || 0,
