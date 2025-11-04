@@ -5,7 +5,7 @@ import { Meditation } from '../types';
 import { useUserStore } from '../stores/userStore';
 import { useMeditationStore } from '../stores/meditationStore';
 import { useAuth } from '../hooks/useAuth';
-import logo from '../assets/logo.svg';
+import categoryBackground from '@/assets/category-icon-background.svg';
 
 interface MeditationCardProps {
   meditation: Meditation;
@@ -77,9 +77,9 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
     >
       {/* Thumbnail Image */}
       <div className="relative mb-3 rounded-xl overflow-hidden aspect-square">
-        {/* Logo background layer */}
+        {/* Colorful background layer */}
         <img 
-          src={logo}
+          src={categoryBackground}
           alt=""
           className="absolute inset-0 w-full h-full object-cover"
         />
