@@ -405,6 +405,9 @@ const Meditations = () => {
             </label>
             <div className="grid grid-cols-2 gap-3">
               {courses.map((course) => {
+                const courseMeditation = filteredMeditations.find(m => m.courses === course);
+                const thumbnailUrl = courseMeditation?.thumbnail_url || courseMeditation?.thumbnail;
+                
                 return (
                   <Button
                     key={course}
@@ -419,7 +422,7 @@ const Meditations = () => {
                         className="absolute inset-0 w-full h-full object-cover opacity-70"
                       />
                       <img 
-                        src={emotionsIcon} 
+                        src={thumbnailUrl || emotionsIcon} 
                         alt={course}
                         className="absolute inset-0 w-full h-full object-contain p-3"
                       />
