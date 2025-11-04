@@ -77,15 +77,20 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
     >
       {/* Thumbnail Image */}
       <div className="relative mb-3 rounded-xl overflow-hidden aspect-square">
+        {/* Logo background layer */}
+        <img 
+          src={logo}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        {/* Thumbnail layer on top */}
         <img 
           src={meditation.thumbnail_url || meditation.thumbnail} 
           alt={meditation.title}
-          className="w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-contain p-4"
           onError={(e) => {
             const target = e.target as HTMLImageElement;
-            if (!target.src.includes(logo)) {
-              target.src = logo;
-            }
+            target.style.display = 'none';
           }}
         />
 

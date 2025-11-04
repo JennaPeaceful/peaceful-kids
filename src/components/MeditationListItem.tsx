@@ -39,29 +39,25 @@ const MeditationListItem = ({ meditation, onPlay }: MeditationListItemProps) => 
     >
       {/* Thumbnail Icon */}
       <div className="relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-gradient-to-br from-primary/20 to-accent/20">
-        {meditation.courses && (meditation.thumbnail_url || meditation.thumbnail) ? (
+        {meditation.thumbnail_url || meditation.thumbnail ? (
           <>
+            {/* Logo background layer */}
             <img 
-              src={categoryBackground}
+              src={logo}
               alt=""
-              className="absolute inset-0 w-full h-full object-cover opacity-70"
+              className="absolute inset-0 w-full h-full object-cover"
             />
+            {/* Thumbnail layer on top */}
             <img 
               src={meditation.thumbnail_url || meditation.thumbnail} 
               alt={meditation.title}
               className="absolute inset-0 w-full h-full object-contain p-3"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+              }}
             />
           </>
-        ) : meditation.thumbnail_url || meditation.thumbnail ? (
-          <img
-            src={meditation.thumbnail_url || meditation.thumbnail}
-            alt={meditation.title}
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.src = logo;
-            }}
-          />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
             <Play className="w-6 h-6 text-primary" />
