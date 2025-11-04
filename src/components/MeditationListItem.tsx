@@ -4,6 +4,7 @@ import { Meditation } from '../types';
 import { useAuth } from '../hooks/useAuth';
 import { useUserStore } from '../stores/userStore';
 import logo from '@/assets/logo.svg';
+import categoryBackground from '@/assets/category-icon-background.svg';
 
 interface MeditationListItemProps {
   meditation: Meditation;
@@ -37,7 +38,20 @@ const MeditationListItem = ({ meditation, onPlay }: MeditationListItemProps) => 
     >
       {/* Thumbnail Icon */}
       <div className="relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-gradient-to-br from-primary/20 to-accent/20">
-        {meditation.thumbnail_url || meditation.thumbnail ? (
+        {meditation.courses ? (
+          <>
+            <img 
+              src={categoryBackground}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover opacity-70"
+            />
+            <img 
+              src={logo} 
+              alt={meditation.title}
+              className="absolute inset-0 w-full h-full object-contain p-3"
+            />
+          </>
+        ) : meditation.thumbnail_url || meditation.thumbnail ? (
           <img
             src={meditation.thumbnail_url || meditation.thumbnail}
             alt={meditation.title}
