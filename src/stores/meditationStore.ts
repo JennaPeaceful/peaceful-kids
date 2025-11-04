@@ -256,7 +256,8 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
     const { meditations, filters } = get();
     let filtered = [...meditations];
     
-    if (filters.selectedCategory) {
+    // Skip category filter for "Emotions" - let themes handle the filtering
+    if (filters.selectedCategory && filters.selectedCategory !== 'Emotions') {
       filtered = filtered.filter(m => m.category === filters.selectedCategory);
     }
     
