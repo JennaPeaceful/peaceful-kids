@@ -301,7 +301,7 @@ const Meditations = () => {
         {!filters.selectedCategory && categories.length > 0 && (
           <div className="mb-6">
             <label className="text-sm font-medium text-muted-foreground mb-2 block">Category</label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {categories
                 .filter(category => {
                   // Hide specific categories
@@ -351,7 +351,7 @@ const Meditations = () => {
             <label className="text-sm font-medium text-muted-foreground mb-3 block">
               Select an Emotion
             </label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {availableThemes.map((themeName) => {
                 // Map theme names to CDN filenames (handle special characters and misspellings)
                 let themeFileName = themeName.replace(/\\/g, '-').replace(/\//g, '-');
@@ -394,7 +394,7 @@ const Meditations = () => {
             <label className="text-sm font-medium text-muted-foreground mb-3 block">
               Age Group
             </label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {ageGroups.filter(ag => ag).map((ageGroup) => {
                 const isSelected = filters.selectedAgeGroup === ageGroup;
                 const color = getAgeGroupColor(ageGroup);
@@ -428,7 +428,7 @@ const Meditations = () => {
             <label className="text-sm font-medium text-muted-foreground mb-3 block">
               Courses
             </label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {courses.map((course) => {
                 const courseMeditation = filteredMeditations.find(m => m.courses === course);
                 const thumbnailUrl = courseMeditation?.thumbnail_url || courseMeditation?.thumbnail;
@@ -470,7 +470,7 @@ const Meditations = () => {
             <label className="text-sm font-medium text-muted-foreground mb-3 block">
               Content Category
             </label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {availableContentCategories.map((category) => {
                 const iconUrl = category.thumbnail_svg_url || category.thumbnail_png_url;
                 
@@ -627,7 +627,7 @@ const Meditations = () => {
                   ))}
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-4 pb-6">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-6">
                   {displayedMeditations.map((meditation) => (
                     <MeditationCard key={meditation.id} meditation={meditation} />
                   ))}
@@ -654,7 +654,7 @@ const Meditations = () => {
                   ))}
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-4 pb-6 pr-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-6 pr-4">
                   {displayedMeditations.map((meditation) => (
                     <MeditationCard key={meditation.id} meditation={meditation} />
                   ))}

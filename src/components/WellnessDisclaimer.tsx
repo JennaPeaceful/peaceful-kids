@@ -39,7 +39,7 @@ export const WellnessDisclaimer = ({ forceOpen = false, onClose }: WellnessDiscl
 
   return (
     <Dialog open={open} onOpenChange={() => {}}>
-      <DialogContent className="sm:max-w-md" onPointerDownOutside={(e) => e.preventDefault()}>
+      <DialogContent className="w-[90vw] max-w-md md:max-w-lg lg:max-w-2xl" onPointerDownOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="text-xl">Wellness Disclaimer</DialogTitle>
           <DialogDescription className="text-base pt-4">

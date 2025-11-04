@@ -212,7 +212,7 @@ const PremiumGate = ({ children, feature, showUpgrade = true }: PremiumGateProps
         {t('premiumGate.title')}
       </h2>
       
-      <p className="text-muted-foreground mb-6 max-w-sm">
+      <p className="text-muted-foreground mb-6 max-w-sm md:max-w-2xl lg:max-w-3xl mx-auto">
         {t('premiumGate.description', { feature: featureText })}
       </p>
 
@@ -235,7 +235,7 @@ const PremiumGate = ({ children, feature, showUpgrade = true }: PremiumGateProps
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 w-full max-w-xs">
+      <div className="flex flex-col gap-3 w-full max-w-xs md:max-w-sm lg:max-w-md mx-auto">
         <Button
           className="btn-premium"
           onClick={handleUpgradeClick}

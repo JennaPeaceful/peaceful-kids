@@ -172,7 +172,7 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModalProps) 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="w-[90vw] max-w-md md:max-w-lg lg:max-w-2xl">
         <DialogHeader>
           <div className="text-center mb-4">
             <DialogTitle className="text-2xl font-bold text-gradient-primary mb-2">

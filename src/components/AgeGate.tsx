@@ -64,7 +64,7 @@ export const AgeGate = ({ isOpen, onComplete }: AgeGateProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent
-        className="sm:max-w-md"
+        className="w-[90vw] max-w-md md:max-w-lg lg:max-w-2xl"
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
       >

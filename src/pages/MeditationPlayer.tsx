@@ -635,7 +635,7 @@ const MeditationPlayer = () => {
       {/* Main Content */}
       <div className="flex flex-col items-center px-6 pb-8">
         {/* Media Display */}
-        <div className="relative w-full max-w-2xl mb-8" style={{ maxHeight: '50vh' }}>
+        <div className="relative mb-8 mx-auto flex justify-center">
           {isAudio ? (
             /* Thumbnail for audio meditations */
             <img
@@ -689,10 +689,12 @@ const MeditationPlayer = () => {
               playsInline
               controls
               preload="metadata"
-              className="w-full rounded-lg shadow-2xl"
+              className="h-auto mx-auto rounded-lg shadow-2xl"
               style={{
-                maxHeight: '50vh',
-                objectFit: 'cover',
+                display: 'block',
+                maxHeight: '60vh',
+                maxWidth: '100%',
+                width: 'auto',
                 WebkitUserSelect: 'none',
                 WebkitTouchCallout: 'none'
               }}
@@ -806,8 +808,8 @@ const MeditationPlayer = () => {
 
         {/* Meditation Info */}
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold mb-2">{meditation.public_title || meditation.title}</h1>
-          <p className="text-muted-foreground mb-4 max-w-sm">
+          <h1 className="text-2xl md:text-3xl font-bold mb-2">{meditation.public_title || meditation.title}</h1>
+          <p className="text-muted-foreground mb-4 max-w-sm md:max-w-2xl lg:max-w-3xl mx-auto px-4">
             {meditation.description}
           </p>
 

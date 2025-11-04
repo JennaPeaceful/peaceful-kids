@@ -39,7 +39,7 @@ const Tracking = () => {
           <Card className="card-gradient p-8 text-center">
             <div className="text-6xl mb-6">🌱</div>
             <h2 className="text-2xl font-bold mb-4">{t('tracking.emptyState.title')}</h2>
-            <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+            <p className="text-muted-foreground mb-6 max-w-sm md:max-w-2xl lg:max-w-3xl mx-auto">
               {t('tracking.emptyState.description')}
             </p>
             <Button 

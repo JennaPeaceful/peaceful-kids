@@ -53,7 +53,7 @@ export const ParentalGate = ({ isOpen, onClose, onSuccess }: ParentalGateProps) 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="w-[90vw] max-w-md md:max-w-lg lg:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Parental Verification</DialogTitle>
           <DialogDescription>
