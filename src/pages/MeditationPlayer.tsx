@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Play, Pause, ArrowLeft, Heart, Lock, AlertCircle, Volume2, VolumeX, Maximize, Minimize } from 'lucide-react';
+import { Play, Pause, ArrowLeft, Heart, Lock, AlertCircle, Volume2, VolumeX, Maximize, Minimize, ChevronDown, ChevronUp } from 'lucide-react';
 import { useMeditationStore } from '../stores/meditationStore';
 import { useProgressStore } from '../stores/progressStore';
 import { useUserStore } from '../stores/userStore';
@@ -16,6 +16,8 @@ import { ParentalGate } from '@/components/ParentalGate';
 import AuthModal from '@/components/AuthModal';
 import logoSvg from '@/assets/logo.svg';
 import { supabase } from '@/integrations/supabase/client';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 // Safe analytics imports - no-op if not available
 const trackMeditationPlayed = async (meditationId: string, title: string) => {
@@ -79,6 +81,7 @@ const MeditationPlayer = () => {
   const [hasCompletedOnce, setHasCompletedOnce] = useState(false);
   const [usageRecordId, setUsageRecordId] = useState<string | null>(null);
   const lastUpdateTimeRef = useRef<number>(0);
+  const [isTranscriptOpen, setIsTranscriptOpen] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -806,9 +809,64 @@ const MeditationPlayer = () => {
           <p className="text-muted-foreground mb-4 max-w-sm">
             {meditation.description}
           </p>
+
+          {/* Transcript Section */}
+          {meditation.transcript && (
+            <Collapsible 
+              open={isTranscriptOpen} 
+              onOpenChange={setIsTranscriptOpen}
+              className="w-full max-w-md mx-auto mt-6"
+            >
+              <div className="bg-muted/30 rounded-lg border border-border/40 overflow-hidden">
+                <CollapsibleTrigger asChild>
+                  <button 
+                    className="w-full p-4 text-left hover:bg-muted/50 transition-colors flex items-start justify-between gap-3"
+                    onClick={() => setIsTranscriptOpen(!isTranscriptOpen)}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="text-sm font-semibold text-foreground">Transcript</h3>
+                      </div>
+                      {!isTranscriptOpen && (
+                        <p className="text-sm text-muted-foreground line-clamp-2 text-left">
+                          {meditation.transcript}
+                        </p>
+                      )}
+                    </div>
+                    {isTranscriptOpen ? (
+                      <ChevronUp className="w-5 h-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+                    )}
+                  </button>
+                </CollapsibleTrigger>
+                
+                <CollapsibleContent>
+                  <div className="border-t border-border/40">
+                    <ScrollArea className="h-[300px] w-full">
+                      <div className="p-4 text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed text-left">
+                        {meditation.transcript}
+                      </div>
+                    </ScrollArea>
+                    <div className="p-2 border-t border-border/40 bg-muted/20">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setIsTranscriptOpen(false)}
+                        className="w-full text-xs"
+                      >
+                        <ChevronUp className="w-4 h-4 mr-1" />
+                        Collapse
+                      </Button>
+                    </div>
+                  </div>
+                </CollapsibleContent>
+              </div>
+            </Collapsible>
+          )}
           
           {/* Themes */}
-          <div className="flex flex-wrap justify-center gap-2 mb-4">
+          <div className="flex flex-wrap justify-center gap-2 mb-4 mt-6">
             {meditation.themes.map((themeName) => {
               const themeData = themes.find(t => t.name === themeName);
               return (

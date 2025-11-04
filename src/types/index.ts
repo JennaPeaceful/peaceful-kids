@@ -5,6 +5,7 @@ export interface Meditation {
   title: string;
   public_title?: string;
   description: string;
+  transcript?: string;
   thumbnail: string;
   thumbnail_url?: string;
   duration: number; // in seconds
