@@ -37,9 +37,11 @@ const Meditations = () => {
     themes, 
     ageGroups, 
     availableThemes,
+    userMeditationUsage,
     setFilters, 
     clearFilters, 
-    fetchMeditations, 
+    fetchMeditations,
+    fetchUserMeditationUsage,
     isLoading 
   } = useMeditationStore();
   const { favorites } = useFavorites();
@@ -51,6 +53,12 @@ const Meditations = () => {
   useEffect(() => {
     fetchMeditations();
   }, [fetchMeditations]);
+
+  useEffect(() => {
+    if (user) {
+      fetchUserMeditationUsage(user.id);
+    }
+  }, [user, fetchUserMeditationUsage]);
 
   useEffect(() => {
     setDisplayedItems(ITEMS_PER_LOAD);
@@ -184,11 +192,28 @@ const Meditations = () => {
     : filteredByMediaType;
 
   const sortedMeditations = [...filteredByFavorites].sort((a, b) => {
-    // Always prioritize free meditations first
+    // Priority 1: Most recently played meditations first (if user is authenticated)
+    if (userMeditationUsage && user) {
+      const aUsage = userMeditationUsage.find(u => u.meditation_id === a.id);
+      const bUsage = userMeditationUsage.find(u => u.meditation_id === b.id);
+      
+      // If A was played but B wasn't, A comes first
+      if (aUsage && !bUsage) return -1;
+      if (!aUsage && bUsage) return 1;
+      
+      // If both were played, most recent comes first
+      if (aUsage && bUsage) {
+        const aTime = new Date(aUsage.updated_at).getTime();
+        const bTime = new Date(bUsage.updated_at).getTime();
+        if (aTime !== bTime) return bTime - aTime; // Descending (most recent first)
+      }
+    }
+    
+    // Priority 2: Free meditations before premium
     if (a.is_free && !b.is_free) return -1;
     if (!a.is_free && b.is_free) return 1;
 
-    // Then sort alphabetically
+    // Priority 3: Alphabetical by title
     const aTitle = (a.title || '').toLowerCase();
     const bTitle = (b.title || '').toLowerCase();
     return aTitle > bTitle ? 1 : -1;

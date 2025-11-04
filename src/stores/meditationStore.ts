@@ -7,6 +7,7 @@ interface MeditationState {
   filteredMeditations: Meditation[];
   recentMeditations: Meditation[];
   recommendedMeditations: Meditation[];
+  userMeditationUsage: Array<{ meditation_id: string; updated_at: string }> | null;
   categories: Category[];
   contentCategories: Array<{name: string; thumbnail_png_url?: string; thumbnail_svg_url?: string}>;
   courses: string[];
@@ -23,6 +24,7 @@ interface MeditationState {
   fetchContentCategories: () => Promise<void>;
   fetchCourses: () => Promise<void>;
   initializeThemes: () => void;
+  fetchUserMeditationUsage: (userId: string) => Promise<void>;
   setMeditations: (meditations: Meditation[]) => void;
   setFilters: (filters: Partial<FilterState>) => void;
   clearFilters: () => void;
@@ -103,6 +105,7 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
   filteredMeditations: [],
   recentMeditations: [],
   recommendedMeditations: [],
+  userMeditationUsage: null,
   categories: [],
   contentCategories: [],
   courses: [],
@@ -312,5 +315,35 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
       const recent = [meditation, ...state.recentMeditations.filter(m => m.id !== meditation.id)].slice(0, 5);
       return { recentMeditations: recent };
     });
+  },
+  
+  fetchUserMeditationUsage: async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('meditation_usage')
+        .select('meditation_id, updated_at')
+        .eq('user_id', userId)
+        .order('updated_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Group by meditation_id and keep only the most recent entry
+      const usageMap = new Map<string, string>();
+      data?.forEach(item => {
+        if (!usageMap.has(item.meditation_id)) {
+          usageMap.set(item.meditation_id, item.updated_at);
+        }
+      });
+
+      const usage = Array.from(usageMap.entries()).map(([meditation_id, updated_at]) => ({
+        meditation_id,
+        updated_at,
+      }));
+
+      set({ userMeditationUsage: usage });
+    } catch (error) {
+      console.error('Failed to fetch user meditation usage:', error);
+      set({ userMeditationUsage: null });
+    }
   },
 }));

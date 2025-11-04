@@ -15,6 +15,7 @@ import Skip10Icon from '@/components/icons/Skip10Icon';
 import { ParentalGate } from '@/components/ParentalGate';
 import AuthModal from '@/components/AuthModal';
 import logoSvg from '@/assets/logo.svg';
+import { supabase } from '@/integrations/supabase/client';
 
 // Safe analytics imports - no-op if not available
 const trackMeditationPlayed = async (meditationId: string, title: string) => {
@@ -76,6 +77,8 @@ const MeditationPlayer = () => {
   const [showParentalGate, setShowParentalGate] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [hasCompletedOnce, setHasCompletedOnce] = useState(false);
+  const [usageRecordId, setUsageRecordId] = useState<string | null>(null);
+  const lastUpdateTimeRef = useRef<number>(0);
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -173,6 +176,20 @@ const MeditationPlayer = () => {
       setLocalCurrentTime(currentTime);
       setCurrentTime(currentTime);
       
+      // Update meditation_usage every 15 seconds
+      const now = Date.now();
+      if (user && meditation && usageRecordId && now - lastUpdateTimeRef.current > 15000) {
+        lastUpdateTimeRef.current = now;
+        supabase
+          .from('meditation_usage')
+          .update({
+            duration_seconds: Math.floor(currentTime),
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', usageRecordId)
+          .then(() => {}, () => {});
+      }
+      
       // Check if meditation is completed (within 2 seconds of end)
       if (duration > 0 && currentTime >= duration - 2 && !isCompleted) {
         handleMediaComplete();
@@ -188,6 +205,23 @@ const MeditationPlayer = () => {
     setPlaying(false);
     if (meditation) {
       await completeSession(meditation.id, duration);
+      
+      // Mark usage as completed
+      if (user && usageRecordId) {
+        try {
+          await supabase
+            .from('meditation_usage')
+            .update({
+              completed: true,
+              duration_seconds: Math.floor(duration),
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', usageRecordId);
+        } catch (error) {
+          console.error('Failed to mark meditation as completed:', error);
+        }
+      }
+      
       // Invalidate the progress stats query to refresh the tracking page
       queryClient.invalidateQueries({ queryKey: ['progress-stats'] });
 
@@ -337,6 +371,30 @@ const MeditationPlayer = () => {
         // Track meditation playback start
         if (meditation && !player.isPlaying) {
           trackMeditationPlayed(meditation.id, meditation.title);
+          
+          // Track usage in meditation_usage table
+          if (user) {
+            try {
+              const { data, error } = await supabase
+                .from('meditation_usage')
+                .insert({
+                  user_id: user.id,
+                  meditation_id: meditation.id,
+                  started_at: new Date().toISOString(),
+                  duration_seconds: 0,
+                  completed: false,
+                })
+                .select('id')
+                .single();
+              
+              if (!error && data) {
+                setUsageRecordId(data.id);
+                lastUpdateTimeRef.current = Date.now();
+              }
+            } catch (error) {
+              console.error('Failed to track meditation usage:', error);
+            }
+          }
         }
 
         // Request wake lock to keep screen active during playback
