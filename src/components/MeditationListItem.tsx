@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useUserStore } from '../stores/userStore';
 import logo from '@/assets/logo.svg';
 import categoryBackground from '@/assets/category-icon-background.svg';
+import emotionsIcon from '@/assets/emotions.svg';
 
 interface MeditationListItemProps {
   meditation: Meditation;
@@ -46,7 +47,7 @@ const MeditationListItem = ({ meditation, onPlay }: MeditationListItemProps) => 
               className="absolute inset-0 w-full h-full object-cover opacity-70"
             />
             <img 
-              src={logo} 
+              src={emotionsIcon} 
               alt={meditation.title}
               className="absolute inset-0 w-full h-full object-contain p-3"
             />

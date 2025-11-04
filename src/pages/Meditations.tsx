@@ -419,7 +419,7 @@ const Meditations = () => {
                         className="absolute inset-0 w-full h-full object-cover opacity-70"
                       />
                       <img 
-                        src={logo} 
+                        src={emotionsIcon} 
                         alt={course}
                         className="absolute inset-0 w-full h-full object-contain p-3"
                       />
