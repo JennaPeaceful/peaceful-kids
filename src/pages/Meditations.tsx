@@ -646,19 +646,21 @@ const Meditations = () => {
         {/* Collapsed Results Preview */}
         {!resultsExpanded && filteredMeditations.length > 0 && (
           <div className="px-4">
-            {filters.selectedCourses.length > 0 ? (
-              <div className="flex flex-col gap-2 pb-6">
-                {displayedMeditations.slice(0, 4).map((meditation) => (
-                  <MeditationListItem key={meditation.id} meditation={meditation} />
-                ))}
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-4 pb-6">
-                {displayedMeditations.slice(0, 4).map((meditation) => (
-                  <MeditationCard key={meditation.id} meditation={meditation} />
-                ))}
-              </div>
-            )}
+            <ScrollArea className="h-[600px] w-full">
+              {filters.selectedCourses.length > 0 ? (
+                <div className="flex flex-col gap-2 pb-6 pr-4">
+                  {displayedMeditations.map((meditation) => (
+                    <MeditationListItem key={meditation.id} meditation={meditation} />
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-4 pb-6 pr-4">
+                  {displayedMeditations.map((meditation) => (
+                    <MeditationCard key={meditation.id} meditation={meditation} />
+                  ))}
+                </div>
+              )}
+            </ScrollArea>
           </div>
         )}
 
