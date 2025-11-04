@@ -39,12 +39,14 @@ const MeditationListItem = ({ meditation, onPlay }: MeditationListItemProps) => 
       <div className="relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-gradient-to-br from-primary/20 to-accent/20">
         {meditation.thumbnail_url || meditation.thumbnail ? (
           <>
-            {/* Colorful background layer */}
-            <img 
-              src={categoryBackground}
-              alt=""
-              className="absolute inset-0 w-full h-full object-cover"
-            />
+            {/* Colorful background layer - only for meditations without age groups */}
+            {!meditation.age_group && (
+              <img 
+                src={categoryBackground}
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            )}
             {/* Thumbnail layer on top */}
             <img 
               src={meditation.thumbnail_url || meditation.thumbnail} 
