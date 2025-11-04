@@ -10,7 +10,7 @@ export interface Meditation {
   thumbnail_url?: string;
   duration: number; // in seconds
   media_url: string;
-  media_type: 'audio' | 'video';
+  media_type: 'audio' | 'video' | 'pdf';
   is_free: boolean;
   category: string;
   age_group: string;

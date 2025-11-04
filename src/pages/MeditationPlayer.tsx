@@ -99,6 +99,7 @@ const MeditationPlayer = () => {
     (effectivePlanType === 'peace_plan' && isCourse)
   );
   const isAudio = meditation?.media_type === 'audio';
+  const isPdf = meditation?.media_type === 'pdf';
 
   // Debug logging
   logger.log('[MeditationPlayer] Debug:', {
@@ -636,7 +637,20 @@ const MeditationPlayer = () => {
       <div className="flex flex-col items-center px-6 pb-8">
         {/* Media Display */}
         <div className="relative mb-8 mx-auto flex justify-center">
-          {isAudio ? (
+          {isPdf ? (
+            /* PDF viewer */
+            <div className="w-full max-w-4xl">
+              <iframe
+                src={meditation.media_url}
+                className="w-full rounded-lg shadow-2xl border border-border/20"
+                style={{
+                  height: '70vh',
+                  minHeight: '500px'
+                }}
+                title={meditation.title}
+              />
+            </div>
+          ) : isAudio ? (
             /* Thumbnail for audio meditations */
             <img
               src={meditation.thumbnail_url || meditation.thumbnail}
@@ -891,7 +905,7 @@ const MeditationPlayer = () => {
           </div>
         </div>
 
-        {/* Controls for Audio only - Video uses native controls */}
+        {/* Controls for Audio only - Video and PDF use native controls */}
         {isAudio && !isCompleted && (
           <>
             {/* Seek Slider */}
