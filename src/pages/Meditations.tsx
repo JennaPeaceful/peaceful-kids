@@ -7,6 +7,7 @@ import { useFavorites } from '../hooks/useFavorites';
 import { useAuth } from '../hooks/useAuth';
 import { useUserStore } from '../stores/userStore';
 import MeditationCard from '../components/MeditationCard';
+import MeditationListItem from '../components/MeditationListItem';
 import FilterBreadcrumb from '../components/FilterBreadcrumb';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -600,13 +601,21 @@ const Meditations = () => {
               </div>
             </div>
 
-            {/* Results Grid */}
+            {/* Results Grid or List */}
             <div className="px-4 pt-4">
-              <div className="grid grid-cols-2 gap-4 pb-6">
-                {displayedMeditations.map((meditation) => (
-                  <MeditationCard key={meditation.id} meditation={meditation} />
-                ))}
-              </div>
+              {filters.selectedCourses.length > 0 ? (
+                <div className="flex flex-col gap-2 pb-6">
+                  {displayedMeditations.map((meditation) => (
+                    <MeditationListItem key={meditation.id} meditation={meditation} />
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-4 pb-6">
+                  {displayedMeditations.map((meditation) => (
+                    <MeditationCard key={meditation.id} meditation={meditation} />
+                  ))}
+                </div>
+              )}
               
               {displayedItems < sortedMeditations.length && (
                 <div className="text-center py-4 text-muted-foreground">
@@ -620,11 +629,19 @@ const Meditations = () => {
         {/* Collapsed Results Preview */}
         {!resultsExpanded && filteredMeditations.length > 0 && (
           <div className="px-4">
-            <div className="grid grid-cols-2 gap-4 pb-6">
-              {displayedMeditations.slice(0, 4).map((meditation) => (
-                <MeditationCard key={meditation.id} meditation={meditation} />
-              ))}
-            </div>
+            {filters.selectedCourses.length > 0 ? (
+              <div className="flex flex-col gap-2 pb-6">
+                {displayedMeditations.slice(0, 4).map((meditation) => (
+                  <MeditationListItem key={meditation.id} meditation={meditation} />
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-4 pb-6">
+                {displayedMeditations.slice(0, 4).map((meditation) => (
+                  <MeditationCard key={meditation.id} meditation={meditation} />
+                ))}
+              </div>
+            )}
           </div>
         )}
 
