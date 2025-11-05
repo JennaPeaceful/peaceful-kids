@@ -421,13 +421,10 @@ const Meditations = () => {
                     {icon && (
                       <img 
                         src={icon} 
-                        alt=""
+                        alt={ageGroup}
                         className="absolute inset-0 w-full h-full object-cover"
                       />
                     )}
-                    <span className="relative z-10 font-semibold text-sm text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-                      {ageGroup}
-                    </span>
                   </Button>
                 );
               })}
