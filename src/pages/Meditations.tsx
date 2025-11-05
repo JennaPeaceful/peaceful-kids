@@ -211,6 +211,15 @@ const Meditations = () => {
   });
 
   const displayedMeditations = sortedMeditations.slice(0, displayedItems);
+  
+  // Create course thumbnails mapping
+  const courseThumbnails = courses.reduce((acc, course) => {
+    const courseMeditation = filteredMeditations.find(m => m.courses === course);
+    if (courseMeditation) {
+      acc[course] = courseMeditation.thumbnail_url || courseMeditation.thumbnail || '';
+    }
+    return acc;
+  }, {} as { [key: string]: string });
 
   return (
     <div className="pb-24 min-h-screen">
@@ -277,6 +286,7 @@ const Meditations = () => {
           selectedAgeGroup={filters.selectedAgeGroup}
           selectedThemes={filters.selectedThemes}
           courses={courses}
+          courseThumbnails={courseThumbnails}
           ageGroups={ageGroups}
           themes={availableThemeObjects}
           onCategorySelect={handleCategorySelect}

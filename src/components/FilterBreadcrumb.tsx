@@ -19,6 +19,7 @@ interface FilterBreadcrumbProps {
   selectedAgeGroup: string | null;
   selectedThemes: string[];
   courses?: string[];
+  courseThumbnails?: { [key: string]: string };
   ageGroups: string[];
   themes: Array<{ id: string; name: string; icon: string; category: string[]; icon_svg_url?: string }>;
   onCategorySelect: (category: string | null) => void;
@@ -33,6 +34,7 @@ const FilterBreadcrumb = ({
   selectedAgeGroup,
   selectedThemes,
   courses = [],
+  courseThumbnails = {},
   ageGroups,
   themes,
   onCategorySelect,
@@ -122,20 +124,28 @@ const FilterBreadcrumb = ({
       {/* Course Pills */}
       {selectedCourses.map((course) => {
         const pillId = `course-${course}`;
+        const thumbnail = courseThumbnails[course];
         return (
           <Badge 
             key={course}
             variant="secondary" 
-            className="h-8 px-3 cursor-pointer hover:bg-secondary/80 transition-colors"
+            className="h-8 px-3 cursor-pointer hover:bg-secondary/80 transition-colors flex items-center gap-2"
             onClick={() => toggleExpand(pillId)}
           >
+            {thumbnail && (
+              <img 
+                src={thumbnail} 
+                alt={course}
+                className="w-4 h-4 flex-shrink-0 object-cover rounded"
+              />
+            )}
             <span className="text-sm">
               {expandedPills.has(pillId) ? course : truncateText(course, 12)}
             </span>
             <Button
               variant="ghost"
               size="sm"
-              className="h-4 w-4 p-0 ml-2 hover:bg-transparent"
+              className="h-4 w-4 p-0 ml-1 hover:bg-transparent"
               onClick={(e) => {
                 e.stopPropagation();
                 onCourseToggle?.(course);
