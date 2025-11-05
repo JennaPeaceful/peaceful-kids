@@ -78,10 +78,10 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
     >
       {/* Thumbnail Image */}
       <div className="relative mb-3 rounded-xl overflow-hidden aspect-square">
-        {/* Colorful background layer - only for Adult meditations (no age group) with custom thumbnails (not logo) */}
+        {/* Colorful background layer - only for Adult meditations (no age group) with wire icons (exclude peaceful logo) */}
         {!meditation.age_group &&
          (meditation.thumbnail_url || meditation.thumbnail) &&
-         !/logo\.svg/i.test(meditation.thumbnail_url || meditation.thumbnail || '') && (
+         !/(logo|peaceful)/i.test(meditation.thumbnail_url || meditation.thumbnail || '') && (
           <img 
             src={categoryBackground}
             alt=""
