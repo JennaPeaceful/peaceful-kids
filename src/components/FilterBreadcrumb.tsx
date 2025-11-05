@@ -15,16 +15,13 @@ import allAgesIcon from '@/assets/age-icons/all-ages.png';
 
 interface FilterBreadcrumbProps {
   selectedCategory: string | null;
-  selectedContentCategories: string[];
   selectedCourses?: string[];
   selectedAgeGroup: string | null;
   selectedThemes: string[];
-  contentCategories: Array<{name: string; thumbnail_png_url?: string; thumbnail_svg_url?: string}>;
   courses?: string[];
   ageGroups: string[];
   themes: Array<{ id: string; name: string; icon: string; category: string[]; icon_svg_url?: string }>;
   onCategorySelect: (category: string | null) => void;
-  onContentCategoryToggle: (category: string) => void;
   onCourseToggle?: (course: string) => void;
   onAgeGroupSelect: (ageGroup: string | null) => void;
   onThemeToggle: (theme: string) => void;
@@ -32,16 +29,13 @@ interface FilterBreadcrumbProps {
 
 const FilterBreadcrumb = ({
   selectedCategory,
-  selectedContentCategories,
   selectedCourses = [],
   selectedAgeGroup,
   selectedThemes,
-  contentCategories,
   courses = [],
   ageGroups,
   themes,
   onCategorySelect,
-  onContentCategoryToggle,
   onCourseToggle,
   onAgeGroupSelect,
   onThemeToggle
@@ -124,34 +118,6 @@ const FilterBreadcrumb = ({
           </Button>
         </Badge>
       )}
-
-      {/* Content Category Pills */}
-      {selectedContentCategories.map((categoryName) => {
-        const pillId = `content-${categoryName}`;
-        return (
-          <Badge 
-            key={categoryName}
-            variant="secondary" 
-            className="h-8 px-3 cursor-pointer hover:bg-secondary/80 transition-colors"
-            onClick={() => toggleExpand(pillId)}
-          >
-            <span className="text-sm">
-              {expandedPills.has(pillId) ? categoryName : truncateText(categoryName, 12)}
-            </span>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-4 w-4 p-0 ml-2 hover:bg-transparent"
-              onClick={(e) => {
-                e.stopPropagation();
-                onContentCategoryToggle(categoryName);
-              }}
-            >
-              <X className="w-3 h-3" />
-            </Button>
-          </Badge>
-        );
-      })}
 
       {/* Course Pills */}
       {selectedCourses.map((course) => {

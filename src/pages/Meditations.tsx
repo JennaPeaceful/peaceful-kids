@@ -41,8 +41,7 @@ const Meditations = () => {
     filteredMeditations, 
     filters, 
     categories,
-    contentCategories,
-    courses, 
+    courses,
     themes, 
     ageGroups, 
     availableThemes,
@@ -101,13 +100,6 @@ const Meditations = () => {
     }
   };
 
-  const handleContentCategoryToggle = (category: string) => {
-    const newCategories = filters.selectedContentCategories.includes(category)
-      ? filters.selectedContentCategories.filter(c => c !== category)
-      : [...filters.selectedContentCategories, category];
-    setFilters({ selectedContentCategories: newCategories });
-  };
-
   const handleCourseToggle = (course: string) => {
     const newCourses = filters.selectedCourses.includes(course)
       ? filters.selectedCourses.filter(c => c !== course)
@@ -160,7 +152,7 @@ const Meditations = () => {
     }
   };
 
-  const hasActiveFilters = filters.selectedCategory || filters.selectedContentCategories.length > 0 || filters.selectedCourses.length > 0 || filters.selectedAgeGroup || filters.selectedThemes.length > 0 || filters.searchQuery || showFavoritesOnly;
+  const hasActiveFilters = filters.selectedCategory || filters.selectedCourses.length > 0 || filters.selectedAgeGroup || filters.selectedThemes.length > 0 || filters.searchQuery || showFavoritesOnly;
   
   // Age group icon mapping
   const getAgeGroupIcon = (ageGroup: string) => {
@@ -176,20 +168,10 @@ const Meditations = () => {
     return iconMap[ageGroup];
   };
   
-  // Get filtered theme objects that don't overlap with content categories (for FilterBreadcrumb and theme display)
+  // Get filtered theme objects for FilterBreadcrumb and theme display
   const availableThemeObjects = themes.filter(theme => 
-    (!filters.selectedCategory || theme.category?.includes(filters.selectedCategory)) &&
-    !filters.selectedContentCategories.includes(theme.name)
+    (!filters.selectedCategory || theme.category?.includes(filters.selectedCategory))
   );
-
-  // Get content categories for the selected category - only show categories that have meditations
-  const availableContentCategories = filters.selectedCategory 
-    ? contentCategories.filter(category => 
-        filteredMeditations.some(m => m.content_categories?.includes(category.name))
-      )
-    : contentCategories.filter(category => 
-        filteredMeditations.some(m => m.content_categories?.includes(category.name))
-      );
 
   // Sort meditations and filter by media type and favorites
   const filteredByMediaType = mediaType === 'all' 
@@ -291,16 +273,13 @@ const Meditations = () => {
         {/* Filter Breadcrumb */}
         <FilterBreadcrumb
           selectedCategory={filters.selectedCategory}
-          selectedContentCategories={filters.selectedContentCategories}
           selectedCourses={filters.selectedCourses}
           selectedAgeGroup={filters.selectedAgeGroup}
           selectedThemes={filters.selectedThemes}
-          contentCategories={availableContentCategories}
           courses={courses}
           ageGroups={ageGroups}
           themes={availableThemeObjects}
           onCategorySelect={handleCategorySelect}
-          onContentCategoryToggle={handleContentCategoryToggle}
           onCourseToggle={handleCourseToggle}
           onAgeGroupSelect={handleAgeGroupSelect}
           onThemeToggle={handleThemeToggle}
@@ -470,59 +449,9 @@ const Meditations = () => {
           </div>
         )}
 
-        {/* Content Categories - For Kids after age group, for Adults immediately */}
+        {/* Themes - Icon Grid - Show after age group for Kids or for Adult category */}
         {filters.selectedCategory && 
-         filters.selectedCategory !== 'Courses' &&
-         ((filters.selectedCategory === 'Kid' && filters.selectedAgeGroup && !filters.selectedContentCategories.length) ||
-          (filters.selectedCategory === 'Adult' && !filters.selectedContentCategories.length)) &&
-         availableContentCategories.length > 0 && (
-          <div className="mb-6">
-            <label className="text-sm font-medium text-muted-foreground mb-3 block">
-              Content Category
-            </label>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-              {availableContentCategories.map((category) => {
-                const iconUrl = category.thumbnail_svg_url || category.thumbnail_png_url;
-                
-                return (
-                  <Button
-                    key={category.name}
-                    variant="outline"
-                    onClick={() => handleContentCategoryToggle(category.name)}
-                    className="flex flex-col items-center gap-2 h-auto py-4 hover:shadow-primary transition-all"
-                  >
-                    <div className="relative w-16 h-16 rounded-xl overflow-hidden">
-                      <img 
-                        src={categoryBackground}
-                        alt=""
-                        className="absolute inset-0 w-full h-full object-cover opacity-70"
-                      />
-                      {iconUrl ? (
-                        <img 
-                          src={iconUrl} 
-                          alt={category.name}
-                          className="absolute inset-0 w-full h-full object-contain p-3 filter brightness-0"
-                        />
-                      ) : (
-                        <img 
-                          src={logo} 
-                          alt={category.name}
-                          className="absolute inset-0 w-full h-full object-contain p-3 opacity-80"
-                        />
-                      )}
-                    </div>
-                    <span className="text-xs font-medium text-center leading-tight px-2 whitespace-normal min-h-[2rem] flex items-center">{category.name}</span>
-                  </Button>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Themes - Icon Grid - Show after age group for Kids, or after content category for Adults */}
-        {filters.selectedCategory && 
-         filters.selectedContentCategories.length > 0 &&
-         (filters.selectedCategory !== 'Kid' || filters.selectedAgeGroup) &&
+         (filters.selectedCategory === 'Adult' || (filters.selectedCategory === 'Kid' && filters.selectedAgeGroup)) &&
          availableThemes.length > 0 && (
           <div className="mb-6">
             <label className="text-sm font-medium text-muted-foreground mb-3 block">
@@ -594,11 +523,6 @@ const Meditations = () => {
                         {formatCategoryName(filters.selectedCategory)}
                       </Badge>
                     )}
-                    {filters.selectedContentCategories.map(cat => (
-                      <Badge key={cat} variant="secondary" className="text-xs">
-                        {cat}
-                      </Badge>
-                    ))}
                     {filters.selectedAgeGroup && (
                       <Badge variant="secondary" className="text-xs">
                         {filters.selectedAgeGroup}

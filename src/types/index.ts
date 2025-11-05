@@ -93,7 +93,6 @@ export interface UserSubscription {
 // UI State types
 export interface FilterState {
   selectedCategory: string | null;
-  selectedContentCategories: string[];
   selectedCourses: string[];
   selectedAgeGroup: string | null;
   selectedThemes: string[];

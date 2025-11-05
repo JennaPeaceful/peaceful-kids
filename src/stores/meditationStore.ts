@@ -9,7 +9,6 @@ interface MeditationState {
   recommendedMeditations: Meditation[];
   userMeditationUsage: Array<{ meditation_id: string; updated_at: string }> | null;
   categories: Category[];
-  contentCategories: Array<{name: string; thumbnail_png_url?: string; thumbnail_svg_url?: string}>;
   courses: string[];
   themes: Array<{id: string; name: string; icon: string; color: string; category: string[]; icon_svg_url?: string; icon_png_url?: string; sort_order?: number}>;
   ageGroups: string[];
@@ -21,7 +20,6 @@ interface MeditationState {
   // Actions
   fetchMeditations: () => Promise<void>;
   fetchCategories: () => Promise<void>;
-  fetchContentCategories: () => Promise<void>;
   fetchCourses: () => Promise<void>;
   initializeThemes: () => void;
   fetchUserMeditationUsage: (userId: string) => Promise<void>;
@@ -37,7 +35,6 @@ interface MeditationState {
 
 const initialFilters: FilterState = {
   selectedCategory: null,
-  selectedContentCategories: [],
   selectedCourses: [],
   selectedAgeGroup: null,
   selectedThemes: [],
@@ -108,7 +105,6 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
   recommendedMeditations: [],
   userMeditationUsage: null,
   categories: [],
-  contentCategories: [],
   courses: [],
   themes: [],
   ageGroups: [],
@@ -155,7 +151,6 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
       
       // Fetch additional data
       await get().fetchCategories();
-      await get().fetchContentCategories();
       await get().fetchCourses();
       await get().initializeThemes();
       
@@ -206,20 +201,6 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
     }
   },
   
-  fetchContentCategories: async () => {
-    try {
-      const { data: contentCatData, error: catError } = await supabase
-        .from('content_categories')
-        .select('name, thumbnail_png_url, thumbnail_svg_url');
-
-      if (catError) throw catError;
-
-      set({ contentCategories: contentCatData || [] });
-    } catch (error) {
-      console.error('Error fetching content categories:', error);
-    }
-  },
-
   fetchCourses: async () => {
     try {
       const { data, error } = await supabase
@@ -271,12 +252,6 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
     if (filters.selectedCategory === 'Courses') {
       filtered = filtered.filter(m => m.category === 'Courses' || m.courses);
     }
-    
-    if (filters.selectedContentCategories.length > 0) {
-      filtered = filtered.filter(m => 
-        m.content_categories?.some(cat => filters.selectedContentCategories.includes(cat))
-      );
-    }
 
     if (filters.selectedCourses.length > 0) {
       filtered = filtered.filter(m => 
@@ -290,8 +265,7 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
     
     if (filters.selectedThemes.length > 0) {
       filtered = filtered.filter(m => 
-        m.themes.some(theme => filters.selectedThemes.includes(theme)) ||
-        m.content_categories?.some(cat => filters.selectedThemes.includes(cat))
+        m.themes.some(theme => filters.selectedThemes.includes(theme))
       );
     }
     
