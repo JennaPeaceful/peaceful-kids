@@ -452,7 +452,7 @@ const Meditations = () => {
         {/* Themes - Icon Grid - Show after age group for Kids or for Adult category */}
         {filters.selectedCategory && 
          (filters.selectedCategory === 'Adult' || (filters.selectedCategory === 'Kid' && filters.selectedAgeGroup)) &&
-         availableThemes.length > 0 && (
+         availableThemeObjects.length > 0 && (
           <div className="mb-6">
             <label className="text-sm font-medium text-muted-foreground mb-3 block">
               Themes
