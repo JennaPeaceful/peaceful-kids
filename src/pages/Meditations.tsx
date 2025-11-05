@@ -38,6 +38,7 @@ const Meditations = () => {
   const { user } = useAuth();
   const { ageGroup, subscription } = useUserStore();
   const { 
+    meditations,
     filteredMeditations, 
     filters, 
     categories,
@@ -214,7 +215,7 @@ const Meditations = () => {
   
   // Create course thumbnails mapping
   const courseThumbnails = courses.reduce((acc, course) => {
-    const courseMeditation = filteredMeditations.find(m => m.courses === course);
+    const courseMeditation = meditations.find(m => m.courses === course);
     if (courseMeditation) {
       acc[course] = courseMeditation.thumbnail_url || courseMeditation.thumbnail || '';
     }

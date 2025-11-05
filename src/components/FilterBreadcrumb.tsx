@@ -12,6 +12,7 @@ import ages912Icon from '@/assets/age-icons/ages-9-12.png';
 import ages917Icon from '@/assets/age-icons/ages-9-17.png';
 import ages1317Icon from '@/assets/age-icons/ages-13-17.png';
 import allAgesIcon from '@/assets/age-icons/all-ages.png';
+import emotionsIcon from '@/assets/emotions.svg';
 
 interface FilterBreadcrumbProps {
   selectedCategory: string | null;
@@ -134,7 +135,7 @@ const FilterBreadcrumb = ({
           >
             {thumbnail && (
               <img 
-                src={thumbnail} 
+                src={thumbnail || emotionsIcon} 
                 alt={course}
                 className="w-4 h-4 flex-shrink-0 object-cover rounded"
               />
