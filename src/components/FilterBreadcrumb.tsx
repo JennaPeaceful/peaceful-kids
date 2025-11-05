@@ -13,6 +13,7 @@ import ages917Icon from '@/assets/age-icons/ages-9-17.png';
 import ages1317Icon from '@/assets/age-icons/ages-13-17.png';
 import allAgesIcon from '@/assets/age-icons/all-ages.png';
 import emotionsIcon from '@/assets/emotions.svg';
+import categoryBackground from '@/assets/category-icon-background.svg';
 
 interface FilterBreadcrumbProps {
   selectedCategory: string | null;
@@ -133,13 +134,18 @@ const FilterBreadcrumb = ({
             className="h-8 px-3 cursor-pointer hover:bg-secondary/80 transition-colors flex items-center gap-2"
             onClick={() => toggleExpand(pillId)}
           >
-            {thumbnail && (
+            <div className="relative w-5 h-5 rounded-md overflow-hidden">
+              <img 
+                src={categoryBackground}
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover opacity-70"
+              />
               <img 
                 src={thumbnail || emotionsIcon} 
                 alt={course}
-                className="w-4 h-4 flex-shrink-0 object-cover rounded"
+                className="absolute inset-0 w-full h-full object-contain p-1"
               />
-            )}
+            </div>
             <span className="text-sm">
               {expandedPills.has(pillId) ? course : truncateText(course, 12)}
             </span>
