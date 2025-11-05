@@ -134,7 +134,7 @@ const FilterBreadcrumb = ({
             className="h-8 px-3 cursor-pointer hover:bg-secondary/80 transition-colors flex items-center gap-2"
             onClick={() => toggleExpand(pillId)}
           >
-            <div className="relative w-5 h-5 rounded-md overflow-hidden">
+            <div className="relative w-6 h-6 rounded-xl overflow-hidden">
               <img 
                 src={categoryBackground}
                 alt=""
@@ -143,7 +143,7 @@ const FilterBreadcrumb = ({
               <img 
                 src={thumbnail || emotionsIcon} 
                 alt={course}
-                className="absolute inset-0 w-full h-full object-contain p-1"
+                className="absolute inset-0 w-full h-full object-contain p-2"
               />
             </div>
             <span className="text-sm">
