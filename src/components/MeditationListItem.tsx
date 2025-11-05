@@ -42,7 +42,7 @@ const MeditationListItem = ({ meditation, onPlay }: MeditationListItemProps) => 
         {!meditation.age_group &&
          (meditation.thumbnail_url || meditation.thumbnail) &&
          (meditation.thumbnail_url || meditation.thumbnail)!.toLowerCase().endsWith('.svg') &&
-         !/(logo|peaceful)/i.test(meditation.thumbnail_url || meditation.thumbnail || '') && (
+         !/logo\.svg/i.test(meditation.thumbnail_url || meditation.thumbnail || '') && (
           <img 
             src={categoryBackground}
             alt=""
