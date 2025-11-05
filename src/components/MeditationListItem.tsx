@@ -4,6 +4,7 @@ import { Meditation } from '../types';
 import { useAuth } from '../hooks/useAuth';
 import { useUserStore } from '../stores/userStore';
 import categoryBackground from '@/assets/category-icon-background.svg';
+import logo from '@/assets/logo.svg';
 
 interface MeditationListItemProps {
   meditation: Meditation;
@@ -37,32 +38,24 @@ const MeditationListItem = ({ meditation, onPlay }: MeditationListItemProps) => 
     >
       {/* Thumbnail Icon */}
       <div className="relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-gradient-to-br from-primary/20 to-accent/20">
-        {meditation.thumbnail_url || meditation.thumbnail ? (
-          <>
-            {/* Colorful background layer - only for meditations without age groups */}
-            {!meditation.age_group && (
-              <img 
-                src={categoryBackground}
-                alt=""
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-            )}
-            {/* Thumbnail layer on top */}
-            <img 
-              src={meditation.thumbnail_url || meditation.thumbnail} 
-              alt={meditation.title}
-              className="absolute inset-0 w-full h-full object-contain p-3"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
-              }}
-            />
-          </>
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <Play className="w-6 h-6 text-primary" />
-          </div>
+        {/* Colorful background layer - only for meditations without age groups */}
+        {!meditation.age_group && (
+          <img 
+            src={categoryBackground}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover"
+          />
         )}
+        {/* Thumbnail layer on top */}
+        <img 
+          src={meditation.thumbnail_url || meditation.thumbnail || logo} 
+          alt={meditation.title}
+          className="absolute inset-0 w-full h-full object-contain p-3"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = logo;
+          }}
+        />
         
         {/* Media type indicator */}
         <div className="absolute bottom-1 right-1">

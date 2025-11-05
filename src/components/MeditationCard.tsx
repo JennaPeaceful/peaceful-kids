@@ -6,6 +6,7 @@ import { useUserStore } from '../stores/userStore';
 import { useMeditationStore } from '../stores/meditationStore';
 import { useAuth } from '../hooks/useAuth';
 import categoryBackground from '@/assets/category-icon-background.svg';
+import logo from '@/assets/logo.svg';
 
 interface MeditationCardProps {
   meditation: Meditation;
@@ -87,12 +88,12 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
         )}
         {/* Thumbnail layer on top */}
         <img 
-          src={meditation.thumbnail_url || meditation.thumbnail} 
+          src={meditation.thumbnail_url || meditation.thumbnail || logo} 
           alt={meditation.title}
           className="absolute inset-0 w-full h-full object-contain p-4"
           onError={(e) => {
             const target = e.target as HTMLImageElement;
-            target.style.display = 'none';
+            target.src = logo;
           }}
         />
 
