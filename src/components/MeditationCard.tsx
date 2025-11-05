@@ -78,9 +78,10 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
     >
       {/* Thumbnail Image */}
       <div className="relative mb-3 rounded-xl overflow-hidden aspect-square">
-        {/* Colorful background layer - for wire icons (NO COLOR in URL) and logo fallbacks */}
+        {/* Colorful background layer - for wire icons (NO COLOR in URL), SVGs, and logo fallbacks */}
         {(meditation.thumbnail_url || meditation.thumbnail) &&
          (/NO.?COLOR/i.test(meditation.thumbnail_url || meditation.thumbnail || '') ||
+          /\.svg(\?|$)/i.test(meditation.thumbnail_url || meditation.thumbnail || '') ||
           /(\/logo\.svg|assets\/logo)/i.test(meditation.thumbnail_url || meditation.thumbnail || '')) && (
           <img 
             src={categoryBackground}
