@@ -86,7 +86,7 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
           <img 
             src={categoryBackground}
             alt=""
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute inset-0 w-full h-full object-cover opacity-70"
           />
         )}
         {/* Thumbnail layer on top */}
