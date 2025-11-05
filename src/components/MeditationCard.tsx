@@ -107,8 +107,7 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
         />
         {/* SVG color overlay for age groups */}
         {meditation.age_group && getAgeGroupColor(meditation.age_group) && 
-         (/\.svg(\?|$)/i.test(meditation.thumbnail_url || meditation.thumbnail || '') ||
-          /NO.?COLOR/i.test(meditation.thumbnail_url || meditation.thumbnail || '')) && (
+         /NO.?COLOR/i.test(meditation.thumbnail_url || meditation.thumbnail || '') && (
           <div 
             className="absolute inset-0 mix-blend-overlay opacity-60 pointer-events-none"
             style={{ backgroundColor: getAgeGroupColor(meditation.age_group) || undefined }}
