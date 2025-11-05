@@ -156,6 +156,14 @@ const FilterBreadcrumb = ({
       {selectedThemes.map((themeName) => {
         const theme = themes.find(t => t.name === themeName);
         const pillId = `theme-${themeName}`;
+
+        // Build CDN URL just like Meditations page to avoid broken SVGs
+        let themeFileName = themeName.replace(/\\/g, '-').replace(/\//g, '-');
+        if (themeName === 'Miscellaneous') {
+          themeFileName = 'Misellaneous'; // CDN has misspelled version
+        }
+        const themeIconUrl = `https://cdn.peacefulkids.app/SVG%20FILES%20NO%20COLOR/CONTENT%20CATEGORY%20NO%20COLOR/${encodeURIComponent(themeFileName)}.svg`;
+
         return (
           <Badge 
             key={themeName}
@@ -163,13 +171,12 @@ const FilterBreadcrumb = ({
             className="h-8 px-3 cursor-pointer hover:bg-secondary/80 transition-colors flex items-center gap-2"
             onClick={() => toggleExpand(pillId)}
           >
-            {theme?.icon_svg_url && (
-              <img 
-                src={theme.icon_svg_url} 
-                alt={themeName}
-                className="w-4 h-4 flex-shrink-0 object-contain"
-              />
-            )}
+            <img 
+              src={themeIconUrl}
+              alt={themeName}
+              className="w-4 h-4 flex-shrink-0 object-contain"
+              onError={(e) => { e.currentTarget.src = emotionsIcon; }}
+            />
             <span className="text-sm">
               {expandedPills.has(pillId) ? themeName : truncateText(themeName, 10)}
             </span>
