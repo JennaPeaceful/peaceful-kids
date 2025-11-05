@@ -257,14 +257,19 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
     const { meditations, filters } = get();
     let filtered = [...meditations];
     
-    // Exclude all meditations with a courses field unless Courses category is selected
+    // ALWAYS exclude meditations with courses field unless Courses category is explicitly selected
     if (filters.selectedCategory !== 'Courses') {
-      filtered = filtered.filter(m => !m.courses);
+      filtered = filtered.filter(m => !m.courses && m.category !== 'Courses');
     }
     
-    // Skip category filter for "Emotions" - let themes handle the filtering
-    if (filters.selectedCategory && filters.selectedCategory !== 'Emotions') {
+    // Apply category filter (skip for "Emotions" which uses themes instead)
+    if (filters.selectedCategory && filters.selectedCategory !== 'Emotions' && filters.selectedCategory !== 'Courses') {
       filtered = filtered.filter(m => m.category === filters.selectedCategory);
+    }
+    
+    // If Courses is selected, only show meditations with courses field
+    if (filters.selectedCategory === 'Courses') {
+      filtered = filtered.filter(m => m.category === 'Courses' || m.courses);
     }
     
     if (filters.selectedContentCategories.length > 0) {
