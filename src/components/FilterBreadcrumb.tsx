@@ -127,6 +127,8 @@ const FilterBreadcrumb = ({
       {selectedCourses.map((course) => {
         const pillId = `course-${course}`;
         const thumbnail = courseThumbnails[course];
+        const iconUrl = thumbnail && typeof thumbnail === 'string' && thumbnail.trim() !== '' ? thumbnail : emotionsIcon;
+        const showBg = /NO.?COLOR/i.test(iconUrl) || /\.svg(\?|$)/i.test(iconUrl) || /(\/logo\.svg|assets\/logo)/i.test(iconUrl);
         return (
           <Badge 
             key={course}
@@ -135,15 +137,20 @@ const FilterBreadcrumb = ({
             onClick={() => toggleExpand(pillId)}
           >
             <div className="relative w-6 h-6 rounded-xl overflow-hidden">
+              {showBg && (
+                <img 
+                  src={categoryBackground}
+                  alt=""
+                  className="absolute inset-0 w-full h-full object-cover opacity-70"
+                />
+              )}
               <img 
-                src={categoryBackground}
-                alt=""
-                className="absolute inset-0 w-full h-full object-cover opacity-70"
-              />
-              <img 
-                src={thumbnail || emotionsIcon} 
+                src={iconUrl}
                 alt={course}
                 className="absolute inset-0 w-full h-full object-contain p-2"
+                onError={(e) => {
+                  e.currentTarget.src = emotionsIcon;
+                }}
               />
             </div>
             <span className="text-sm">
