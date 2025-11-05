@@ -38,10 +38,9 @@ const MeditationListItem = ({ meditation, onPlay }: MeditationListItemProps) => 
     >
       {/* Thumbnail Icon */}
       <div className="relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-gradient-to-br from-primary/20 to-accent/20">
-        {/* Colorful background layer - only for Adult meditations (no age group) with wire SVGs (non-logo) */}
+        {/* Colorful background layer - only for Adult meditations (no age group) with custom thumbnails (not logo) */}
         {!meditation.age_group &&
          (meditation.thumbnail_url || meditation.thumbnail) &&
-         (meditation.thumbnail_url || meditation.thumbnail)!.toLowerCase().endsWith('.svg') &&
          !/logo\.svg/i.test(meditation.thumbnail_url || meditation.thumbnail || '') && (
           <img 
             src={categoryBackground}
