@@ -257,9 +257,9 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
     const { meditations, filters } = get();
     let filtered = [...meditations];
     
-    // Exclude courses unless specifically selected
+    // Exclude all meditations with a courses field unless Courses category is selected
     if (filters.selectedCategory !== 'Courses') {
-      filtered = filtered.filter(m => m.category !== 'Courses');
+      filtered = filtered.filter(m => !m.courses);
     }
     
     // Skip category filter for "Emotions" - let themes handle the filtering
