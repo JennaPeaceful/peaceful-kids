@@ -5,6 +5,7 @@ import { Meditation } from '../types';
 import { useUserStore } from '../stores/userStore';
 import { useMeditationStore } from '../stores/meditationStore';
 import { useAuth } from '../hooks/useAuth';
+import { getAgeGroupColor } from '@/lib/ageGroupColors';
 import categoryBackground from '@/assets/category-icon-background.svg';
 import logo from '@/assets/logo.svg';
 
@@ -94,11 +95,25 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
           src={meditation.thumbnail_url || meditation.thumbnail || logo} 
           alt={meditation.title}
           className="absolute inset-0 w-full h-full object-contain p-4"
+          style={
+            meditation.age_group && getAgeGroupColor(meditation.age_group)
+              ? { filter: `drop-shadow(0 0 0 ${getAgeGroupColor(meditation.age_group)})` }
+              : undefined
+          }
           onError={(e) => {
             const target = e.target as HTMLImageElement;
             target.src = logo;
           }}
         />
+        {/* SVG color overlay for age groups */}
+        {meditation.age_group && getAgeGroupColor(meditation.age_group) && 
+         (/\.svg(\?|$)/i.test(meditation.thumbnail_url || meditation.thumbnail || '') ||
+          /NO.?COLOR/i.test(meditation.thumbnail_url || meditation.thumbnail || '')) && (
+          <div 
+            className="absolute inset-0 mix-blend-overlay opacity-60 pointer-events-none"
+            style={{ backgroundColor: getAgeGroupColor(meditation.age_group) || undefined }}
+          />
+        )}
 
         {/* Premium badge - only show if user doesn't have access */}
         {!meditation.is_free && (() => {
