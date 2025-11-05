@@ -215,7 +215,7 @@ const Meditations = () => {
   
   // Create course thumbnails mapping
   const courseThumbnails = courses.reduce((acc, course) => {
-    const courseMeditation = meditations.find(m => m.courses === course);
+    const courseMeditation = meditations.find(m => m.category === 'Courses' && m.courses === course);
     if (courseMeditation) {
       acc[course] = courseMeditation.thumbnail_url || courseMeditation.thumbnail || '';
     }
@@ -430,7 +430,7 @@ const Meditations = () => {
             </label>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {courses.map((course) => {
-                const courseMeditation = filteredMeditations.find(m => m.courses === course);
+                const courseMeditation = meditations.find(m => m.category === 'Courses' && m.courses === course);
                 const thumbnailUrl = courseMeditation?.thumbnail_url || courseMeditation?.thumbnail;
                 
                 return (
