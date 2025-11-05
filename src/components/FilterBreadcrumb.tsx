@@ -105,23 +105,16 @@ const FilterBreadcrumb = ({
       {selectedAgeGroup && (
         <Badge 
           variant="secondary" 
-          className="h-8 px-3 cursor-pointer hover:bg-secondary/80 transition-colors flex items-center gap-2"
+          className="h-8 px-3 cursor-pointer hover:bg-secondary/80 transition-colors"
           onClick={() => toggleExpand('age-group')}
         >
-          {getAgeGroupIcon(selectedAgeGroup) && (
-            <img 
-              src={getAgeGroupIcon(selectedAgeGroup)} 
-              alt={selectedAgeGroup}
-              className="w-5 h-5 flex-shrink-0 rounded"
-            />
-          )}
-          <span className="text-sm">
+          <span className="text-sm font-medium">
             {expandedPills.has('age-group') ? selectedAgeGroup : truncateText(selectedAgeGroup, 10)}
           </span>
           <Button
             variant="ghost"
             size="sm"
-            className="h-4 w-4 p-0 ml-1 hover:bg-transparent"
+            className="h-4 w-4 p-0 ml-2 hover:bg-transparent"
             onClick={(e) => {
               e.stopPropagation();
               onAgeGroupSelect(null);
@@ -203,7 +196,7 @@ const FilterBreadcrumb = ({
               <img 
                 src={theme.icon_svg_url} 
                 alt={themeName}
-                className="w-4 h-4 flex-shrink-0"
+                className="w-4 h-4 flex-shrink-0 object-contain"
               />
             )}
             <span className="text-sm">
