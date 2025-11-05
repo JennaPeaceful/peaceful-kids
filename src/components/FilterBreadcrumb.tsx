@@ -4,6 +4,15 @@ import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { formatCategoryName } from '@/lib/utils';
 
+// Import age group icons
+import ages35Icon from '@/assets/age-icons/ages-3-5.png';
+import ages38Icon from '@/assets/age-icons/ages-3-8.png';
+import ages68Icon from '@/assets/age-icons/ages-6-8.png';
+import ages912Icon from '@/assets/age-icons/ages-9-12.png';
+import ages917Icon from '@/assets/age-icons/ages-9-17.png';
+import ages1317Icon from '@/assets/age-icons/ages-13-17.png';
+import allAgesIcon from '@/assets/age-icons/all-ages.png';
+
 interface FilterBreadcrumbProps {
   selectedCategory: string | null;
   selectedContentCategories: string[];
@@ -53,17 +62,17 @@ const FilterBreadcrumb = ({
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   };
 
-  const getAgeGroupColor = (ageGroup: string) => {
-    const colorMap: { [key: string]: string } = {
-      'Ages 3-5': '#bc1823',
-      'Ages 3-8': '#ffff00', 
-      'Ages 6-8': '#25632d',
-      'Ages 9-12': '#274472',
-      'Ages 9-17': '#bfe5ef',
-      'Ages 13-17': '#800080',
-      'All Ages': '#ffa629'
+  const getAgeGroupIcon = (ageGroup: string) => {
+    const iconMap: { [key: string]: string } = {
+      'Ages 3-5': ages35Icon,
+      'Ages 3-8': ages38Icon,
+      'Ages 6-8': ages68Icon,
+      'Ages 9-12': ages912Icon,
+      'Ages 9-17': ages917Icon,
+      'Ages 13-17': ages1317Icon,
+      'All Ages': allAgesIcon
     };
-    return colorMap[ageGroup] || '#6b7280';
+    return iconMap[ageGroup];
   };
 
   return (
@@ -99,10 +108,13 @@ const FilterBreadcrumb = ({
           className="h-8 px-3 cursor-pointer hover:bg-secondary/80 transition-colors flex items-center gap-2"
           onClick={() => toggleExpand('age-group')}
         >
-          <div 
-            className="w-2 h-2 rounded-full flex-shrink-0"
-            style={{ backgroundColor: getAgeGroupColor(selectedAgeGroup) }}
-          />
+          {getAgeGroupIcon(selectedAgeGroup) && (
+            <img 
+              src={getAgeGroupIcon(selectedAgeGroup)} 
+              alt={selectedAgeGroup}
+              className="w-5 h-5 flex-shrink-0 rounded"
+            />
+          )}
           <span className="text-sm">
             {expandedPills.has('age-group') ? selectedAgeGroup : truncateText(selectedAgeGroup, 10)}
           </span>
