@@ -19,6 +19,15 @@ import categoryBackground from '@/assets/category-icon-background.svg';
 import emotionsIcon from '@/assets/emotions.svg';
 import logo from '@/assets/logo.svg';
 
+// Import age group icons
+import ages35Icon from '@/assets/age-icons/ages-3-5.png';
+import ages38Icon from '@/assets/age-icons/ages-3-8.png';
+import ages68Icon from '@/assets/age-icons/ages-6-8.png';
+import ages912Icon from '@/assets/age-icons/ages-9-12.png';
+import ages917Icon from '@/assets/age-icons/ages-9-17.png';
+import ages1317Icon from '@/assets/age-icons/ages-13-17.png';
+import allAgesIcon from '@/assets/age-icons/all-ages.png';
+
 type MediaType = 'all' | 'audio' | 'video';
 
 const ITEMS_PER_LOAD = 15;
@@ -153,18 +162,18 @@ const Meditations = () => {
 
   const hasActiveFilters = filters.selectedCategory || filters.selectedContentCategories.length > 0 || filters.selectedCourses.length > 0 || filters.selectedAgeGroup || filters.selectedThemes.length > 0 || filters.searchQuery || showFavoritesOnly;
   
-  // Age group color mapping
-  const getAgeGroupColor = (ageGroup: string) => {
-    const colorMap: { [key: string]: string } = {
-      'Ages 3-5': '#bc1823',
-      'Ages 3-8': '#ffff00', 
-      'Ages 6-8': '#25632d',
-      'Ages 9-12': '#274472',
-      'Ages 9-17': '#bfe5ef',
-      'Ages 13-17': '#800080',
-      'All Ages': '#ffa629'
+  // Age group icon mapping
+  const getAgeGroupIcon = (ageGroup: string) => {
+    const iconMap: { [key: string]: string } = {
+      'Ages 3-5': ages35Icon,
+      'Ages 3-8': ages38Icon,
+      'Ages 6-8': ages68Icon,
+      'Ages 9-12': ages912Icon,
+      'Ages 9-17': ages917Icon,
+      'Ages 13-17': ages1317Icon,
+      'All Ages': allAgesIcon
     };
-    return colorMap[ageGroup] || '#6b7280';
+    return iconMap[ageGroup];
   };
   
   // Get filtered theme objects that don't overlap with content categories (for FilterBreadcrumb and theme display)
@@ -397,24 +406,28 @@ const Meditations = () => {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {ageGroups.filter(ag => ag).map((ageGroup) => {
                 const isSelected = filters.selectedAgeGroup === ageGroup;
-                const color = getAgeGroupColor(ageGroup);
+                const icon = getAgeGroupIcon(ageGroup);
                 return (
                   <Button
                     key={ageGroup}
                     variant="outline"
                     onClick={() => handleAgeGroupSelect(isSelected ? null : ageGroup)}
-                    className={`flex items-center justify-center h-auto py-6 transition-all ${
+                    className={`flex flex-col items-center gap-2 h-auto py-4 transition-all overflow-hidden ${
                       isSelected 
                         ? 'border-2 shadow-lg scale-105' 
                         : 'hover:shadow-primary hover:scale-102'
                     }`}
-                    style={{
-                      background: `linear-gradient(135deg, ${color}dd, ${color})`,
-                      borderColor: isSelected ? color : `${color}88`,
-                      color: color === '#ffff00' ? '#000' : '#fff'
-                    }}
                   >
-                    <span className="font-semibold text-sm">{ageGroup}</span>
+                    {icon && (
+                      <img 
+                        src={icon} 
+                        alt={ageGroup}
+                        className="w-full h-full object-cover absolute inset-0"
+                      />
+                    )}
+                    <span className="font-semibold text-sm relative z-10 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                      {ageGroup}
+                    </span>
                   </Button>
                 );
               })}
@@ -494,9 +507,11 @@ const Meditations = () => {
                           className="absolute inset-0 w-full h-full object-contain p-3 filter brightness-0"
                         />
                       ) : (
-                        <div className="absolute inset-0 flex items-center justify-center text-foreground font-bold text-lg">
-                          {category.name.split(' ').slice(0, 2).map((word: string) => word[0]).join('').toUpperCase()}
-                        </div>
+                        <img 
+                          src={logo} 
+                          alt={category.name}
+                          className="absolute inset-0 w-full h-full object-contain p-3 opacity-80"
+                        />
                       )}
                     </div>
                     <span className="text-xs font-medium text-center leading-tight px-2 whitespace-normal min-h-[2rem] flex items-center">{category.name}</span>
