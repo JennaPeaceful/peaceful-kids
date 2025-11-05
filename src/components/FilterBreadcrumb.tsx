@@ -126,9 +126,7 @@ const FilterBreadcrumb = ({
       {/* Course Pills */}
       {selectedCourses.map((course) => {
         const pillId = `course-${course}`;
-        const thumbnail = courseThumbnails[course];
-        const iconUrl = thumbnail && typeof thumbnail === 'string' && thumbnail.trim() !== '' ? thumbnail : emotionsIcon;
-        const showBg = /NO.?COLOR/i.test(iconUrl) || /\.svg(\?|$)/i.test(iconUrl) || /(\/logo\.svg|assets\/logo)/i.test(iconUrl);
+        // Removed small icon from course pill per request
         return (
           <Badge 
             key={course}
@@ -136,23 +134,6 @@ const FilterBreadcrumb = ({
             className="h-8 px-3 cursor-pointer hover:bg-secondary/80 transition-colors flex items-center gap-2"
             onClick={() => toggleExpand(pillId)}
           >
-            <div className="relative w-6 h-6 rounded-xl overflow-hidden">
-              {showBg && (
-                <img 
-                  src={categoryBackground}
-                  alt=""
-                  className="absolute inset-0 w-full h-full object-cover opacity-70"
-                />
-              )}
-              <img 
-                src={iconUrl}
-                alt={course}
-                className="absolute inset-0 w-full h-full object-contain p-2"
-                onError={(e) => {
-                  e.currentTarget.src = emotionsIcon;
-                }}
-              />
-            </div>
             <span className="text-sm">
               {expandedPills.has(pillId) ? course : truncateText(course, 12)}
             </span>
