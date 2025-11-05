@@ -8,6 +8,8 @@ import { useAuth } from '../hooks/useAuth';
 import { getAgeGroupColor } from '@/lib/ageGroupColors';
 import categoryBackground from '@/assets/category-icon-background.svg';
 import logo from '@/assets/logo.svg';
+import highlyMeditatedCourseSvg from '@/assets/highly-meditated-course.svg';
+import introductionHealingArtsSvg from '@/assets/introduction-healing-arts.svg';
 
 interface MeditationCardProps {
   meditation: Meditation;
@@ -20,12 +22,12 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
   const { user } = useAuth();
   const { subscription } = useUserStore();
   const { themes } = useMeditationStore();
-  
+
   // Check if content is locked - treat inactive subscriptions as 'free' plan
   const effectivePlanType = (subscription?.is_active && subscription?.plan_type) || 'free';
   const isCourse = meditation.category === 'Courses';
   const isLocked = !meditation.is_free && (
-    !user || 
+    !user ||
     effectivePlanType === 'free' ||
     (effectivePlanType === 'peace_plan' && isCourse)
   );
@@ -35,6 +37,18 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
     .map(themeName => themes.find(t => t.name === themeName))
     .filter(Boolean)
     .slice(0, 3);
+
+  // Map database thumbnail paths to imported assets
+  const getThumbnailSrc = () => {
+    const thumbnailUrl = meditation.thumbnail_url || meditation.thumbnail;
+    if (thumbnailUrl === '/highly-meditated-course.svg') {
+      return highlyMeditatedCourseSvg;
+    }
+    if (thumbnailUrl === '/introduction-healing-arts.svg') {
+      return introductionHealingArtsSvg;
+    }
+    return thumbnailUrl || logo;
+  };
 
   const handleCardClick = () => {
     if (onPlay) {
@@ -91,8 +105,8 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
           />
         )}
         {/* Thumbnail layer on top */}
-        <img 
-          src={meditation.thumbnail_url || meditation.thumbnail || logo} 
+        <img
+          src={getThumbnailSrc()}
           alt={meditation.title}
           className="absolute inset-0 w-full h-full object-contain p-4"
           style={

@@ -18,6 +18,8 @@ import { formatCategoryName } from '@/lib/utils';
 import categoryBackground from '@/assets/category-icon-background.svg';
 import emotionsIcon from '@/assets/emotions.svg';
 import logo from '@/assets/logo.svg';
+import highlyMeditatedCourseSvg from '@/assets/highly-meditated-course.svg';
+import introductionHealingArtsSvg from '@/assets/introduction-healing-arts.svg';
 
 // Import age group icons
 import ages35Icon from '@/assets/age-icons/ages-3-5.png';
@@ -430,9 +432,25 @@ const Meditations = () => {
             </label>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {courses.map((course) => {
-                const courseMeditation = meditations.find(m => m.category === 'Courses' && m.courses === course);
+                // Find a meditation with an SVG thumbnail for this course (prioritize SVGs)
+                const courseMeditation = meditations.find(m =>
+                  m.category === 'Courses' &&
+                  m.courses === course &&
+                  (m.thumbnail_url?.includes('.svg') || m.thumbnail?.includes('.svg'))
+                ) || meditations.find(m => m.category === 'Courses' && m.courses === course); // Fallback to any meditation
+
                 const thumbnailUrl = courseMeditation?.thumbnail_url || courseMeditation?.thumbnail;
-                
+
+                // Map database paths to imported assets
+                let thumbnailSrc = emotionsIcon;
+                if (thumbnailUrl === '/highly-meditated-course.svg') {
+                  thumbnailSrc = highlyMeditatedCourseSvg;
+                } else if (thumbnailUrl === '/introduction-healing-arts.svg') {
+                  thumbnailSrc = introductionHealingArtsSvg;
+                } else if (thumbnailUrl) {
+                  thumbnailSrc = thumbnailUrl;
+                }
+
                 return (
                   <Button
                     key={course}
@@ -441,13 +459,13 @@ const Meditations = () => {
                     className="flex flex-col items-center gap-2 h-auto py-4 hover:shadow-primary transition-all"
                   >
                     <div className="relative w-16 h-16 rounded-xl overflow-hidden">
-                      <img 
+                      <img
                         src={categoryBackground}
                         alt=""
                         className="absolute inset-0 w-full h-full object-cover opacity-70"
                       />
-                      <img 
-                        src={thumbnailUrl || emotionsIcon} 
+                      <img
+                        src={thumbnailSrc}
                         alt={course}
                         className="absolute inset-0 w-full h-full object-contain p-3"
                       />
