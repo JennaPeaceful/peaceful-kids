@@ -683,16 +683,16 @@ const MeditationPlayer = () => {
                   <img
                     src={logoSvg}
                     alt={meditation.title}
-                    className="w-auto h-auto max-w-[60%] max-h-[60%] object-contain"
+                    className="w-auto h-auto max-w-[60%] max-h-[60%] object-contain pointer-events-none"
                     onError={(e) => {
                       e.currentTarget.src = logoSvg;
                     }}
                   />
                   {/* Play button overlay */}
                   {canPlay && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-20 h-20 bg-black/30 rounded-full flex items-center justify-center backdrop-blur-sm">
-                        <Play className="w-10 h-10 text-white ml-1" />
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      <div className="w-20 h-20 bg-black/30 rounded-full flex items-center justify-center backdrop-blur-sm pointer-events-none">
+                        <Play className="w-10 h-10 text-white ml-1 pointer-events-none" />
                       </div>
                     </div>
                   )}
