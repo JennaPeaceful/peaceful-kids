@@ -38,8 +38,9 @@ const MeditationListItem = ({ meditation, onPlay }: MeditationListItemProps) => 
     >
       {/* Thumbnail Icon */}
       <div className="relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-gradient-to-br from-primary/20 to-accent/20">
-        {/* Colorful background layer - for all custom thumbnails */}
-        {(meditation.thumbnail_url || meditation.thumbnail) && (
+        {/* Colorful background layer - for all custom thumbnails except logo */}
+        {(meditation.thumbnail_url || meditation.thumbnail) && 
+         !(meditation.thumbnail_url?.includes('logo.svg') || meditation.thumbnail?.includes('logo.svg')) && (
           <img 
             src={categoryBackground}
             alt=""

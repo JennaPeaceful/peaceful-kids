@@ -78,8 +78,9 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
     >
       {/* Thumbnail Image */}
       <div className="relative mb-3 rounded-xl overflow-hidden aspect-square">
-        {/* Colorful background layer - for all custom thumbnails */}
-        {(meditation.thumbnail_url || meditation.thumbnail) && (
+        {/* Colorful background layer - for all custom thumbnails except logo */}
+        {(meditation.thumbnail_url || meditation.thumbnail) && 
+         !(meditation.thumbnail_url?.includes('logo.svg') || meditation.thumbnail?.includes('logo.svg')) && (
           <img 
             src={categoryBackground}
             alt=""
