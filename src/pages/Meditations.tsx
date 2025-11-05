@@ -387,7 +387,7 @@ const Meditations = () => {
                         className="absolute inset-0 w-full h-full object-contain p-3"
                       />
                     </div>
-                    <span className="text-xs font-medium text-center leading-tight">
+                    <span className="text-xs font-medium text-center leading-tight whitespace-normal min-h-[2rem] flex items-center">
                       {themeName}
                     </span>
                   </Button>
