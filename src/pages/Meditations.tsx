@@ -412,7 +412,7 @@ const Meditations = () => {
                     key={ageGroup}
                     variant="outline"
                     onClick={() => handleAgeGroupSelect(isSelected ? null : ageGroup)}
-                    className={`flex items-center justify-center gap-2 h-auto py-3 transition-all ${
+                    className={`relative flex items-center justify-center h-auto py-6 transition-all overflow-hidden ${
                       isSelected 
                         ? 'border-2 shadow-lg scale-105' 
                         : 'hover:shadow-primary hover:scale-102'
@@ -421,11 +421,11 @@ const Meditations = () => {
                     {icon && (
                       <img 
                         src={icon} 
-                        alt={ageGroup}
-                        className="w-5 h-5 rounded-sm flex-shrink-0"
+                        alt=""
+                        className="absolute inset-0 w-full h-full object-cover"
                       />
                     )}
-                    <span className="font-semibold text-sm">
+                    <span className="relative z-10 font-semibold text-sm text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
                       {ageGroup}
                     </span>
                   </Button>
