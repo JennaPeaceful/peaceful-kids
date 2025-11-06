@@ -17,6 +17,7 @@ export interface Meditation {
   themes: string[];
   content_categories?: string[];
   courses?: string | null;
+  module?: number | null;
   created_at: string;
   sort_order: number;
   featured_for_plan?: string[]; // Array of plan types: 'free', 'peace_plan', 'peace_plus_plan'
@@ -94,6 +95,7 @@ export interface UserSubscription {
 export interface FilterState {
   selectedCategory: string | null;
   selectedCourses: string[];
+  selectedModules: number[];
   selectedAgeGroup: string | null;
   selectedThemes: string[];
   searchQuery: string;

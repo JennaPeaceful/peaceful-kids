@@ -107,7 +107,15 @@ const Meditations = () => {
     const newCourses = filters.selectedCourses.includes(course)
       ? filters.selectedCourses.filter(c => c !== course)
       : [...filters.selectedCourses, course];
-    setFilters({ selectedCourses: newCourses });
+    // Clear module filter when changing courses
+    setFilters({ selectedCourses: newCourses, selectedModules: [] });
+  };
+
+  const handleModuleToggle = (module: number) => {
+    const newModules = filters.selectedModules.includes(module)
+      ? filters.selectedModules.filter(m => m !== module)
+      : [...filters.selectedModules, module];
+    setFilters({ selectedModules: newModules });
   };
 
   const handleAgeGroupSelect = (ageGroup: string | null) => {
@@ -286,6 +294,7 @@ const Meditations = () => {
         <FilterBreadcrumb
           selectedCategory={filters.selectedCategory}
           selectedCourses={filters.selectedCourses}
+          selectedModules={filters.selectedModules}
           selectedAgeGroup={filters.selectedAgeGroup}
           selectedThemes={filters.selectedThemes}
           courses={courses}
@@ -294,6 +303,7 @@ const Meditations = () => {
           themes={availableThemeObjects}
           onCategorySelect={handleCategorySelect}
           onCourseToggle={handleCourseToggle}
+          onModuleToggle={handleModuleToggle}
           onAgeGroupSelect={handleAgeGroupSelect}
           onThemeToggle={handleThemeToggle}
         />
@@ -477,6 +487,42 @@ const Meditations = () => {
             </div>
           </div>
         )}
+
+        {/* Modules - Show when a course is selected */}
+        {filters.selectedCourses.length > 0 && (() => {
+          // Get unique modules from meditations in selected courses
+          const courseMeditations = meditations.filter(m => 
+            filters.selectedCourses.includes(m.courses || '')
+          );
+          const uniqueModules = [...new Set(
+            courseMeditations
+              .map(m => m.module)
+              .filter((mod): mod is number => mod !== null && mod !== undefined)
+          )].sort((a, b) => a - b);
+          
+          return uniqueModules.length > 0 ? (
+            <div className="mb-6">
+              <label className="text-sm font-medium text-muted-foreground mb-3 block">
+                Modules
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {uniqueModules.map((module) => {
+                  const isSelected = filters.selectedModules.includes(module);
+                  return (
+                    <Button
+                      key={module}
+                      variant={isSelected ? "default" : "outline"}
+                      onClick={() => handleModuleToggle(module)}
+                      className="h-auto py-2 px-4"
+                    >
+                      Module {module}
+                    </Button>
+                  );
+                })}
+              </div>
+            </div>
+          ) : null;
+        })()}
 
         {/* Themes - Icon Grid - Show after age group for Kids or for Adult category */}
         {filters.selectedCategory && 

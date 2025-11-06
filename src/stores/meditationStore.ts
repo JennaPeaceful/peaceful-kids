@@ -36,6 +36,7 @@ interface MeditationState {
 const initialFilters: FilterState = {
   selectedCategory: null,
   selectedCourses: [],
+  selectedModules: [],
   selectedAgeGroup: null,
   selectedThemes: [],
   searchQuery: '',
@@ -94,6 +95,7 @@ const transformMeditation = (dbMeditation: any): Meditation => ({
   themes: dbMeditation.themes || [],
   content_categories: dbMeditation.content_categories || [],
   courses: dbMeditation.courses || null,
+  module: dbMeditation.module || null,
   created_at: dbMeditation.created_at || '',
   sort_order: dbMeditation.sort_order || 0,
 });
@@ -256,6 +258,12 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
     if (filters.selectedCourses.length > 0) {
       filtered = filtered.filter(m => 
         m.courses && filters.selectedCourses.includes(m.courses)
+      );
+    }
+    
+    if (filters.selectedModules.length > 0) {
+      filtered = filtered.filter(m => 
+        m.module && filters.selectedModules.includes(m.module)
       );
     }
     
