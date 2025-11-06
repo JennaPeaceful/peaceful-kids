@@ -96,6 +96,7 @@ const transformMeditation = (dbMeditation: any): Meditation => ({
   content_categories: dbMeditation.content_categories || [],
   courses: dbMeditation.courses || null,
   module: dbMeditation.module || null,
+  lecture: dbMeditation.lecture || null,
   created_at: dbMeditation.created_at || '',
   sort_order: dbMeditation.sort_order || 0,
 });

@@ -87,7 +87,7 @@ const MeditationListItem = ({ meditation, onPlay }: MeditationListItemProps) => 
       {/* Title and Description */}
       <div className="flex-1 text-left min-w-0">
         <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
-          {meditation.title}
+          {meditation.lecture ? `Lecture ${meditation.lecture}: ` : ''}{meditation.title}
         </h3>
         {meditation.description && (
           <p className="text-sm text-muted-foreground line-clamp-1 mt-1">

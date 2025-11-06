@@ -18,6 +18,7 @@ export interface Meditation {
   content_categories?: string[];
   courses?: string | null;
   module?: number | null;
+  lecture?: number | null;
   created_at: string;
   sort_order: number;
   featured_for_plan?: string[]; // Array of plan types: 'free', 'peace_plan', 'peace_plus_plan'
