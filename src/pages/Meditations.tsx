@@ -497,7 +497,7 @@ const Meditations = () => {
               .filter((mod): mod is number => mod !== null && mod !== undefined)
           )].sort((a, b) => a - b);
           
-          return uniqueModules.length > 0 ? (
+          return uniqueModules.length > 0 && filters.selectedModule === null ? (
             <div className="mb-6">
               <label className="text-sm font-medium text-muted-foreground mb-3 block">
                 Modules
