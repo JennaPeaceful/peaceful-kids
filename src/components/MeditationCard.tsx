@@ -1,4 +1,4 @@
-import { Lock, Video, Music } from 'lucide-react';
+import { Lock, Video, Music, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Meditation } from '../types';
@@ -187,6 +187,8 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
           <div className="flex-shrink-0">
             {meditation.media_type === 'video' ? (
               <Video className="w-5 h-5 text-primary/70" />
+            ) : meditation.media_type === 'pdf' ? (
+              <FileText className="w-5 h-5 text-primary/70" />
             ) : (
               <Music className="w-5 h-5 text-primary/70" />
             )}

@@ -88,7 +88,7 @@ const transformMeditation = (dbMeditation: any): Meditation => ({
   thumbnail_url: dbMeditation.thumbnail_url || '/api/placeholder/300/200',
   duration: dbMeditation.duration || 0,
   media_url: dbMeditation.media_url || '',
-  media_type: (dbMeditation.media_type as 'audio' | 'video') || 'audio',
+  media_type: (dbMeditation.media_type as 'audio' | 'video' | 'pdf') || 'audio',
   is_free: dbMeditation.is_free || false,
   category: dbMeditation.category || 'Kid',
   age_group: dbMeditation.age_group || '',
