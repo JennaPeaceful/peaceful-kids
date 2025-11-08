@@ -29,6 +29,7 @@ import {
 } from '../components/ui/alert-dialog';
 import { toast } from '../hooks/use-toast';
 import logo from '@/assets/logo.svg';
+import madeWithLove from '@/assets/made-with-love.svg';
 import { formatCategoryName } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 import { logger } from '@/utils/logger';
@@ -487,8 +488,9 @@ const Profile = () => {
             <p className="text-xs text-muted-foreground">
               Version 1.0.0 • Production Channel
             </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Made with 💜 for mindful families
+            <p className="text-xs text-muted-foreground mt-1 flex items-center justify-center gap-1">
+              <img src={madeWithLove} alt="Made with love" className="w-4 h-4" />
+              for mindful families
             </p>
           </div>
 
