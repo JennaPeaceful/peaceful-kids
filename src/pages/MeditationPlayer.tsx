@@ -642,13 +642,14 @@ const MeditationPlayer = () => {
         <div className="relative mb-8 mx-auto flex justify-center">
           {isPdf ? (
             /* PDF viewer */
-            <div className="w-full max-w-4xl">
+            <div className="w-full max-w-2xl mx-auto">
               <iframe
                 src={meditation.media_url}
                 className="w-full rounded-lg shadow-2xl border border-border/20"
                 style={{
-                  height: '70vh',
-                  minHeight: '500px'
+                  aspectRatio: '8.5 / 11',
+                  height: 'auto',
+                  minHeight: '600px'
                 }}
                 title={meditation.title}
               />
