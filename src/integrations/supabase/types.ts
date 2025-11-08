@@ -157,10 +157,12 @@ export type Database = {
           google_drive_id: string | null
           id: string
           is_free: boolean | null
+          lecture: number | null
           max_age: number | null
           media_type: string | null
           media_url: string | null
           min_age: number | null
+          module: number | null
           primary_content_category: string | null
           public_title: string | null
           sort_order: number | null
@@ -168,6 +170,7 @@ export type Database = {
           themes: string[] | null
           thumbnail_url: string | null
           title: string
+          transcript: string | null
         }
         Insert: {
           age_group?: string | null
@@ -182,10 +185,12 @@ export type Database = {
           google_drive_id?: string | null
           id?: string
           is_free?: boolean | null
+          lecture?: number | null
           max_age?: number | null
           media_type?: string | null
           media_url?: string | null
           min_age?: number | null
+          module?: number | null
           primary_content_category?: string | null
           public_title?: string | null
           sort_order?: number | null
@@ -193,6 +198,7 @@ export type Database = {
           themes?: string[] | null
           thumbnail_url?: string | null
           title: string
+          transcript?: string | null
         }
         Update: {
           age_group?: string | null
@@ -207,10 +213,12 @@ export type Database = {
           google_drive_id?: string | null
           id?: string
           is_free?: boolean | null
+          lecture?: number | null
           max_age?: number | null
           media_type?: string | null
           media_url?: string | null
           min_age?: number | null
+          module?: number | null
           primary_content_category?: string | null
           public_title?: string | null
           sort_order?: number | null
@@ -218,6 +226,7 @@ export type Database = {
           themes?: string[] | null
           thumbnail_url?: string | null
           title?: string
+          transcript?: string | null
         }
         Relationships: []
       }
@@ -805,10 +814,12 @@ export type Database = {
           google_drive_id: string | null
           id: string
           is_free: boolean | null
+          lecture: number | null
           max_age: number | null
           media_type: string | null
           media_url: string | null
           min_age: number | null
+          module: number | null
           primary_content_category: string | null
           public_title: string | null
           sort_order: number | null
@@ -816,6 +827,7 @@ export type Database = {
           themes: string[] | null
           thumbnail_url: string | null
           title: string
+          transcript: string | null
         }[]
         SetofOptions: {
           from: "*"
