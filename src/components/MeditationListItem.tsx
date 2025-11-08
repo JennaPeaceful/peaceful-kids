@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Play, Video } from 'lucide-react';
+import { Play, Video, FileText } from 'lucide-react';
 import { Meditation } from '../types';
 import { useAuth } from '../hooks/useAuth';
 import { useUserStore } from '../stores/userStore';
@@ -25,7 +25,19 @@ const MeditationListItem = ({ meditation, onPlay, courseThumbnail }: MeditationL
 
   // Map database thumbnail paths to imported assets
   const getThumbnailSrc = () => {
-    const thumbnailUrl = meditation.thumbnail_url || meditation.thumbnail || courseThumbnail;
+    // For lectures, prioritize course thumbnail
+    if (meditation.lecture && courseThumbnail) {
+      if (courseThumbnail === '/highly-meditated-course.svg') {
+        return highlyMeditatedCourseSvg;
+      }
+      if (courseThumbnail === '/introduction-healing-arts.svg') {
+        return introductionHealingArtsSvg;
+      }
+      return courseThumbnail;
+    }
+    
+    // For non-lectures, use meditation's own thumbnail
+    const thumbnailUrl = meditation.thumbnail_url || meditation.thumbnail;
     if (thumbnailUrl === '/highly-meditated-course.svg') {
       return highlyMeditatedCourseSvg;
     }
@@ -99,6 +111,8 @@ const MeditationListItem = ({ meditation, onPlay, courseThumbnail }: MeditationL
         <div className="absolute bottom-1 right-1">
           {meditation.media_type === 'video' ? (
             <Video className="w-4 h-4 text-white drop-shadow-lg" />
+          ) : meditation.media_type === 'pdf' ? (
+            <FileText className="w-4 h-4 text-white drop-shadow-lg" />
           ) : (
             <Play className="w-4 h-4 text-white drop-shadow-lg" />
           )}
