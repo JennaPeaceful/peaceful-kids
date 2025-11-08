@@ -96,7 +96,7 @@ export interface UserSubscription {
 export interface FilterState {
   selectedCategory: string | null;
   selectedCourses: string[];
-  selectedModules: number[];
+  selectedModule: number | null;
   selectedAgeGroup: string | null;
   selectedThemes: string[];
   searchQuery: string;

@@ -18,7 +18,7 @@ import categoryBackground from '@/assets/category-icon-background.svg';
 interface FilterBreadcrumbProps {
   selectedCategory: string | null;
   selectedCourses?: string[];
-  selectedModules?: number[];
+  selectedModule?: number | null;
   selectedAgeGroup: string | null;
   selectedThemes: string[];
   courses?: string[];
@@ -27,7 +27,7 @@ interface FilterBreadcrumbProps {
   themes: Array<{ id: string; name: string; icon: string; category: string[]; icon_svg_url?: string }>;
   onCategorySelect: (category: string | null) => void;
   onCourseToggle?: (course: string) => void;
-  onModuleToggle?: (module: number) => void;
+  onModuleSelect?: (module: number | null) => void;
   onAgeGroupSelect: (ageGroup: string | null) => void;
   onThemeToggle: (theme: string) => void;
 }
@@ -35,7 +35,7 @@ interface FilterBreadcrumbProps {
 const FilterBreadcrumb = ({
   selectedCategory,
   selectedCourses = [],
-  selectedModules = [],
+  selectedModule = null,
   selectedAgeGroup,
   selectedThemes,
   courses = [],
@@ -44,7 +44,7 @@ const FilterBreadcrumb = ({
   themes,
   onCategorySelect,
   onCourseToggle,
-  onModuleToggle,
+  onModuleSelect,
   onAgeGroupSelect,
   onThemeToggle
 }: FilterBreadcrumbProps) => {
@@ -156,27 +156,26 @@ const FilterBreadcrumb = ({
         );
       })}
 
-      {/* Module Pills */}
-      {selectedModules.map((module) => (
+      {/* Module Pill */}
+      {selectedModule !== null && (
         <Badge 
-          key={module}
           variant="secondary" 
           className="h-8 px-3 cursor-pointer hover:bg-secondary/80 transition-colors flex items-center gap-2"
         >
-          <span className="text-sm">Module {module}</span>
+          <span className="text-sm">Module {selectedModule}</span>
           <Button
             variant="ghost"
             size="sm"
             className="h-4 w-4 p-0 ml-1 hover:bg-transparent"
             onClick={(e) => {
               e.stopPropagation();
-              onModuleToggle?.(module);
+              onModuleSelect?.(null);
             }}
           >
             <X className="w-3 h-3" />
           </Button>
         </Badge>
-      ))}
+      )}
 
       {/* Theme Pills */}
       {selectedThemes.map((themeName) => {

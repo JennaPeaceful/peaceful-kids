@@ -108,14 +108,11 @@ const Meditations = () => {
       ? filters.selectedCourses.filter(c => c !== course)
       : [...filters.selectedCourses, course];
     // Clear module filter when changing courses
-    setFilters({ selectedCourses: newCourses, selectedModules: [] });
+    setFilters({ selectedCourses: newCourses, selectedModule: null });
   };
 
-  const handleModuleToggle = (module: number) => {
-    const newModules = filters.selectedModules.includes(module)
-      ? filters.selectedModules.filter(m => m !== module)
-      : [...filters.selectedModules, module];
-    setFilters({ selectedModules: newModules });
+  const handleModuleSelect = (module: number | null) => {
+    setFilters({ selectedModule: module });
   };
 
   const handleAgeGroupSelect = (ageGroup: string | null) => {
@@ -294,7 +291,7 @@ const Meditations = () => {
         <FilterBreadcrumb
           selectedCategory={filters.selectedCategory}
           selectedCourses={filters.selectedCourses}
-          selectedModules={filters.selectedModules}
+          selectedModule={filters.selectedModule}
           selectedAgeGroup={filters.selectedAgeGroup}
           selectedThemes={filters.selectedThemes}
           courses={courses}
@@ -303,7 +300,7 @@ const Meditations = () => {
           themes={availableThemeObjects}
           onCategorySelect={handleCategorySelect}
           onCourseToggle={handleCourseToggle}
-          onModuleToggle={handleModuleToggle}
+          onModuleSelect={handleModuleSelect}
           onAgeGroupSelect={handleAgeGroupSelect}
           onThemeToggle={handleThemeToggle}
         />
@@ -507,12 +504,12 @@ const Meditations = () => {
               </label>
               <div className="flex flex-wrap gap-2">
                 {uniqueModules.map((module) => {
-                  const isSelected = filters.selectedModules.includes(module);
+                  const isSelected = filters.selectedModule === module;
                   return (
                     <Button
                       key={module}
                       variant={isSelected ? "default" : "outline"}
-                      onClick={() => handleModuleToggle(module)}
+                      onClick={() => handleModuleSelect(isSelected ? null : module)}
                       className="h-auto py-2 px-4"
                     >
                       Module {module}

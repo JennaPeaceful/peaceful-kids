@@ -36,7 +36,7 @@ interface MeditationState {
 const initialFilters: FilterState = {
   selectedCategory: null,
   selectedCourses: [],
-  selectedModules: [],
+  selectedModule: null,
   selectedAgeGroup: null,
   selectedThemes: [],
   searchQuery: '',
@@ -262,10 +262,8 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
       );
     }
     
-    if (filters.selectedModules.length > 0) {
-      filtered = filtered.filter(m => 
-        m.module && filters.selectedModules.includes(m.module)
-      );
+    if (filters.selectedModule !== null) {
+      filtered = filtered.filter(m => m.module === filters.selectedModule);
     }
     
     if (filters.selectedAgeGroup) {
