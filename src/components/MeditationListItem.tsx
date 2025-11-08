@@ -39,8 +39,19 @@ const MeditationListItem = ({ meditation, onPlay }: MeditationListItemProps) => 
     >
       {/* Thumbnail Icon */}
       <div className="relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-gradient-to-br from-primary/20 to-accent/20">
-        {/* Thumbnail layer */}
-        <img
+        {/* Colorful background layer - for wire icons (NO COLOR in URL), SVGs, and logo fallbacks */}
+        {(meditation.thumbnail_url || meditation.thumbnail) &&
+         (/NO.?COLOR/i.test(meditation.thumbnail_url || meditation.thumbnail || '') ||
+          /\.svg(\?|$)/i.test(meditation.thumbnail_url || meditation.thumbnail || '') ||
+          /(\/logo\.svg|assets\/logo)/i.test(meditation.thumbnail_url || meditation.thumbnail || '')) && (
+          <img 
+            src={categoryBackground}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover opacity-70"
+          />
+        )}
+        {/* Thumbnail layer on top */}
+        <img 
           src={meditation.thumbnail_url || meditation.thumbnail || logo} 
           alt={meditation.title}
           className="absolute inset-0 w-full h-full object-contain p-3"
