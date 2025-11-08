@@ -6,19 +6,34 @@ import { useUserStore } from '../stores/userStore';
 import { getAgeGroupColor } from '@/lib/ageGroupColors';
 import categoryBackground from '@/assets/category-icon-background.svg';
 import logo from '@/assets/logo.svg';
+import highlyMeditatedCourseSvg from '@/assets/highly-meditated-course.svg';
+import introductionHealingArtsSvg from '@/assets/introduction-healing-arts.svg';
 
 interface MeditationListItemProps {
   meditation: Meditation;
   onPlay?: () => void;
+  courseThumbnail?: string;
 }
 
-const MeditationListItem = ({ meditation, onPlay }: MeditationListItemProps) => {
+const MeditationListItem = ({ meditation, onPlay, courseThumbnail }: MeditationListItemProps) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { subscription } = useUserStore();
 
   const isLocked = !meditation.is_free && 
     (!user || !subscription?.is_active || subscription?.plan_type === 'free');
+
+  // Map database thumbnail paths to imported assets
+  const getThumbnailSrc = () => {
+    const thumbnailUrl = meditation.thumbnail_url || meditation.thumbnail || courseThumbnail;
+    if (thumbnailUrl === '/highly-meditated-course.svg') {
+      return highlyMeditatedCourseSvg;
+    }
+    if (thumbnailUrl === '/introduction-healing-arts.svg') {
+      return introductionHealingArtsSvg;
+    }
+    return thumbnailUrl || logo;
+  };
 
   const handleClick = () => {
     if (onPlay) {
@@ -40,10 +55,13 @@ const MeditationListItem = ({ meditation, onPlay }: MeditationListItemProps) => 
       {/* Thumbnail Icon */}
       <div className="relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-gradient-to-br from-primary/20 to-accent/20">
         {/* Colorful background layer - for wire icons (NO COLOR in URL), SVGs, and logo fallbacks */}
-        {(meditation.thumbnail_url || meditation.thumbnail) &&
-         (/NO.?COLOR/i.test(meditation.thumbnail_url || meditation.thumbnail || '') ||
-          /\.svg(\?|$)/i.test(meditation.thumbnail_url || meditation.thumbnail || '') ||
-          /(\/logo\.svg|assets\/logo)/i.test(meditation.thumbnail_url || meditation.thumbnail || '')) && (
+        {(() => {
+          const thumbnailToCheck = meditation.thumbnail_url || meditation.thumbnail || courseThumbnail;
+          return thumbnailToCheck &&
+            (/NO.?COLOR/i.test(thumbnailToCheck) ||
+             /\.svg(\?|$)/i.test(thumbnailToCheck) ||
+             /(\/logo\.svg|assets\/logo)/i.test(thumbnailToCheck));
+        })() && (
           <img 
             src={categoryBackground}
             alt=""
@@ -52,7 +70,7 @@ const MeditationListItem = ({ meditation, onPlay }: MeditationListItemProps) => 
         )}
         {/* Thumbnail layer on top */}
         <img 
-          src={meditation.thumbnail_url || meditation.thumbnail || logo} 
+          src={getThumbnailSrc()} 
           alt={meditation.title}
           className="absolute inset-0 w-full h-full object-contain p-3"
           style={
@@ -66,8 +84,11 @@ const MeditationListItem = ({ meditation, onPlay }: MeditationListItemProps) => 
           }}
         />
         {/* SVG color overlay for age groups */}
-        {meditation.age_group && getAgeGroupColor(meditation.age_group) && 
-         /NO.?COLOR/i.test(meditation.thumbnail_url || meditation.thumbnail || '') && (
+        {(() => {
+          const thumbnailToCheck = meditation.thumbnail_url || meditation.thumbnail || courseThumbnail;
+          return meditation.age_group && getAgeGroupColor(meditation.age_group) && 
+           /NO.?COLOR/i.test(thumbnailToCheck || '');
+        })() && (
           <div 
             className="absolute inset-0 mix-blend-overlay opacity-60 pointer-events-none"
             style={{ backgroundColor: getAgeGroupColor(meditation.age_group) || undefined }}

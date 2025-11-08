@@ -640,7 +640,11 @@ const Meditations = () => {
               {filters.selectedCourses.length > 0 ? (
                 <div className="flex flex-col gap-2 pb-6">
                   {displayedMeditations.map((meditation) => (
-                    <MeditationListItem key={meditation.id} meditation={meditation} />
+                    <MeditationListItem 
+                      key={meditation.id} 
+                      meditation={meditation}
+                      courseThumbnail={meditation.courses ? courseThumbnails[meditation.courses] : undefined}
+                    />
                   ))}
                 </div>
               ) : (
@@ -667,7 +671,11 @@ const Meditations = () => {
               {filters.selectedCourses.length > 0 ? (
                 <div className="flex flex-col gap-2 pb-6 pr-4">
                   {displayedMeditations.map((meditation) => (
-                    <MeditationListItem key={meditation.id} meditation={meditation} />
+                    <MeditationListItem 
+                      key={meditation.id} 
+                      meditation={meditation}
+                      courseThumbnail={meditation.courses ? courseThumbnails[meditation.courses] : undefined}
+                    />
                   ))}
                 </div>
               ) : (
