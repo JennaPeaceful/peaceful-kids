@@ -99,7 +99,10 @@ const MeditationPlayer = () => {
     (effectivePlanType === 'peace_plan' && isCourse)
   );
   const isAudio = meditation?.media_type === 'audio';
-  const isPdf = meditation?.media_type === 'pdf';
+  // Check both media_type and URL extension for PDF detection
+  const isPdf = meditation?.media_type === 'pdf' || 
+    meditation?.media_url?.toLowerCase().endsWith('.pdf') ||
+    meditation?.title?.toLowerCase().includes('.pdf');
 
   // Debug logging
   logger.log('[MeditationPlayer] Debug:', {
