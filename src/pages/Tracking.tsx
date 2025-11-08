@@ -3,6 +3,7 @@ import { useProgressStats } from '../hooks/useProgressStats';
 import { useTranslation } from 'react-i18next';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
+import yourJourneyIcon from '../assets/your-journey.svg';
 
 const Tracking = () => {
   const { data: stats, isLoading } = useProgressStats();
@@ -37,7 +38,9 @@ const Tracking = () => {
         {/* Empty State */}
         <div className="px-4">
           <Card className="card-gradient p-8 text-center">
-            <div className="text-6xl mb-6">🌱</div>
+            <div className="mb-6 flex justify-center">
+              <img src={yourJourneyIcon} alt="Your Journey Begins" className="w-24 h-24" />
+            </div>
             <h2 className="text-2xl font-bold mb-4">{t('tracking.emptyState.title')}</h2>
             <p className="text-muted-foreground mb-6 max-w-sm md:max-w-2xl lg:max-w-3xl mx-auto">
               {t('tracking.emptyState.description')}
