@@ -502,17 +502,26 @@ const Meditations = () => {
               <label className="text-sm font-medium text-muted-foreground mb-3 block">
                 Modules
               </label>
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
                 {uniqueModules.map((module) => {
                   const isSelected = filters.selectedModule === module;
                   return (
                     <Button
                       key={module}
-                      variant={isSelected ? "default" : "outline"}
+                      variant="outline"
                       onClick={() => handleModuleSelect(isSelected ? null : module)}
-                      className="h-auto py-2 px-4"
+                      className={`relative aspect-square flex items-center justify-center overflow-hidden transition-all ${
+                        isSelected 
+                          ? 'border-2 border-primary shadow-lg scale-105' 
+                          : 'hover:shadow-primary hover:scale-102'
+                      }`}
                     >
-                      Module {module}
+                      <img
+                        src={categoryBackground}
+                        alt=""
+                        className="absolute inset-0 w-full h-full object-cover opacity-70"
+                      />
+                      <span className="relative z-10 text-lg font-bold">{module}</span>
                     </Button>
                   );
                 })}
