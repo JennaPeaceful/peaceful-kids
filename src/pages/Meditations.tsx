@@ -467,14 +467,9 @@ const Meditations = () => {
                   >
                     <div className="relative w-16 h-16 rounded-xl overflow-hidden">
                       <img
-                        src={categoryBackground}
-                        alt=""
-                        className="absolute inset-0 w-full h-full object-cover opacity-70"
-                      />
-                      <img
                         src={thumbnailSrc}
                         alt={course}
-                        className="absolute inset-0 w-full h-full object-contain p-3"
+                        className="w-full h-full object-contain"
                       />
                     </div>
                     <span className="text-xs font-medium text-center leading-tight px-2 whitespace-normal min-h-[2rem] flex items-center">{course}</span>
