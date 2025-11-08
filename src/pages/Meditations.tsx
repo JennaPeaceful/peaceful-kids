@@ -502,7 +502,7 @@ const Meditations = () => {
               <label className="text-sm font-medium text-muted-foreground mb-3 block">
                 Modules
               </label>
-              <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                 {uniqueModules.map((module) => {
                   const isSelected = filters.selectedModule === module;
                   return (
