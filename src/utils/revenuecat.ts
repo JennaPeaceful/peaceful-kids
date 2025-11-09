@@ -7,18 +7,9 @@
  */
 
 import { isNativePlatform, isIOS, isAndroid } from './platform';
+import { isCapacitorEnabled } from './capacitor';
 import { logger } from './logger';
 import { APP_URLS, getSubscriptionManagementUrl } from '@/config/urls';
-
-// Check if we're in a Capacitor-enabled build (runtime check)
-const isCapacitorEnabled = () => {
-  try {
-    // @ts-ignore
-    return !!window.Capacitor;
-  } catch {
-    return false;
-  }
-};
 
 /**
  * Initialize RevenueCat SDK

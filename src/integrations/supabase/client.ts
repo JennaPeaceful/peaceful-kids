@@ -6,6 +6,38 @@ import { CapacitorStorage } from './capacitor-storage';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://cvlsvztdyuqzutzwtank.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN2bHN2enRkeXVxenV0end0YW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc1NDA5NDEsImV4cCI6MjA3MzExNjk0MX0.2g1Aw2Kij_9qc0T2_0Zpj22nahieUm4eg388ZGvpVC0";
 
+// Debug logging for simulator/development environment
+if (import.meta.env.DEV || import.meta.env.MODE === 'development' || import.meta.env.VITE_CAPACITOR_ENABLED === 'true') {
+  console.log('[Supabase Client] Initialization Debug Info:');
+  console.log('  Build Mode:', import.meta.env.MODE);
+  console.log('  Build Mode (custom):', import.meta.env.VITE_BUILD_MODE);
+  console.log('  DEV flag:', import.meta.env.DEV);
+  console.log('  Capacitor Enabled:', import.meta.env.VITE_CAPACITOR_ENABLED);
+  console.log('  Supabase URL:', SUPABASE_URL);
+  console.log('  API Key (first 30 chars):', SUPABASE_PUBLISHABLE_KEY.substring(0, 30) + '...');
+
+  // Decode JWT to show project reference
+  try {
+    const jwtPayload = SUPABASE_PUBLISHABLE_KEY.split('.')[1];
+    if (jwtPayload) {
+      const decoded = JSON.parse(atob(jwtPayload));
+      console.log('  ✅ Project Ref from JWT:', decoded.ref);
+      console.log('  ✅ Expected: cvlsvztdyuqzutzwtank');
+      if (decoded.ref === 'cvlsvztdyuqzutzwtank') {
+        console.log('  ✅✅ API KEY IS CORRECT!');
+      } else {
+        console.error('  ❌❌ API KEY IS WRONG! Got:', decoded.ref);
+      }
+    }
+  } catch (e) {
+    console.error('  ❌ Failed to decode JWT:', e);
+  }
+
+  // Show all available VITE_ environment variables
+  const viteEnvVars = Object.keys(import.meta.env).filter(k => k.startsWith('VITE_'));
+  console.log('  Available VITE_ env vars:', viteEnvVars);
+}
+
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 

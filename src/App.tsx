@@ -14,7 +14,6 @@ import { WellnessDisclaimer } from "./components/WellnessDisclaimer";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import BottomNavigation from "./components/BottomNavigation";
 import ScrollToTop from "./components/ScrollToTop";
-import ProtectedRoute from "./components/ProtectedRoute";
 import Explore from "./pages/Explore";
 import Meditations from "./pages/Meditations";
 import Tracking from "./pages/Tracking";

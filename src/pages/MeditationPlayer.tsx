@@ -638,21 +638,38 @@ const MeditationPlayer = () => {
 
       {/* Main Content */}
       <div className="flex flex-col items-center px-6 pb-8">
+        {/* Meditation Info - Title Above Media */}
+        <div className="text-center mb-6">
+          <h1 className="text-2xl md:text-3xl font-bold mb-2">{meditation.public_title || meditation.title}</h1>
+        </div>
+
         {/* Media Display */}
         <div className="relative mb-8 mx-auto flex justify-center">
           {isPdf ? (
-            /* PDF viewer */
-            <div className="w-full max-w-2xl mx-auto">
-              <iframe
-                src={meditation.media_url}
-                className="w-full rounded-lg shadow-2xl border border-border/20"
+            /* PDF viewer - clean display without frame */
+            <div className="w-full md:max-w-2xl overflow-x-hidden">
+              <object
+                data={meditation.media_url}
+                type="application/pdf"
+                className="w-full rounded-lg"
                 style={{
-                  aspectRatio: '8.5 / 11',
-                  height: 'auto',
-                  minHeight: '600px'
+                  height: '75vh',
+                  minHeight: '500px',
+                  backgroundColor: 'transparent',
                 }}
-                title={meditation.title}
-              />
+              >
+                <p className="p-4 text-center">
+                  Unable to display PDF.
+                  <a
+                    href={meditation.media_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline ml-2"
+                  >
+                    Download PDF
+                  </a>
+                </p>
+              </object>
             </div>
           ) : isAudio ? (
             /* Thumbnail for audio meditations */
@@ -826,7 +843,6 @@ const MeditationPlayer = () => {
 
         {/* Meditation Info */}
         <div className="text-center mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold mb-2">{meditation.public_title || meditation.title}</h1>
           <p className="text-muted-foreground mb-4 max-w-sm md:max-w-2xl lg:max-w-3xl mx-auto px-4">
             {meditation.description}
           </p>

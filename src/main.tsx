@@ -3,6 +3,14 @@ import App from "./App.tsx";
 import "./index.css";
 import { logger } from './utils/logger';
 
+// Log environment information at app start (helpful for debugging simulator issues)
+console.log('[App] Environment Information:');
+console.log('  Mode:', import.meta.env.MODE);
+console.log('  Build Mode:', import.meta.env.VITE_BUILD_MODE);
+console.log('  DEV:', import.meta.env.DEV);
+console.log('  PROD:', import.meta.env.PROD);
+console.log('  Capacitor Enabled:', import.meta.env.VITE_CAPACITOR_ENABLED);
+
 // Render the app immediately
 const root = createRoot(document.getElementById("root")!);
 root.render(<App />);

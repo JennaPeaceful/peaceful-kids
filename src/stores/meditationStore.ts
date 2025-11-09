@@ -168,15 +168,72 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
   setMeditations: (meditations) => set({ meditations }),
   
   setFilters: (newFilters) => {
-    set((state) => ({
-      filters: { ...state.filters, ...newFilters }
-    }));
-    get().applyFilters();
+    const state = get();
+    const updatedFilters = { ...state.filters, ...newFilters };
+
+    // Apply filters immediately and update state in a single batch
+    let filtered = [...state.meditations];
+
+    // ALWAYS exclude meditations with courses field unless Courses category is explicitly selected
+    if (updatedFilters.selectedCategory !== 'Courses') {
+      filtered = filtered.filter(m => !m.courses && m.category !== 'Courses');
+    }
+
+    // Apply category filter (skip for "Emotions" which uses themes instead)
+    if (updatedFilters.selectedCategory && updatedFilters.selectedCategory !== 'Emotions' && updatedFilters.selectedCategory !== 'Courses') {
+      filtered = filtered.filter(m => m.category === updatedFilters.selectedCategory);
+    }
+
+    // If Courses is selected, only show meditations with courses field
+    if (updatedFilters.selectedCategory === 'Courses') {
+      filtered = filtered.filter(m => m.category === 'Courses' || m.courses);
+    }
+
+    if (updatedFilters.selectedCourses.length > 0) {
+      filtered = filtered.filter(m =>
+        m.courses && updatedFilters.selectedCourses.includes(m.courses)
+      );
+    }
+
+    if (updatedFilters.selectedModule !== null) {
+      filtered = filtered.filter(m => m.module === updatedFilters.selectedModule);
+    }
+
+    if (updatedFilters.selectedAgeGroup) {
+      filtered = filtered.filter(m => m.age_group === updatedFilters.selectedAgeGroup);
+    }
+
+    if (updatedFilters.selectedThemes.length > 0) {
+      filtered = filtered.filter(m =>
+        m.themes.some(theme => updatedFilters.selectedThemes.includes(theme))
+      );
+    }
+
+    if (updatedFilters.searchQuery) {
+      const query = updatedFilters.searchQuery.toLowerCase();
+      filtered = filtered.filter(m =>
+        m.title.toLowerCase().includes(query) ||
+        m.description.toLowerCase().includes(query) ||
+        m.themes.some(theme => theme.toLowerCase().includes(query))
+      );
+    }
+
+    // Update both filters and filteredMeditations in a single batch
+    set({
+      filters: updatedFilters,
+      filteredMeditations: filtered
+    });
   },
   
   clearFilters: () => {
-    set({ filters: initialFilters });
-    get().applyFilters();
+    const state = get();
+    // When clearing filters, show all meditations except courses
+    const filtered = state.meditations.filter(m => !m.courses && m.category !== 'Courses');
+
+    set({
+      filters: initialFilters,
+      filteredMeditations: filtered
+    });
   },
 
   fetchCategories: async () => {
