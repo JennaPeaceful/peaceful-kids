@@ -9,7 +9,7 @@ export type PlanType = 'free' | 'peace_plan' | 'peace_plus_plan';
 /**
  * Get the effective plan type based on subscription status
  * @param subscription - User subscription object
- * @returns The effective plan type ('free', 'peace', or 'peace_plus')
+ * @returns The effective plan type ('free', 'peace_plan', or 'peace_plus_plan')
  */
 export const getEffectivePlanType = (subscription: UserSubscription | null): PlanType => {
   return subscription?.is_active ? subscription.plan_type : 'free';
