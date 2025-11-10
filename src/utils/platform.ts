@@ -8,7 +8,7 @@
 /**
  * Check if Capacitor is available and enabled
  */
-const isCapacitorEnabled = (): boolean => {
+export const isCapacitorEnabled = (): boolean => {
   // First check if Capacitor is actually present (runtime check)
   try {
     // @ts-ignore - Capacitor might not be available
