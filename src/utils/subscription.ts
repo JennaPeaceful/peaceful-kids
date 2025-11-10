@@ -2,9 +2,9 @@
  * Utility functions for subscription and plan management
  */
 
-import type { UserSubscription } from '@/types/user';
+import type { UserSubscription } from '@/types';
 
-export type PlanType = 'free' | 'peace' | 'peace_plus';
+export type PlanType = 'free' | 'peace_plan' | 'peace_plus_plan';
 
 /**
  * Get the effective plan type based on subscription status
@@ -24,8 +24,8 @@ export const getEffectivePlanType = (subscription: UserSubscription | null): Pla
 export const hasAccessToPlan = (userPlan: PlanType, requiredPlan: PlanType): boolean => {
   const planHierarchy: Record<PlanType, number> = {
     'free': 0,
-    'peace': 1,
-    'peace_plus': 2
+    'peace_plan': 1,
+    'peace_plus_plan': 2
   };
 
   return planHierarchy[userPlan] >= planHierarchy[requiredPlan];
@@ -55,8 +55,8 @@ export const isContentLocked = (
 export const getPlanDisplayName = (planType: PlanType): string => {
   const displayNames: Record<PlanType, string> = {
     'free': 'Free',
-    'peace': 'Peace Plan',
-    'peace_plus': 'Peace Plus'
+    'peace_plan': 'Peace Plan',
+    'peace_plus_plan': 'Peace Plus'
   };
 
   return displayNames[planType] || 'Free';
