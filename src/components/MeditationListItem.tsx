@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Play, Video, FileText } from 'lucide-react';
+import { Music, Video, FileText } from 'lucide-react';
 import { Meditation } from '../types';
 import { useAuth } from '../hooks/useAuth';
 import { useUserStore } from '../stores/userStore';
@@ -128,7 +128,7 @@ const MeditationListItem = ({ meditation, onPlay, courseThumbnail }: MeditationL
           ) : meditation.media_type === 'pdf' ? (
             <FileText className="w-4 h-4 text-white drop-shadow-lg" />
           ) : (
-            <Play className="w-4 h-4 text-white drop-shadow-lg" />
+            <Music className="w-4 h-4 text-white drop-shadow-lg" />
           )}
         </div>
       </div>
