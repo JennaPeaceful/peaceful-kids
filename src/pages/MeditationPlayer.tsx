@@ -15,6 +15,8 @@ import Skip10Icon from '@/components/icons/Skip10Icon';
 import { ParentalGate } from '@/components/ParentalGate';
 import AuthModal from '@/components/AuthModal';
 import logoSvg from '@/assets/logo.svg';
+import highlyMeditatedCourseSvg from '@/assets/highly-meditated-course.svg';
+import introductionHealingArtsSvg from '@/assets/introduction-healing-arts.svg';
 import { supabase } from '@/integrations/supabase/client';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -702,7 +704,16 @@ const MeditationPlayer = () => {
           ) : isAudio ? (
             /* Thumbnail for audio meditations */
             <img
-              src={meditation.thumbnail_url || meditation.thumbnail}
+              src={(() => {
+                const thumbnailUrl = meditation.thumbnail_url || meditation.thumbnail;
+                if (thumbnailUrl === '/highly-meditated-course.svg') {
+                  return highlyMeditatedCourseSvg;
+                }
+                if (thumbnailUrl === '/introduction-healing-arts.svg') {
+                  return introductionHealingArtsSvg;
+                }
+                return thumbnailUrl || logoSvg;
+              })()}
               alt={meditation.title}
               className="w-full h-full object-cover rounded-3xl shadow-2xl"
               onError={(e) => {
