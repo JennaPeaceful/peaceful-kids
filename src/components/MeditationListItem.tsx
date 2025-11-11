@@ -8,6 +8,7 @@ import categoryBackground from '@/assets/category-icon-background.svg';
 import logo from '@/assets/logo.svg';
 import highlyMeditatedCourseSvg from '@/assets/highly-meditated-course.svg';
 import introductionHealingArtsSvg from '@/assets/introduction-healing-arts.svg';
+import lecturesSvg from '@/assets/lectures.svg';
 
 interface MeditationListItemProps {
   meditation: Meditation;
@@ -25,8 +26,13 @@ const MeditationListItem = ({ meditation, onPlay, courseThumbnail }: MeditationL
 
   // Map database thumbnail paths to imported assets
   const getThumbnailSrc = () => {
-    // For lectures, prioritize course thumbnail
-    if (meditation.lecture && courseThumbnail) {
+    // For lectures, use the lectures SVG
+    if (meditation.lecture) {
+      return lecturesSvg;
+    }
+    
+    // For non-lectures with course thumbnails
+    if (courseThumbnail) {
       if (courseThumbnail === '/highly-meditated-course.svg') {
         return highlyMeditatedCourseSvg;
       }
@@ -67,7 +73,7 @@ const MeditationListItem = ({ meditation, onPlay, courseThumbnail }: MeditationL
       {/* Thumbnail Icon */}
       <div className="relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-gradient-to-br from-primary/20 to-accent/20">
         {/* Colorful background layer - for wire icons (NO COLOR in URL), SVGs, and logo fallbacks */}
-        {(() => {
+        {!meditation.lecture && (() => {
           const thumbnailToCheck = meditation.thumbnail_url || meditation.thumbnail || courseThumbnail;
           return thumbnailToCheck &&
             (/NO.?COLOR/i.test(thumbnailToCheck) ||
@@ -86,7 +92,7 @@ const MeditationListItem = ({ meditation, onPlay, courseThumbnail }: MeditationL
           alt={meditation.title}
           className="absolute inset-0 w-full h-full object-contain p-3"
           style={
-            meditation.age_group && getAgeGroupColor(meditation.age_group)
+            meditation.age_group && getAgeGroupColor(meditation.age_group) && !meditation.lecture
               ? { filter: `drop-shadow(0 0 0 ${getAgeGroupColor(meditation.age_group)})` }
               : undefined
           }
@@ -95,8 +101,16 @@ const MeditationListItem = ({ meditation, onPlay, courseThumbnail }: MeditationL
             target.src = logo;
           }}
         />
+        {/* Lecture number overlay */}
+        {meditation.lecture && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-2xl font-bold text-white drop-shadow-lg">
+              {meditation.lecture}
+            </span>
+          </div>
+        )}
         {/* SVG color overlay for age groups */}
-        {(() => {
+        {!meditation.lecture && (() => {
           const thumbnailToCheck = meditation.thumbnail_url || meditation.thumbnail || courseThumbnail;
           return meditation.age_group && getAgeGroupColor(meditation.age_group) && 
            /NO.?COLOR/i.test(thumbnailToCheck || '');
@@ -122,7 +136,7 @@ const MeditationListItem = ({ meditation, onPlay, courseThumbnail }: MeditationL
       {/* Title and Description */}
       <div className="flex-1 text-left min-w-0">
         <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
-          {meditation.lecture ? `Lecture ${meditation.lecture}: ` : ''}{meditation.public_title || meditation.title}
+          {meditation.public_title || meditation.title}
         </h3>
         {meditation.description && (
           <p className="text-sm text-muted-foreground line-clamp-1 mt-1">

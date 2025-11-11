@@ -104,7 +104,6 @@ const MeditationPlayer = () => {
   const isPdf = meditation?.media_type === 'pdf' ||
     meditation?.media_url?.toLowerCase().endsWith('.pdf') ||
     meditation?.title?.toLowerCase().includes('.pdf');
-  const isText = meditation?.media_type === 'text';
 
   // Debug logging
   logger.log('[MeditationPlayer] Debug:', {
@@ -647,24 +646,7 @@ const MeditationPlayer = () => {
 
         {/* Media Display */}
         <div className="relative mb-8 mx-auto flex justify-center">
-          {isText ? (
-            /* Text-only content - no media player */
-            <div className="w-full md:max-w-2xl prose prose-slate dark:prose-invert">
-              {meditation.transcript ? (
-                <div className="bg-muted/20 rounded-lg p-6 border border-border/40">
-                  <div className="whitespace-pre-wrap text-foreground/90 leading-relaxed">
-                    {meditation.transcript}
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-muted/20 rounded-lg p-6 border border-border/40">
-                  <p className="text-muted-foreground italic">
-                    No content available for this lecture.
-                  </p>
-                </div>
-              )}
-            </div>
-          ) : isPdf ? (
+          {isPdf ? (
             /* PDF viewer - platform-aware display */
             <div className="w-full md:max-w-2xl overflow-x-hidden">
               {/* Embedded PDF Viewer - use Office Online for OneDrive URLs, Google Docs for others */}
@@ -750,10 +732,9 @@ const MeditationPlayer = () => {
                 maxWidth: '100%',
                 width: 'auto',
                 objectFit: 'contain',
-                WebkitObjectFit: 'contain',
                 WebkitUserSelect: 'none',
                 WebkitTouchCallout: 'none'
-              }}
+              } as React.CSSProperties}
               onLoadStart={() => {
                   logger.log('[Video] Loading from:', meditation.media_url);
                   logger.log('[Video] Poster URL:', meditation.thumbnail_url || meditation.thumbnail || 'none');
@@ -867,8 +848,8 @@ const MeditationPlayer = () => {
             {meditation.description}
           </p>
 
-          {/* Transcript Section - hide for text-only content as transcript is the main content */}
-          {meditation.transcript && !isText && (
+          {/* Transcript Section */}
+          {meditation.transcript && (
             <Collapsible 
               open={isTranscriptOpen} 
               onOpenChange={setIsTranscriptOpen}
