@@ -105,9 +105,9 @@ const MeditationPlayer = () => {
     meditation?.media_url?.toLowerCase().endsWith('.pdf') ||
     meditation?.title?.toLowerCase().includes('.pdf');
 
-  // Compute safe poster - only use raster images (no SVG)
+  // Compute safe poster - only use raster images (no SVG), fallback to logo
   const thumb = (meditation?.thumbnail_url || meditation?.thumbnail || '').toLowerCase();
-  const safePoster = thumb.match(/\.(png|jpe?g|webp)(\?.*)?$/) ? (meditation?.thumbnail_url || meditation?.thumbnail) : undefined;
+  const safePoster = thumb.match(/\.(png|jpe?g|webp)(\?.*)?$/) ? (meditation?.thumbnail_url || meditation?.thumbnail) : logoSvg;
 
   // Debug logging
   logger.log('[MeditationPlayer] Debug:', {
@@ -826,7 +826,7 @@ const MeditationPlayer = () => {
           
           {/* Floating Animation for Free Content */}
           {!isLocked && player.isPlaying && (
-            <div className="absolute inset-0 rounded-3xl animate-pulse-celebration"
+            <div className="absolute inset-0 rounded-lg animate-pulse-celebration"
                  style={{
                    boxShadow: '0 0 40px rgba(139, 69, 255, 0.3)',
                    pointerEvents: 'none' // Allow touches to pass through to video controls
