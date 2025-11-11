@@ -187,7 +187,7 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
           <div className="flex-shrink-0">
             {meditation.media_type === 'video' ? (
               <Video className="w-5 h-5 text-primary/70" />
-            ) : meditation.media_type === 'pdf' ? (
+            ) : meditation.media_type === 'pdf' || meditation.media_type === 'text' ? (
               <FileText className="w-5 h-5 text-primary/70" />
             ) : (
               <Music className="w-5 h-5 text-primary/70" />
