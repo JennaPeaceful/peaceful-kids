@@ -104,6 +104,7 @@ const MeditationPlayer = () => {
   const isPdf = meditation?.media_type === 'pdf' ||
     meditation?.media_url?.toLowerCase().endsWith('.pdf') ||
     meditation?.title?.toLowerCase().includes('.pdf');
+  const isTextOnly = meditation?.media_type === 'text';
 
   // Compute safe poster - only use raster images (no SVG), fallback to logo
   const thumb = (meditation?.thumbnail_url || meditation?.thumbnail || '').toLowerCase();
@@ -648,9 +649,10 @@ const MeditationPlayer = () => {
           <h1 className="text-2xl md:text-3xl font-bold mb-2">{meditation.public_title || meditation.title}</h1>
         </div>
 
-        {/* Media Display */}
-        <div id="media" className="relative mb-8 w-full md:max-w-2xl mx-auto">
-          {isPdf ? (
+        {/* Media Display - Skip for text-only content */}
+        {!isTextOnly && (
+          <div id="media" className="relative mb-8 w-full md:max-w-2xl mx-auto">
+            {isPdf ? (
             /* PDF viewer - platform-aware display */
             <div className="w-full md:max-w-2xl overflow-x-hidden">
               {/* Embedded PDF Viewer - use Office Online for OneDrive URLs, Google Docs for others */}
@@ -833,7 +835,8 @@ const MeditationPlayer = () => {
                  }}
             />
           )}
-        </div>
+          </div>
+        )}
 
         {/* Meditation Info */}
         <div className="text-center mb-8">
@@ -919,8 +922,8 @@ const MeditationPlayer = () => {
           </div>
         </div>
 
-        {/* Controls for Audio only - Video and PDF use native controls */}
-        {isAudio && !isCompleted && (
+        {/* Controls for Audio only - Video, PDF, and text-only use native controls or no controls */}
+        {isAudio && !isCompleted && !isTextOnly && (
           <>
             {/* Seek Slider */}
             <div className="w-full max-w-md mb-6 px-4">
