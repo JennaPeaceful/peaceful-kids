@@ -672,8 +672,8 @@ const MeditationPlayer = () => {
                 })()}
                 className="w-full rounded-lg shadow-2xl border border-border/20"
                 style={{
-                  height: '75vh',
-                  minHeight: '500px',
+                  height: '60vh',
+                  minHeight: '400px',
                   backgroundColor: 'transparent',
                 }}
                 title={meditation.title}
