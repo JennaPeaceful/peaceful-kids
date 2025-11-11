@@ -143,8 +143,16 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
         modulesMap.set(module.id, module);
       });
 
-      const meditations = data.map(transformMeditation);
-      set({ 
+      const meditations = data
+        .map(transformMeditation)
+        .filter(m => {
+          // Hide meditations without media files and with no/short transcripts
+          if (!m.media_url) {
+            return m.transcript && m.transcript.length >= 500;
+          }
+          return true;
+        });
+      set({
         meditations,
         filteredMeditations: meditations,
         recentMeditations: meditations.slice(0, 3),
