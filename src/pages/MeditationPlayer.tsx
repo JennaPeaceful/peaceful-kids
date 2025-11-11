@@ -656,7 +656,7 @@ const MeditationPlayer = () => {
           <div id="media" className="relative mb-8 w-full md:max-w-2xl mx-auto">
             {isPdf ? (
             /* PDF viewer - platform-aware display */
-            <div className="w-full md:max-w-2xl overflow-x-hidden bg-background">
+            <div className="w-full md:max-w-2xl overflow-x-hidden">
               {/* Embedded PDF Viewer - use Office Online for OneDrive URLs, Google Docs for others */}
               <iframe
                 src={(() => {
@@ -670,11 +670,9 @@ const MeditationPlayer = () => {
                     return `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`;
                   }
                 })()}
-                className="w-full rounded-lg shadow-2xl border border-border/20"
+                className="w-full rounded-lg shadow-2xl border border-border/20 bg-background"
                 style={{
-                  height: '60vh',
-                  minHeight: '400px',
-                  backgroundColor: 'transparent',
+                  height: '70vh',
                 }}
                 title={meditation.title}
                 onError={() => {
@@ -688,18 +686,12 @@ const MeditationPlayer = () => {
                   onClick={() => {
                     window.open(meditation.media_url, '_blank', 'noopener,noreferrer');
                   }}
-                  className="flex items-center gap-2"
-                  variant="outline"
+                  className="flex items-center gap-2 bg-gradient-to-r from-primary via-secondary to-accent text-white hover:opacity-90 transition-opacity"
                 >
                   <ExternalLink className="w-4 h-4" />
-                  Open PDF in New Tab
+                  Open PDF
                 </Button>
               </div>
-
-              {/* Fallback error message if viewer fails */}
-              <p className="text-sm text-muted-foreground text-center mt-2">
-                If the PDF doesn't display, click the button above to open it directly.
-              </p>
             </div>
           ) : isAudio ? (
             /* Thumbnail for audio meditations */
