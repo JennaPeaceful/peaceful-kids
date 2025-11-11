@@ -154,7 +154,7 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
 
       {/* Content */}
       <div className="space-y-1.5">
-        <h3 className="font-bold text-sm leading-tight line-clamp-2 min-h-[2.5rem]">
+        <h3 className="font-bold text-xs leading-tight line-clamp-2 min-h-[2.5rem]">
           {meditation.lecture ? `Lecture ${meditation.lecture}: ` : ''}{meditation.public_title || meditation.title}
         </h3>
         
