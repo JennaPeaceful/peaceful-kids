@@ -730,8 +730,7 @@ const MeditationPlayer = () => {
                 display: 'block',
                 maxHeight: '60vh',
                 maxWidth: '100%',
-                width: '100%',
-                minWidth: '300px',
+                width: 'auto',
                 objectFit: 'contain',
                 WebkitUserSelect: 'none',
                 WebkitTouchCallout: 'none'
