@@ -672,7 +672,8 @@ const MeditationPlayer = () => {
                 })()}
                 className="w-full rounded-lg shadow-2xl border border-border/20 bg-background"
                 style={{
-                  height: '70vh',
+                  height: '500px',
+                  maxHeight: '600px',
                 }}
                 title={meditation.title}
                 onError={() => {
