@@ -105,6 +105,10 @@ const MeditationPlayer = () => {
     meditation?.media_url?.toLowerCase().endsWith('.pdf') ||
     meditation?.title?.toLowerCase().includes('.pdf');
 
+  // Compute safe poster - only use raster images (no SVG)
+  const thumb = (meditation?.thumbnail_url || meditation?.thumbnail || '').toLowerCase();
+  const safePoster = thumb.match(/\.(png|jpe?g|webp)(\?.*)?$/) ? (meditation?.thumbnail_url || meditation?.thumbnail) : undefined;
+
   // Debug logging
   logger.log('[MeditationPlayer] Debug:', {
     meditationId: meditation?.id,
@@ -645,7 +649,7 @@ const MeditationPlayer = () => {
         </div>
 
         {/* Media Display */}
-        <div className="relative mb-8 mx-auto flex justify-center">
+        <div id="media" className="relative mb-8 w-full md:max-w-2xl mx-auto">
           {isPdf ? (
             /* PDF viewer - platform-aware display */
             <div className="w-full md:max-w-2xl overflow-x-hidden">
@@ -721,20 +725,12 @@ const MeditationPlayer = () => {
             /* Video player with native poster */
             <video
               ref={videoRef}
-              poster={logoSvg}
+              poster={safePoster}
               playsInline
               controls
               preload="metadata"
-              className="h-auto mx-auto rounded-lg shadow-2xl object-contain"
-              style={{
-                display: 'block',
-                maxHeight: '60vh',
-                maxWidth: '100%',
-                width: 'auto',
-                objectFit: 'contain',
-                WebkitUserSelect: 'none',
-                WebkitTouchCallout: 'none'
-              } as React.CSSProperties}
+              className="w-full h-auto rounded-lg shadow-2xl object-contain bg-black"
+              style={{ maxHeight: '60vh' }}
               onLoadStart={() => {
                   logger.log('[Video] Loading from:', meditation.media_url);
                   logger.log('[Video] Poster URL:', meditation.thumbnail_url || meditation.thumbnail || 'none');
@@ -802,13 +798,10 @@ const MeditationPlayer = () => {
               </video>
           )}
 
-          {/* Loading Overlay - Only for audio, video uses native loading indicator */}
-          {isLoading && isAudio && (
-            <div className="absolute inset-0 bg-black/60 rounded-3xl flex items-center justify-center">
-              <div className="text-center text-white">
-                <div className="animate-spin w-8 h-8 border-2 border-white border-t-transparent rounded-full mx-auto mb-2"></div>
-                <p className="text-sm">Loading meditation...</p>
-              </div>
+          {/* Loading Overlay */}
+          {isLoading && !isPdf && (
+            <div className={`absolute inset-0 ${isAudio ? 'bg-black/60 rounded-3xl' : 'bg-black/50 rounded-lg'} flex items-center justify-center pointer-events-none`}>
+              <div className="animate-spin w-8 h-8 border-2 border-white border-t-transparent rounded-full"></div>
             </div>
           )}
           
