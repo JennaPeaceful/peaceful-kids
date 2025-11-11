@@ -191,7 +191,20 @@ const Meditations = () => {
     : filteredByMediaType;
 
   const sortedMeditations = [...filteredByFavorites].sort((a, b) => {
-    // Priority 1: Most recently played meditations first (if user is authenticated)
+    // Priority 1: When course filter is active, sort by module > lecture order
+    if (filters.selectedCourses.length > 0) {
+      // Sort by module first (nulls last)
+      const aModule = a.module ?? Number.MAX_SAFE_INTEGER;
+      const bModule = b.module ?? Number.MAX_SAFE_INTEGER;
+      if (aModule !== bModule) return aModule - bModule;
+      
+      // Then by lecture within module (nulls last)
+      const aLecture = a.lecture ?? Number.MAX_SAFE_INTEGER;
+      const bLecture = b.lecture ?? Number.MAX_SAFE_INTEGER;
+      if (aLecture !== bLecture) return aLecture - bLecture;
+    }
+    
+    // Priority 2: Most recently played meditations first (if user is authenticated)
     if (userMeditationUsage && user) {
       const aUsage = userMeditationUsage.find(u => u.meditation_id === a.id);
       const bUsage = userMeditationUsage.find(u => u.meditation_id === b.id);
@@ -208,11 +221,11 @@ const Meditations = () => {
       }
     }
     
-    // Priority 2: Free meditations before premium
+    // Priority 3: Free meditations before premium
     if (a.is_free && !b.is_free) return -1;
     if (!a.is_free && b.is_free) return 1;
 
-    // Priority 3: Alphabetical by title
+    // Priority 4: Alphabetical by title
     const aTitle = (a.title || '').toLowerCase();
     const bTitle = (b.title || '').toLowerCase();
     return aTitle > bTitle ? 1 : -1;
