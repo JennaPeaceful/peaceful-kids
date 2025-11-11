@@ -1,10 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
-import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.js?url';
 import { InlineLoadingState } from './LoadingState';
 
-// Configure PDF.js worker for Vite/Capacitor
-pdfjs.GlobalWorkerOptions.workerSrc = pdfWorker;
+// Configure PDF.js worker using CDN (Vite-compatible)
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 interface PdfRendererProps {
   fileUrl: string;
