@@ -20,7 +20,6 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { logger } from '@/utils/logger';
 import { isAndroid } from '@/utils/platform';
-import { AspectRatio } from '@/components/ui/aspect-ratio';
 
 // Safe analytics imports - no-op if not available
 const trackMeditationPlayed = async (meditationId: string, title: string) => {
@@ -146,15 +145,6 @@ const MeditationPlayer = () => {
           touchAction: videoEl.style.touchAction,
           pointerEvents: videoEl.style.pointerEvents
         });
-      }
-      
-      // Check media container dimensions
-      const el = document.getElementById('media');
-      if (el) {
-        logger.log('[Media Container] size:', { w: el.offsetWidth, h: el.offsetHeight });
-        if (el.offsetHeight === 0 || el.offsetWidth === 0) {
-          logger.warn('[Media Container] collapsed to 0 size before load');
-        }
       }
     }, 1000);
     return () => clearTimeout(timer);
@@ -655,7 +645,7 @@ const MeditationPlayer = () => {
         </div>
 
         {/* Media Display */}
-        <div id="media" className="relative mb-8 w-full md:max-w-2xl mx-auto">
+        <div className="relative mb-8 mx-auto flex justify-center">
           {isPdf ? (
             /* PDF viewer - platform-aware display */
             <div className="w-full md:max-w-2xl overflow-x-hidden">
@@ -728,15 +718,24 @@ const MeditationPlayer = () => {
               }}
             />
           ) : (
-            /* Video player - no poster to avoid "stuck" poster issue */
-            <AspectRatio ratio={16/9} className="rounded-lg shadow-2xl border border-border/20 bg-black">
-              <video
-                ref={videoRef}
-                playsInline
-                controls
-                preload="metadata"
-                className="w-full h-full object-contain rounded-lg"
-                onLoadStart={() => {
+            /* Video player with native poster */
+            <video
+              ref={videoRef}
+              poster={logoSvg}
+              playsInline
+              controls
+              preload="metadata"
+              className="h-auto mx-auto rounded-lg shadow-2xl object-contain"
+              style={{
+                display: 'block',
+                maxHeight: '60vh',
+                maxWidth: '100%',
+                width: 'auto',
+                objectFit: 'contain',
+                WebkitUserSelect: 'none',
+                WebkitTouchCallout: 'none'
+              } as React.CSSProperties}
+              onLoadStart={() => {
                   logger.log('[Video] Loading from:', meditation.media_url);
                   logger.log('[Video] Poster URL:', meditation.thumbnail_url || meditation.thumbnail || 'none');
                   const videoEl = videoRef.current;
@@ -801,7 +800,6 @@ const MeditationPlayer = () => {
                 <source src={meditation.media_url} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
-            </AspectRatio>
           )}
 
           {/* Loading Overlay - Only for audio, video uses native loading indicator */}
