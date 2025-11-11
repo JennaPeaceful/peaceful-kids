@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Meditation, FilterState, PlayerState, Category } from '../types';
+import { Meditation, FilterState, PlayerState, Category, CourseModule } from '../types';
 import { supabase } from '@/integrations/supabase/client';
 
 interface MeditationState {
@@ -10,6 +10,7 @@ interface MeditationState {
   userMeditationUsage: Array<{ meditation_id: string; updated_at: string }> | null;
   categories: Category[];
   courses: string[];
+  courseModules: Map<string, CourseModule>; // keyed by module_id
   themes: Array<{id: string; name: string; icon: string; color: string; category: string[]; icon_svg_url?: string; icon_png_url?: string; sort_order?: number}>;
   ageGroups: string[];
   availableThemes: string[];
@@ -97,6 +98,8 @@ const transformMeditation = (dbMeditation: any): Meditation => ({
   courses: dbMeditation.courses || null,
   module: dbMeditation.module || null,
   lecture: dbMeditation.lecture || null,
+  module_id: dbMeditation.module_id || null,
+  course_module: dbMeditation.course_modules || undefined,
   created_at: dbMeditation.created_at || '',
   sort_order: dbMeditation.sort_order || 0,
 });
@@ -109,6 +112,7 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
   userMeditationUsage: null,
   categories: [],
   courses: [],
+  courseModules: new Map(),
   themes: [],
   ageGroups: [],
   availableThemes: [],
@@ -119,12 +123,25 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
   fetchMeditations: async () => {
     set({ isLoading: true });
     try {
+      // Fetch meditations with joined module data
       const { data, error } = await supabase
         .from('meditations')
-        .select('*')
+        .select('*, course_modules(*)')
         .order('sort_order', { ascending: true });
 
       if (error) throw error;
+
+      // Fetch all course modules separately for reference
+      const { data: modulesData } = await supabase
+        .from('course_modules')
+        .select('*')
+        .order('course_name, module_number');
+
+      // Create a map of modules for easy lookup
+      const modulesMap = new Map<string, CourseModule>();
+      modulesData?.forEach(module => {
+        modulesMap.set(module.id, module);
+      });
 
       const meditations = data.map(transformMeditation);
       set({ 
@@ -132,6 +149,7 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
         filteredMeditations: meditations,
         recentMeditations: meditations.slice(0, 3),
         recommendedMeditations: meditations.filter(m => m.category === 'Kid' && m.age_group === 'Ages 6-8').slice(0, 4),
+        courseModules: modulesMap,
         isLoading: false 
       });
       

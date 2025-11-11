@@ -71,6 +71,36 @@ export type Database = {
         }
         Relationships: []
       }
+      course_modules: {
+        Row: {
+          course_name: string
+          created_at: string | null
+          description: string | null
+          id: string
+          module_number: number
+          sort_order: number | null
+          title: string
+        }
+        Insert: {
+          course_name: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          module_number: number
+          sort_order?: number | null
+          title: string
+        }
+        Update: {
+          course_name?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          module_number?: number
+          sort_order?: number | null
+          title?: string
+        }
+        Relationships: []
+      }
       meditation_usage: {
         Row: {
           completed: boolean | null
@@ -163,6 +193,7 @@ export type Database = {
           media_url: string | null
           min_age: number | null
           module: number | null
+          module_id: string | null
           primary_content_category: string | null
           public_title: string | null
           sort_order: number | null
@@ -191,6 +222,7 @@ export type Database = {
           media_url?: string | null
           min_age?: number | null
           module?: number | null
+          module_id?: string | null
           primary_content_category?: string | null
           public_title?: string | null
           sort_order?: number | null
@@ -219,6 +251,7 @@ export type Database = {
           media_url?: string | null
           min_age?: number | null
           module?: number | null
+          module_id?: string | null
           primary_content_category?: string | null
           public_title?: string | null
           sort_order?: number | null
@@ -228,7 +261,15 @@ export type Database = {
           title?: string
           transcript?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "meditations_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "course_modules"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       themes: {
         Row: {
@@ -820,6 +861,7 @@ export type Database = {
           media_url: string | null
           min_age: number | null
           module: number | null
+          module_id: string | null
           primary_content_category: string | null
           public_title: string | null
           sort_order: number | null

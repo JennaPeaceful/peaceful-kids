@@ -1,5 +1,15 @@
 // Data models for Peaceful Kids meditation app
 
+export interface CourseModule {
+  id: string;
+  course_name: string;
+  module_number: number;
+  title: string;
+  description?: string;
+  sort_order?: number;
+  created_at?: string;
+}
+
 export interface Meditation {
   id: string;
   title: string;
@@ -19,6 +29,8 @@ export interface Meditation {
   courses?: string | null;
   module?: number | null;
   lecture?: number | null;
+  module_id?: string | null;
+  course_module?: CourseModule; // Joined data
   created_at: string;
   sort_order: number;
   featured_for_plan?: string[]; // Array of plan types: 'free', 'peace_plan', 'peace_plus_plan'
