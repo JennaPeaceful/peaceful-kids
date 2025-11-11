@@ -272,6 +272,29 @@ All colors MUST be HSL for proper theming.
   .safe-right {
     padding-right: env(safe-area-inset-right);
   }
+
+  /* Android WebView Fixes */
+  @supports (-webkit-appearance: none) {
+    /* Fix object-fit on Android WebView */
+    .object-contain {
+      -webkit-object-fit: contain;
+      object-fit: contain;
+    }
+  }
+
+  /* Force hardware acceleration for better video poster rendering */
+  video {
+    -webkit-transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    object-fit: contain;
+    -webkit-object-fit: contain;
+  }
+
+  /* Ensure video posters maintain aspect ratio */
+  video[poster] {
+    object-fit: contain !important;
+    -webkit-object-fit: contain !important;
+  }
 }
 
 @keyframes pulse-celebration {

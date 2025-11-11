@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Play, Pause, ArrowLeft, Heart, Lock, AlertCircle, Volume2, VolumeX, Maximize, Minimize, ChevronDown, ChevronUp } from 'lucide-react';
+import { Play, Pause, ArrowLeft, Heart, Lock, AlertCircle, Volume2, VolumeX, Maximize, Minimize, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
 import { useMeditationStore } from '../stores/meditationStore';
 import { useProgressStore } from '../stores/progressStore';
 import { useUserStore } from '../stores/userStore';
@@ -19,6 +19,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { logger } from '@/utils/logger';
+import { isAndroid } from '@/utils/platform';
 
 // Safe analytics imports - no-op if not available
 const trackMeditationPlayed = async (meditationId: string, title: string) => {
@@ -100,9 +101,10 @@ const MeditationPlayer = () => {
   );
   const isAudio = meditation?.media_type === 'audio';
   // Check both media_type and URL extension for PDF detection
-  const isPdf = meditation?.media_type === 'pdf' || 
+  const isPdf = meditation?.media_type === 'pdf' ||
     meditation?.media_url?.toLowerCase().endsWith('.pdf') ||
     meditation?.title?.toLowerCase().includes('.pdf');
+  const isText = meditation?.media_type === 'text';
 
   // Debug logging
   logger.log('[MeditationPlayer] Debug:', {
@@ -645,31 +647,69 @@ const MeditationPlayer = () => {
 
         {/* Media Display */}
         <div className="relative mb-8 mx-auto flex justify-center">
-          {isPdf ? (
-            /* PDF viewer - clean display without frame */
+          {isText ? (
+            /* Text-only content - no media player */
+            <div className="w-full md:max-w-2xl prose prose-slate dark:prose-invert">
+              {meditation.transcript ? (
+                <div className="bg-muted/20 rounded-lg p-6 border border-border/40">
+                  <div className="whitespace-pre-wrap text-foreground/90 leading-relaxed">
+                    {meditation.transcript}
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-muted/20 rounded-lg p-6 border border-border/40">
+                  <p className="text-muted-foreground italic">
+                    No content available for this lecture.
+                  </p>
+                </div>
+              )}
+            </div>
+          ) : isPdf ? (
+            /* PDF viewer - platform-aware display */
             <div className="w-full md:max-w-2xl overflow-x-hidden">
-              <object
-                data={meditation.media_url}
-                type="application/pdf"
-                className="w-full rounded-lg"
+              {/* Embedded PDF Viewer - use Office Online for OneDrive URLs, Google Docs for others */}
+              <iframe
+                src={(() => {
+                  const url = meditation.media_url;
+                  // Check if it's a OneDrive/SharePoint URL
+                  if (url.includes('1drv.ms') || url.includes('onedrive.live.com') || url.includes('sharepoint.com')) {
+                    // Use Microsoft Office Online viewer for OneDrive/SharePoint PDFs
+                    return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;
+                  } else {
+                    // Use Google Docs viewer for other URLs
+                    return `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`;
+                  }
+                })()}
+                className="w-full rounded-lg shadow-2xl border border-border/20"
                 style={{
                   height: '75vh',
                   minHeight: '500px',
                   backgroundColor: 'transparent',
                 }}
-              >
-                <p className="p-4 text-center">
-                  Unable to display PDF.
-                  <a
-                    href={meditation.media_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline ml-2"
-                  >
-                    Download PDF
-                  </a>
-                </p>
-              </object>
+                title={meditation.title}
+                onError={() => {
+                  logger.warn('[PDF] Viewer failed to load');
+                }}
+              />
+
+              {/* Download/Open PDF Button - Below Viewer */}
+              <div className="mt-4 flex justify-center">
+                <Button
+                  onClick={() => {
+                    window.open(meditation.media_url, '_blank', 'noopener,noreferrer');
+                  }}
+                  className="flex items-center gap-2"
+                  variant="outline"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  Open PDF in New Tab
+                </Button>
+              </div>
+
+              {/* Fallback error message if viewer fails */}
+              <p className="text-sm text-muted-foreground text-center mt-2">
+                If the PDF doesn't display, click the button above to open it directly.
+              </p>
             </div>
           ) : isAudio ? (
             /* Thumbnail for audio meditations */
@@ -696,40 +736,21 @@ const MeditationPlayer = () => {
               }}
             />
           ) : (
-            /* Video player with custom poster overlay */
-            <>
-              {/* Custom Poster Overlay - show when video is not playing */}
-              {!player.isPlaying && (
-                <div className="absolute inset-0 flex items-center justify-center rounded-lg z-10 pointer-events-none">
-                  <img
-                    src={logoSvg}
-                    alt={meditation.title}
-                    className="w-auto h-auto max-w-[60%] max-h-[60%] object-contain pointer-events-none"
-                    onError={(e) => {
-                      e.currentTarget.src = logoSvg;
-                    }}
-                  />
-                  {/* Play button overlay */}
-                  {canPlay && (
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                      <div className="w-20 h-20 bg-black/30 rounded-full flex items-center justify-center backdrop-blur-sm pointer-events-none">
-                        <Play className="w-10 h-10 text-white ml-1 pointer-events-none" />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-              <video
+            /* Video player with native poster */
+            <video
               ref={videoRef}
+              poster={logoSvg}
               playsInline
               controls
               preload="metadata"
-              className="h-auto mx-auto rounded-lg shadow-2xl"
+              className="h-auto mx-auto rounded-lg shadow-2xl object-contain"
               style={{
                 display: 'block',
                 maxHeight: '60vh',
                 maxWidth: '100%',
                 width: 'auto',
+                objectFit: 'contain',
+                WebkitObjectFit: 'contain',
                 WebkitUserSelect: 'none',
                 WebkitTouchCallout: 'none'
               }}
@@ -798,9 +819,8 @@ const MeditationPlayer = () => {
                 <source src={meditation.media_url} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
-            </>
           )}
-          
+
           {/* Loading Overlay - Only for audio, video uses native loading indicator */}
           {isLoading && isAudio && (
             <div className="absolute inset-0 bg-black/60 rounded-3xl flex items-center justify-center">
@@ -847,8 +867,8 @@ const MeditationPlayer = () => {
             {meditation.description}
           </p>
 
-          {/* Transcript Section */}
-          {meditation.transcript && (
+          {/* Transcript Section - hide for text-only content as transcript is the main content */}
+          {meditation.transcript && !isText && (
             <Collapsible 
               open={isTranscriptOpen} 
               onOpenChange={setIsTranscriptOpen}
