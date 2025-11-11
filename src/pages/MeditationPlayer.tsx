@@ -656,7 +656,7 @@ const MeditationPlayer = () => {
           <div id="media" className="relative mb-8 w-full md:max-w-2xl mx-auto">
             {isPdf ? (
             /* PDF viewer - platform-aware display */
-            <div className="w-full md:max-w-2xl overflow-x-hidden">
+            <div className="w-full md:max-w-2xl overflow-x-hidden bg-background">
               {/* Embedded PDF Viewer - use Office Online for OneDrive URLs, Google Docs for others */}
               <iframe
                 src={(() => {
