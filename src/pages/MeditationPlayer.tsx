@@ -22,6 +22,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { logger } from '@/utils/logger';
 import { isAndroid } from '@/utils/platform';
+import PdfRenderer from '@/components/PdfRenderer';
 
 // Safe analytics imports - no-op if not available
 const trackMeditationPlayed = async (meditationId: string, title: string) => {
@@ -658,28 +659,7 @@ const MeditationPlayer = () => {
             /* PDF viewer - platform-aware display */
             <div className="w-full md:max-w-2xl overflow-x-hidden">
               {/* Embedded PDF Viewer - use Office Online for OneDrive URLs, Google Docs for others */}
-              <iframe
-                src={(() => {
-                  const url = meditation.media_url;
-                  // Check if it's a OneDrive/SharePoint URL
-                  if (url.includes('1drv.ms') || url.includes('onedrive.live.com') || url.includes('sharepoint.com')) {
-                    // Use Microsoft Office Online viewer for OneDrive/SharePoint PDFs
-                    return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;
-                  } else {
-                    // Use Google Docs viewer for other URLs
-                    return `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`;
-                  }
-                })()}
-                className="w-full rounded-lg shadow-2xl border border-border/20 bg-background"
-                style={{
-                  height: '500px',
-                  maxHeight: '600px',
-                }}
-                title={meditation.title}
-                onError={() => {
-                  logger.warn('[PDF] Viewer failed to load');
-                }}
-              />
+              <PdfRenderer fileUrl={meditation.media_url} title={meditation.title} />
 
               {/* Download/Open PDF Button - Below Viewer */}
               <div className="mt-4 flex justify-center">
