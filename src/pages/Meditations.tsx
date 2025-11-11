@@ -45,6 +45,7 @@ const Meditations = () => {
     filters, 
     categories,
     courses,
+    courseModules,
     themes, 
     ageGroups, 
     availableThemes,
@@ -515,18 +516,26 @@ const Meditations = () => {
               <label className="text-sm font-medium text-muted-foreground mb-3 block">
                 Modules
               </label>
-              <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+              <div className="flex flex-col gap-2">
                 {uniqueModules.map((module) => {
                   const isSelected = filters.selectedModule === module;
+                  
+                  // Find the module title from courseModules map
+                  const moduleData = Array.from(courseModules.values()).find(m => 
+                    m.module_number === module && 
+                    filters.selectedCourses.includes(m.course_name)
+                  );
+                  const moduleTitle = moduleData?.title || '';
+                  
                   return (
                     <Button
                       key={module}
                       variant="outline"
                       onClick={() => handleModuleSelect(isSelected ? null : module)}
-                      className={`relative aspect-square flex items-center justify-center overflow-hidden transition-all ${
+                      className={`relative w-full flex items-center justify-start gap-3 px-4 py-3 h-auto overflow-hidden transition-all ${
                         isSelected 
-                          ? 'border-2 border-primary shadow-lg scale-105' 
-                          : 'hover:shadow-primary hover:scale-102'
+                          ? 'border-2 border-primary shadow-lg' 
+                          : 'hover:shadow-primary'
                       }`}
                     >
                       <img
@@ -534,7 +543,12 @@ const Meditations = () => {
                         alt=""
                         className="absolute inset-0 w-full h-full object-cover opacity-70"
                       />
-                      <span className="relative z-10 text-lg font-bold">{module}</span>
+                      <span className="relative z-10 text-base font-bold shrink-0">Module {module}</span>
+                      {moduleTitle && (
+                        <span className="relative z-10 text-sm font-normal text-left flex-1 truncate">
+                          {moduleTitle}
+                        </span>
+                      )}
                     </Button>
                   );
                 })}
