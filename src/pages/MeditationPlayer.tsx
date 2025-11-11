@@ -728,11 +728,10 @@ const MeditationPlayer = () => {
               }}
             />
           ) : (
-            /* Video player with native poster */
-            <AspectRatio ratio={16/9} className="rounded-lg shadow-2xl border border-border/20 bg-black/80">
+            /* Video player - no poster to avoid "stuck" poster issue */
+            <AspectRatio ratio={16/9} className="rounded-lg shadow-2xl border border-border/20 bg-black">
               <video
                 ref={videoRef}
-                poster={meditation.thumbnail_url || meditation.thumbnail || logoSvg}
                 playsInline
                 controls
                 preload="metadata"
