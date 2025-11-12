@@ -9,6 +9,8 @@ import specificIntention from '@/assets/content-categories/specific-intention.sv
 import meditation from '@/assets/content-categories/meditation.svg';
 import somaticReset from '@/assets/content-categories/somatic-reset.svg';
 import transitions from '@/assets/content-categories/transitions.svg';
+import repeatedMantra from '@/assets/content-categories/repeated-mantra.svg';
+import mindfulnessActivities from '@/assets/content-categories/mindfulness-activities.svg';
 
 export const contentCategoryIcons: Record<string, string> = {
   'Binaurals': binauralBeats,
@@ -23,6 +25,8 @@ export const contentCategoryIcons: Record<string, string> = {
   'Meditation': meditation,
   'Somatic Reset': somaticReset,
   'Transitions': transitions,
+  'Repeated Mantra Meditations': repeatedMantra,
+  'Mindfulness Activities': mindfulnessActivities,
 };
 
 export function getContentCategoryIcon(categoryName: string): string | null {
