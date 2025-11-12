@@ -313,12 +313,12 @@ const Explore = () => {
           {/* Two Cards Side-by-Side */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Peace Plan */}
-            <Card className="relative overflow-hidden bg-transparent p-8 border-2 border-primary/20 hover:border-primary/40 transition-all flex flex-col">
+            <div className="relative overflow-hidden rounded-lg bg-transparent p-8 border-2 border-primary/20 hover:border-primary/40 transition-all flex flex-col">
               {/* SVG Background */}
               <img
                 src={peacePlanBg}
                 alt=""
-                className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none select-none"
+                className="absolute -inset-px w-[calc(100%+2px)] h-[calc(100%+2px)] object-cover z-0 pointer-events-none select-none"
                 aria-hidden="true"
               />
               
@@ -351,21 +351,21 @@ const Explore = () => {
               >
                 Subscribe
               </Button>
-            </Card>
+            </div>
 
             {/* Peace Plus Plan - Highlighted */}
-            <Card className="relative overflow-hidden bg-transparent p-8 border-2 border-accent/50 hover:border-accent transition-all flex flex-col">
+            <div className="relative overflow-hidden rounded-lg bg-transparent p-8 border-2 border-accent/50 hover:border-accent transition-all flex flex-col">
               {/* SVG Background */}
               <img
                 src={peacePlusPlanBg}
                 alt=""
-                className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none select-none"
+                className="absolute -inset-px w-[calc(100%+2px)] h-[calc(100%+2px)] object-cover z-0 pointer-events-none select-none"
                 aria-hidden="true"
               />
               {/* Yellow overlay */}
               <div className="absolute inset-0 bg-yellow-400/20 z-0"></div>
 
-              <div className="absolute -top-3 right-4 bg-[#ed2025] text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md z-10">
+              <div className="absolute -top-3 right-4 bg-[#ed2025] text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md z-20">
                 Most Popular
               </div>
               
@@ -410,7 +410,7 @@ const Explore = () => {
               >
                 Subscribe
               </Button>
-            </Card>
+            </div>
           </div>
 
             {/* Disclaimer */}
