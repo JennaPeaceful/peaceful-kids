@@ -15,6 +15,7 @@ import { ScrollArea } from '../components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Badge } from '../components/ui/badge';
 import { formatCategoryName } from '@/lib/utils';
+import { getContentCategoryIcon } from '@/lib/contentCategoryIcons';
 import categoryBackground from '@/assets/category-icon-background.svg';
 import emotionsIcon from '@/assets/emotions.svg';
 import logo from '@/assets/logo.svg';
@@ -465,19 +466,29 @@ const Meditations = () => {
             </label>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {contentCategories.map((contentCategory) => {
+                const icon = getContentCategoryIcon(contentCategory.name);
+                const isSelected = filters.selectedContentCategories.includes(contentCategory.name);
                 return (
                   <Button
                     key={contentCategory.id}
-                    variant="outline"
+                    variant={isSelected ? "default" : "outline"}
                     onClick={() => handleContentCategoryToggle(contentCategory.name)}
                     className="flex flex-col items-center gap-2 h-auto py-4 hover:shadow-primary transition-all"
                   >
-                    <div className="relative w-16 h-16 rounded-xl overflow-hidden">
-                      <img 
-                        src={categoryBackground}
-                        alt=""
-                        className="absolute inset-0 w-full h-full object-cover opacity-70"
-                      />
+                    <div className="relative w-16 h-16 rounded-xl overflow-hidden flex items-center justify-center">
+                      {icon ? (
+                        <img 
+                          src={icon}
+                          alt=""
+                          className="w-12 h-12 object-contain"
+                        />
+                      ) : (
+                        <img 
+                          src={categoryBackground}
+                          alt=""
+                          className="absolute inset-0 w-full h-full object-cover opacity-70"
+                        />
+                      )}
                     </div>
                     <span className="text-xs font-medium text-center leading-tight whitespace-normal min-h-[2rem] flex items-center">
                       {contentCategory.name}
