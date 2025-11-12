@@ -1,9 +1,12 @@
-import { TrendingUp, Target, Flame, Clock } from 'lucide-react';
+import { TrendingUp, Clock } from 'lucide-react';
 import { useProgressStats } from '../hooks/useProgressStats';
 import { useTranslation } from 'react-i18next';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import yourJourneyIcon from '../assets/your-journey.svg';
+import dayStreakIcon from '../assets/tracking/day-streak.svg';
+import totalSessionsIcon from '../assets/tracking/total-sessions.svg';
+import thisWeekIcon from '../assets/tracking/this-week.svg';
 
 const Tracking = () => {
   const { data: stats, isLoading } = useProgressStats();
@@ -82,7 +85,7 @@ const Tracking = () => {
       {/* Weekly Activity */}
       <div className="px-4 mb-8">
         <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-          <TrendingUp className="w-5 h-5 text-success" />
+          <img src={thisWeekIcon} alt="This Week" className="w-5 h-5" />
           {t('tracking.thisWeek')}
         </h2>
         
@@ -129,8 +132,8 @@ const Tracking = () => {
         <div className="grid grid-cols-2 gap-4 mb-6">
           {/* Current Streak */}
           <Card className="card-gradient p-6 text-center">
-            <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center mx-auto mb-3">
-              <Flame className="w-6 h-6 text-primary-foreground" />
+            <div className="w-16 h-16 mx-auto mb-3">
+              <img src={dayStreakIcon} alt="Day Streak" className="w-full h-full" />
             </div>
             <div className="text-3xl font-bold text-primary mb-1">
               {stats.currentStreak}
@@ -142,8 +145,8 @@ const Tracking = () => {
 
           {/* Total Sessions */}
           <Card className="card-gradient p-6 text-center">
-            <div className="w-12 h-12 bg-gradient-to-br from-secondary to-accent rounded-full flex items-center justify-center mx-auto mb-3">
-              <Target className="w-6 h-6 text-secondary-foreground" />
+            <div className="w-16 h-16 mx-auto mb-3">
+              <img src={totalSessionsIcon} alt="Total Sessions" className="w-full h-full" />
             </div>
             <div className="text-3xl font-bold text-secondary mb-1">
               {stats.totalMeditations}
