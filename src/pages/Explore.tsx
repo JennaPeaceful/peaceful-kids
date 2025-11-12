@@ -5,6 +5,8 @@ import { Card } from '../components/ui/card';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import logo from '@/assets/logo.svg';
+import peacePlanBg from '@/assets/peace-plan-bg.svg';
+import peacePlusPlanBg from '@/assets/peace-plus-plan-bg.svg';
 import { ParentalGate } from '@/components/ParentalGate';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserStore } from '@/stores/userStore';
@@ -311,15 +313,23 @@ const Explore = () => {
           {/* Two Cards Side-by-Side */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Peace Plan */}
-            <Card className="card-gradient p-8 border-2 border-primary/20 hover:border-primary/40 transition-all flex flex-col">
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-primary mb-2">Peace Plan</h2>
-                <div className="text-3xl font-bold text-primary mt-3">$5.99</div>
+            <Card className="relative overflow-hidden card-gradient p-8 border-2 border-primary/20 hover:border-primary/40 transition-all flex flex-col">
+              {/* SVG Background */}
+              <img
+                src={peacePlanBg}
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none select-none"
+                aria-hidden="true"
+              />
+              
+              <div className="relative z-10 mb-6">
+                <h2 className="text-2xl font-bebas font-normal text-primary mb-2">Peace Plan</h2>
+                <div className="text-3xl font-bebas font-normal text-primary mt-3">$5.99</div>
                 <div className="text-sm text-muted-foreground">/month</div>
                 <p className="text-muted-foreground text-sm mt-3">All Meditations</p>
               </div>
 
-              <div className="space-y-4 mb-8 flex-grow">
+              <div className="relative z-10 space-y-4 mb-8 flex-grow">
                 <div className="flex items-start gap-3">
                   <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                     <Check className="w-3 h-3 text-primary" />
@@ -336,7 +346,7 @@ const Explore = () => {
 
               <Button 
                 onClick={() => handleSelectPlan('peace')}
-                className="w-full btn-soft mt-auto"
+                className="relative z-10 w-full btn-soft mt-auto"
                 size="lg"
               >
                 Subscribe
@@ -344,19 +354,29 @@ const Explore = () => {
             </Card>
 
             {/* Peace Plus Plan - Highlighted */}
-            <Card className="card-premium p-8 border-2 border-accent/50 hover:border-accent transition-all relative flex flex-col">
-              <div className="absolute -top-3 right-4 bg-accent text-accent-foreground text-xs font-semibold px-3 py-1 rounded-full shadow-md">
+            <Card className="relative overflow-hidden card-premium p-8 border-2 border-accent/50 hover:border-accent transition-all flex flex-col">
+              {/* SVG Background */}
+              <img
+                src={peacePlusPlanBg}
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none select-none"
+                aria-hidden="true"
+              />
+              {/* Yellow overlay */}
+              <div className="absolute inset-0 bg-yellow-400/20 z-0"></div>
+
+              <div className="absolute -top-3 right-4 bg-accent text-accent-foreground text-xs font-semibold px-3 py-1 rounded-full shadow-md z-10">
                 Recommended
               </div>
               
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gradient-premium mb-2">Peace Plus Plan</h2>
-                <div className="text-3xl font-bold text-gradient-premium mt-3">$9.99</div>
+              <div className="relative z-10 mb-6">
+                <h2 className="text-2xl font-bebas font-normal text-gradient-premium mb-2">Peace Plus Plan</h2>
+                <div className="text-3xl font-bebas font-normal text-gradient-premium mt-3">$9.99</div>
                 <div className="text-sm text-muted-foreground">/month</div>
                 <p className="text-muted-foreground text-sm mt-3">All Content</p>
               </div>
 
-              <div className="space-y-4 mb-8 flex-grow">
+              <div className="relative z-10 space-y-4 mb-8 flex-grow">
                 <div className="flex items-start gap-3">
                   <div className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                     <Check className="w-3 h-3 text-accent" />
@@ -385,7 +405,7 @@ const Explore = () => {
 
               <Button 
                 onClick={() => handleSelectPlan('peace-plus')}
-                className="w-full btn-premium mt-auto"
+                className="relative z-10 w-full btn-premium mt-auto"
                 size="lg"
               >
                 Subscribe
