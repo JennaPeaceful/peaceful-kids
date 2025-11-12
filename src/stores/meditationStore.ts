@@ -375,7 +375,10 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
         .select('*')
         .order('sort_order', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching content categories:', error);
+        throw error;
+      }
 
       const contentCategories = (data || []).map((cat: any) => ({
         id: cat.id,
@@ -383,9 +386,10 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
         sort_order: cat.sort_order,
       }));
 
+      console.log('Fetched content categories:', contentCategories);
       set({ contentCategories });
     } catch (error) {
-      console.error('Error fetching content categories:', error);
+      console.error('Error in fetchContentCategories:', error);
     }
   },
 

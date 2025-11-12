@@ -73,6 +73,16 @@ const Meditations = () => {
     }
   }, [user, fetchUserMeditationUsage]);
 
+  // Debug logging
+  useEffect(() => {
+    console.log('Meditations Debug:', {
+      selectedCategory: filters.selectedCategory,
+      contentCategoriesLength: contentCategories.length,
+      selectedContentCategoriesLength: filters.selectedContentCategories.length,
+      contentCategories: contentCategories.slice(0, 3)
+    });
+  }, [filters.selectedCategory, contentCategories, filters.selectedContentCategories]);
+
   useEffect(() => {
     setDisplayedItems(ITEMS_PER_LOAD);
   }, [filteredMeditations]);
