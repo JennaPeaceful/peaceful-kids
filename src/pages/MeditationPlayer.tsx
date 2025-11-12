@@ -689,29 +689,44 @@ const MeditationPlayer = () => {
               </div>
             </div>
           ) : isAudio ? (
-            /* Thumbnail for audio meditations */
-            <img
-              src={(() => {
-                const thumbnailUrl = meditation.thumbnail_url || meditation.thumbnail;
-                if (thumbnailUrl === '/highly-meditated-course.svg') {
-                  return highlyMeditatedCourseSvg;
-                }
-                if (thumbnailUrl === '/introduction-healing-arts.svg') {
-                  return introductionHealingArtsSvg;
-                }
-                // Always default to logo if no valid thumbnail
-                return thumbnailUrl || logoSvg;
-              })()}
-              alt={meditation.title}
-              className="w-full h-full object-cover rounded-3xl shadow-2xl"
-              onError={(e) => {
-                // If thumbnail fails, use logo instead of gradient placeholder
-                if (e.currentTarget.src !== logoSvg) {
-                  logger.warn('Thumbnail failed to load, using logo');
-                  e.currentTarget.src = logoSvg;
-                }
-              }}
-            />
+            /* Thumbnail for audio meditations - clickable play/pause */
+            <div 
+              className="relative cursor-pointer group"
+              onClick={handlePlayPause}
+            >
+              <img
+                src={(() => {
+                  const thumbnailUrl = meditation.thumbnail_url || meditation.thumbnail;
+                  if (thumbnailUrl === '/highly-meditated-course.svg') {
+                    return highlyMeditatedCourseSvg;
+                  }
+                  if (thumbnailUrl === '/introduction-healing-arts.svg') {
+                    return introductionHealingArtsSvg;
+                  }
+                  // Always default to logo if no valid thumbnail
+                  return thumbnailUrl || logoSvg;
+                })()}
+                alt={meditation.title}
+                className="w-full h-full object-cover rounded-3xl shadow-2xl transition-opacity group-hover:opacity-90"
+                onError={(e) => {
+                  // If thumbnail fails, use logo instead of gradient placeholder
+                  if (e.currentTarget.src !== logoSvg) {
+                    logger.warn('Thumbnail failed to load, using logo');
+                    e.currentTarget.src = logoSvg;
+                  }
+                }}
+              />
+              {/* Play/Pause Icon Overlay */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="w-20 h-20 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center shadow-lg transition-all group-hover:scale-110 group-hover:bg-background/90">
+                  {player.isPlaying ? (
+                    <Pause className="w-10 h-10 text-foreground fill-foreground" />
+                  ) : (
+                    <Play className="w-10 h-10 text-foreground fill-foreground ml-1" />
+                  )}
+                </div>
+              </div>
+            </div>
           ) : (
             /* Video player with native poster */
             <video
