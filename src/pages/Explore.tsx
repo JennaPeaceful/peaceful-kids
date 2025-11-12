@@ -354,22 +354,19 @@ const Explore = () => {
             </div>
 
             {/* Peace Plus Plan - Highlighted */}
-            <div className="relative overflow-hidden rounded-lg bg-transparent p-8 border-2 border-accent/50 hover:border-accent transition-all flex flex-col">
-              {/* SVG Background */}
-              <img
-                src={peacePlusPlanBg}
-                alt=""
-                className="absolute -inset-px w-[calc(100%+2px)] h-[calc(100%+2px)] object-cover z-0 pointer-events-none select-none"
-                aria-hidden="true"
-              />
-              {/* Yellow overlay */}
-              <div className="absolute inset-0 bg-yellow-400/20 z-0"></div>
+            <div className="relative">
+              <div className="relative overflow-hidden rounded-lg bg-transparent p-8 border-2 border-accent/50 hover:border-accent transition-all flex flex-col">
+                {/* SVG Background */}
+                <img
+                  src={peacePlusPlanBg}
+                  alt=""
+                  className="absolute -inset-px w-[calc(100%+2px)] h-[calc(100%+2px)] object-cover z-0 pointer-events-none select-none"
+                  aria-hidden="true"
+                />
+                {/* Yellow overlay */}
+                <div className="absolute inset-0 bg-yellow-400/20 z-0"></div>
 
-              <div className="absolute -top-3 right-4 bg-[#ed2025] text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md z-20">
-                Most Popular
-              </div>
-              
-              <div className="relative z-10 mb-6">
+                <div className="relative z-10 mb-6">
                 <h2 className="text-2xl font-bebas font-normal text-gradient-premium mb-2">Peace Plus Plan</h2>
                 <div className="text-3xl font-bebas font-normal text-gradient-premium mt-3">$9.99</div>
                 <div className="text-sm text-muted-foreground">/month</div>
@@ -411,7 +408,11 @@ const Explore = () => {
                 Subscribe
               </Button>
             </div>
+            <div className="absolute -top-3 right-4 bg-[#ed2025] text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md z-20">
+              Most Popular
+            </div>
           </div>
+        </div>
 
             {/* Disclaimer */}
             <div className="mt-8 text-center">
