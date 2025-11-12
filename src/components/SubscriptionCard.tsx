@@ -49,14 +49,15 @@ const SubscriptionCard = ({ onSubscribe }: SubscriptionCardProps) => {
       {/* Two Cards Side-by-Side on Desktop */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
         {/* Peace Plan */}
-        <div 
-          className="relative rounded-lg border text-card-foreground shadow-sm p-6 flex flex-col overflow-hidden"
-          style={{
-            backgroundImage: `url(${peacePlanBg})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        >
+        <div className="relative rounded-lg border text-card-foreground shadow-sm p-6 flex flex-col overflow-hidden">
+          {/* SVG Background */}
+          <img 
+            src={peacePlanBg} 
+            alt="" 
+            className="absolute inset-0 w-full h-full object-cover z-0"
+            aria-hidden="true"
+          />
+          
           <div className="relative z-10 mb-4">
             <div className="inline-flex items-center justify-center w-12 h-12 bg-primary/20 rounded-full mb-3">
               {peacePlanIcon ? (
@@ -95,14 +96,15 @@ const SubscriptionCard = ({ onSubscribe }: SubscriptionCardProps) => {
         </div>
 
         {/* Peace Plus Plan - Highlighted */}
-        <div 
-          className="relative rounded-lg border-2 border-accent/50 text-card-foreground shadow-sm p-6 flex flex-col overflow-hidden"
-          style={{
-            backgroundImage: `url(${peacePlanBg})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        >
+        <div className="relative rounded-lg border-2 border-accent/50 text-card-foreground shadow-sm p-6 flex flex-col overflow-hidden">
+          {/* SVG Background */}
+          <img 
+            src={peacePlanBg} 
+            alt="" 
+            className="absolute inset-0 w-full h-full object-cover z-0"
+            aria-hidden="true"
+          />
+          
           {/* Yellow overlay */}
           <div className="absolute inset-0 bg-yellow-400/20 z-0"></div>
           
