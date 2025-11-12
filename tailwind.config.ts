@@ -93,6 +93,7 @@ export default {
       },
       fontFamily: {
         sans: ['Montserrat', 'system-ui', 'sans-serif'],
+        bebas: ['Bebas Neue', 'sans-serif'],
       },
       fontSize: {
         'xs': ['14px', '20px'],
