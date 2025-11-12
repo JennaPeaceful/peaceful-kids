@@ -649,7 +649,7 @@ const MeditationPlayer = () => {
       <div className="flex flex-col items-center px-6 pb-8">
         {/* Meditation Info - Title Above Media */}
         <div className="text-center mb-6">
-          <h1 className="text-2xl md:text-3xl font-bold mb-2">{meditation.public_title || meditation.title}</h1>
+          <h1 className="text-lg md:text-xl font-bold mb-2">{meditation.public_title || meditation.title}</h1>
         </div>
 
         {/* Media Display - Skip for text-only content */}
