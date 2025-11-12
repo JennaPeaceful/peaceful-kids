@@ -61,6 +61,20 @@ const trackParentalGatePassed = async () => {
   }
 };
 
+// Safe base64 encoding that handles Unicode characters
+const safeBase64Encode = (str: string): string => {
+  try {
+    // Encode to UTF-8 bytes first, then base64
+    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (_, p1) => {
+      return String.fromCharCode(parseInt(p1, 16));
+    }));
+  } catch (e) {
+    logger.error('Base64 encoding failed:', e);
+    // Return a simple fallback
+    return btoa('<svg xmlns="http://www.w3.org/2000/svg"><rect width="300" height="300" fill="#e0e0e0"/></svg>');
+  }
+};
+
 const MeditationPlayer = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -692,18 +706,17 @@ const MeditationPlayer = () => {
               onError={(e) => {
                 if (!e.currentTarget.src.includes('data:')) {
                   logger.warn('Thumbnail failed to load, using placeholder');
-                  e.currentTarget.src = 'data:image/svg+xml;base64,' + btoa(`
-                    <svg width="300" height="300" xmlns="http://www.w3.org/2000/svg">
+                  const fallbackSvg = `<svg width="300" height="300" xmlns="http://www.w3.org/2000/svg">
                       <defs>
                         <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" style="stop-color:hsl(var(--primary));stop-opacity:0.3" />
-                          <stop offset="100%" style="stop-color:hsl(var(--secondary));stop-opacity:0.6" />
+                          <stop offset="0%" style="stop-color:#8b5cf6;stop-opacity:0.3" />
+                          <stop offset="100%" style="stop-color:#ec4899;stop-opacity:0.6" />
                         </linearGradient>
                       </defs>
                       <rect width="300" height="300" fill="url(#grad)" />
-                      <text x="150" y="150" font-family="system-ui" font-size="16" fill="hsl(var(--foreground))" text-anchor="middle" dy=".3em">🧘‍♀️</text>
-                    </svg>
-                  `);
+                      <circle cx="150" cy="150" r="40" fill="white" opacity="0.8"/>
+                    </svg>`;
+                  e.currentTarget.src = 'data:image/svg+xml;base64,' + safeBase64Encode(fallbackSvg);
                 }
               }}
             />
