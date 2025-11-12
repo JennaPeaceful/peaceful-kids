@@ -721,19 +721,21 @@ const MeditationPlayer = () => {
             </div>
           ) : (
             /* Video player with native poster - wrapped for pulsing background */
-            <div className="relative mx-auto transition-all duration-300"
-                 style={{
-                   ...(videoHasStarted && calculatedDimensionsRef.current
-                     ? {
-                         width: `${calculatedDimensionsRef.current.width}px`,
-                         height: `${calculatedDimensionsRef.current.height}px`
-                       }
-                     : {
-                         width: 'min(350px, 90vw)',
-                         height: 'min(350px, 90vw)'
-                       }
-                   )
-                 }}
+            <div
+              className="relative mx-auto transition-all duration-300 cursor-pointer group"
+              onClick={handlePlayPause}
+              style={{
+                ...(videoHasStarted && calculatedDimensionsRef.current
+                  ? {
+                      width: `${calculatedDimensionsRef.current.width}px`,
+                      height: `${calculatedDimensionsRef.current.height}px`
+                    }
+                  : {
+                      width: 'min(350px, 90vw)',
+                      height: 'min(350px, 90vw)'
+                    }
+                )
+              }}
             >
               {/* Separate poster image - shows before play */}
               {!videoHasStarted && safePoster && (
@@ -748,7 +750,6 @@ const MeditationPlayer = () => {
               <video
                 ref={videoRef}
                 playsInline
-                controls
                 preload="metadata"
                 className={`rounded-lg w-full h-full ${videoHasStarted ? 'playing shadow-2xl' : ''}`}
                 style={{
@@ -757,12 +758,38 @@ const MeditationPlayer = () => {
                 }}
               onLoadStart={(e) => {
                   const videoEl = e.target as HTMLVideoElement;
-                  console.log('[VIDEO DEBUG - LoadStart]', {
+                  const computedStyle = window.getComputedStyle(videoEl);
+
+                  console.log('🔴 [VIDEO DEBUG - LoadStart] =================');
+                  console.log('Platform:', {
+                    isAndroid: isAndroid(),
+                    userAgent: navigator.userAgent
+                  });
+                  console.log('Video Element:', {
                     poster: videoEl.poster,
+                    controls: videoEl.controls,
+                    playsInline: videoEl.playsInline,
+                    preload: videoEl.preload,
                     elementDimensions: `${videoEl.offsetWidth}x${videoEl.offsetHeight}`,
                     clientDimensions: `${videoEl.clientWidth}x${videoEl.clientHeight}`,
                     containerWidth: videoEl.parentElement?.offsetWidth
                   });
+                  console.log('Computed Styles:', {
+                    display: computedStyle.display,
+                    objectFit: computedStyle.objectFit,
+                    WebkitAppearance: computedStyle.webkitAppearance
+                  });
+                  console.log('All Attributes:', Array.from(videoEl.attributes).map(attr => `${attr.name}="${attr.value}"`));
+
+                  // Try to access shadow DOM (might not work)
+                  try {
+                    const shadowRoot = (videoEl as any).shadowRoot;
+                    console.log('Shadow DOM:', shadowRoot ? 'EXISTS' : 'NOT ACCESSIBLE');
+                  } catch (e) {
+                    console.log('Shadow DOM:', 'ERROR ACCESSING');
+                  }
+                  console.log('===============================================');
+
                   handleLoadStart();
                 }}
                 onCanPlay={(e) => {
@@ -872,6 +899,17 @@ const MeditationPlayer = () => {
                 Your browser does not support the video tag.
               </video>
 
+              {/* Custom Play/Pause Button Overlay */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="w-20 h-20 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center shadow-lg transition-all group-hover:scale-110 group-hover:bg-background/90">
+                  {player.isPlaying ? (
+                    <Pause className="w-10 h-10 text-foreground fill-foreground" />
+                  ) : (
+                    <Play className="w-10 h-10 text-foreground fill-foreground ml-1" />
+                  )}
+                </div>
+              </div>
+
               {/* Floating Animation for Free Content */}
               {!isLocked && player.isPlaying && (
                 <div className="absolute inset-0 rounded-lg animate-pulse-celebration"
@@ -884,6 +922,18 @@ const MeditationPlayer = () => {
             </div>
           )}
 
+          {/* 🔴 DEBUG OVERLAY - Remove after fixing */}
+          {!isAudio && !isPdf && !isTextOnly && (
+            <div className="fixed top-0 left-0 right-0 bg-red-500 text-white p-2 text-xs font-mono z-50 opacity-90">
+              <div className="max-w-screen-lg mx-auto">
+                <strong>🔴 DEBUG MODE</strong> |
+                Platform: {isAndroid() ? 'ANDROID' : 'iOS/Web'} |
+                Video Started: {videoHasStarted ? 'YES' : 'NO'} |
+                Playing: {player.isPlaying ? 'YES' : 'NO'} |
+                Poster: {safePoster ? 'SET' : 'NONE'}
+              </div>
+            </div>
+          )}
 
           {/* Lock Overlay */}
           {isLocked && (

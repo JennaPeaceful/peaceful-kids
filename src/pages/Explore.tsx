@@ -8,6 +8,7 @@ import logo from '@/assets/logo.svg';
 import peacePlanBg from '@/assets/peace-plan-bg.svg';
 import peacePlusPlanBg from '@/assets/peace-plus-plan-bg.svg';
 import { ParentalGate } from '@/components/ParentalGate';
+import AuthModal from '@/components/AuthModal';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserStore } from '@/stores/userStore';
 import { useMeditationStore } from '@/stores/meditationStore';
@@ -22,6 +23,7 @@ const Explore = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [showParentalGate, setShowParentalGate] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const { subscription } = useUserStore();
   const { meditations, fetchMeditations } = useMeditationStore();
@@ -58,13 +60,8 @@ const Explore = () => {
   const handleSelectPlan = (plan: string) => {
     // Check if user is authenticated before showing purchase flow
     if (!user) {
-      toast({
-        title: "Sign In Required",
-        description: "Please sign in to subscribe to a plan.",
-        variant: "destructive",
-      });
-      // Redirect to home where auth modal will appear
-      navigate('/');
+      // Open auth modal directly instead of redirecting
+      setShowAuthModal(true);
       return;
     }
 
@@ -268,10 +265,10 @@ const Explore = () => {
                 </div>
                 
                 <div className="mb-6">
-                  <h3 className="text-2xl font-bold text-gradient-premium mb-2">Peace Plus Plan</h3>
-                  <div className="text-3xl font-bold text-gradient-premium mt-3">$9.99</div>
-                  <div className="text-sm text-muted-foreground">/month</div>
-                  <p className="text-muted-foreground text-sm mt-3">All Content</p>
+                  <h3 className="text-3xl font-bold text-black mb-2">Peace Plus Plan</h3>
+                  <div className="text-4xl font-bold text-black mt-3">$9.99</div>
+                  <div className="text-sm text-black">/month</div>
+                  <p className="text-black text-sm mt-3">All Content</p>
                 </div>
 
                 <div className="space-y-4 mb-8">
@@ -323,10 +320,10 @@ const Explore = () => {
               />
               
               <div className="relative z-10 mb-6">
-                <h2 className="text-2xl font-bebas font-normal text-primary mb-2">Peace Plan</h2>
-                <div className="text-3xl font-bebas font-normal text-primary mt-3">$5.99</div>
-                <div className="text-sm text-muted-foreground">/month</div>
-                <p className="text-muted-foreground text-sm mt-3">All Meditations</p>
+                <h2 className="text-3xl font-bebas font-normal text-black mb-2">Peace Plan</h2>
+                <div className="text-4xl font-bebas font-normal text-black mt-3">$5.99</div>
+                <div className="text-sm text-black">/month</div>
+                <p className="text-black text-sm mt-3">All Meditations</p>
               </div>
 
               <div className="relative z-10 space-y-4 mb-8 flex-grow">
@@ -367,10 +364,10 @@ const Explore = () => {
                 <div className="absolute inset-0 bg-yellow-400/20 z-0"></div>
 
                 <div className="relative z-10 mb-6">
-                <h2 className="text-2xl font-bebas font-normal text-gradient-premium mb-2">Peace Plus Plan</h2>
-                <div className="text-3xl font-bebas font-normal text-gradient-premium mt-3">$9.99</div>
-                <div className="text-sm text-muted-foreground">/month</div>
-                <p className="text-muted-foreground text-sm mt-3">All Content</p>
+                <h2 className="text-3xl font-bebas font-normal text-black mb-2">Peace Plus Plan</h2>
+                <div className="text-4xl font-bebas font-normal text-black mt-3">$9.99</div>
+                <div className="text-sm text-black">/month</div>
+                <p className="text-black text-sm mt-3">All Content</p>
               </div>
 
               <div className="relative z-10 space-y-4 mb-8 flex-grow">
@@ -429,6 +426,13 @@ const Explore = () => {
         isOpen={showParentalGate}
         onClose={() => setShowParentalGate(false)}
         onSuccess={handleParentalGateSuccess}
+      />
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        initialMode="signup"
       />
     </div>
   );

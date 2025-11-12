@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Mail } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { Keyboard } from '@capacitor/keyboard';
 import {
   Dialog,
   DialogContent,
@@ -23,6 +24,40 @@ export const ForgotPasswordModal = ({ isOpen, onClose }: ForgotPasswordModalProp
   const [isLoading, setIsLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
 
+  // Handle keyboard show/hide for iOS scrolling
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyboardShow = (info: any) => {
+      console.log('🎹 Keyboard shown (ForgotPassword):', info);
+      // Scroll the focused element into view after a short delay
+      setTimeout(() => {
+        const activeElement = document.activeElement as HTMLElement;
+        if (activeElement && activeElement.tagName === 'INPUT') {
+          console.log('📍 Scrolling to input:', activeElement.id);
+          activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+    };
+
+    const handleKeyboardHide = () => {
+      console.log('🎹 Keyboard hidden (ForgotPassword)');
+    };
+
+    // Add listeners
+    Keyboard.addListener('keyboardWillShow', handleKeyboardShow);
+    Keyboard.addListener('keyboardDidShow', handleKeyboardShow);
+    Keyboard.addListener('keyboardWillHide', handleKeyboardHide);
+
+    console.log('✅ Keyboard listeners added (ForgotPassword)');
+
+    // Cleanup
+    return () => {
+      Keyboard.removeAllListeners();
+      console.log('🧹 Keyboard listeners removed (ForgotPassword)');
+    };
+  }, [isOpen]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -34,8 +69,18 @@ export const ForgotPasswordModal = ({ isOpen, onClose }: ForgotPasswordModalProp
     setIsLoading(true);
 
     try {
+      // Use production URL for mobile apps and production web
+      // Only use dynamic origin for local web development (http://localhost)
+      const isLocalWebDev =
+        (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') &&
+        window.location.protocol === 'http:';
+
+      const redirectUrl = isLocalWebDev
+        ? `${window.location.origin}/reset-password`
+        : 'https://app.peacefulkids.app/reset-password';
+
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: redirectUrl,
       });
 
       if (error) throw error;

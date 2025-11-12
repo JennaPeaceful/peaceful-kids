@@ -302,6 +302,55 @@ video[poster].playing {
   -webkit-object-fit: contain !important;
 }
 
+/* ============================================
+   COMPREHENSIVE VIDEO CONTROLS HIDING
+   Hide ALL native video controls for custom UI
+   ============================================ */
+
+/* Hide ALL webkit media controls comprehensively */
+video::-webkit-media-controls,
+video::-webkit-media-controls-enclosure,
+video::-webkit-media-controls-panel,
+video::-webkit-media-controls-overlay-play-button,
+video::-webkit-media-controls-play-button,
+video::-webkit-media-controls-start-playback-button,
+video::-webkit-media-controls-timeline,
+video::-webkit-media-controls-current-time-display,
+video::-webkit-media-controls-time-remaining-display,
+video::-webkit-media-controls-mute-button,
+video::-webkit-media-controls-volume-slider,
+video::-webkit-media-controls-fullscreen-button,
+video::-webkit-media-controls-toggle-closed-captions-button {
+  display: none !important;
+  -webkit-appearance: none !important;
+}
+
+/* Mozilla/Firefox equivalents */
+video::-moz-media-controls,
+video::-moz-media-controls-play-button {
+  display: none !important;
+}
+
+/* ============================================
+   🔴 DEBUG MARKERS - Remove after fixing
+   ============================================ */
+video {
+  border: 3px solid red !important;
+  box-shadow: 0 0 0 1px yellow inset !important;
+}
+
+video::before {
+  content: "🔴 VIDEO ELEMENT";
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: red;
+  color: white;
+  padding: 2px 5px;
+  font-size: 10px;
+  z-index: 9999;
+}
+
 @keyframes pulse-celebration {
   0%, 100% {
     opacity: 1;

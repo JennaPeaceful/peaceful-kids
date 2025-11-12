@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Lock, Eye, EyeOff, CheckCircle2, XCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { Keyboard } from '@capacitor/keyboard';
 import {
   Dialog,
   DialogContent,
@@ -25,6 +26,40 @@ export const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProp
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+
+  // Handle keyboard show/hide for iOS scrolling
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyboardShow = (info: any) => {
+      console.log('🎹 Keyboard shown (ChangePassword):', info);
+      // Scroll the focused element into view after a short delay
+      setTimeout(() => {
+        const activeElement = document.activeElement as HTMLElement;
+        if (activeElement && activeElement.tagName === 'INPUT') {
+          console.log('📍 Scrolling to input:', activeElement.id);
+          activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+    };
+
+    const handleKeyboardHide = () => {
+      console.log('🎹 Keyboard hidden (ChangePassword)');
+    };
+
+    // Add listeners
+    Keyboard.addListener('keyboardWillShow', handleKeyboardShow);
+    Keyboard.addListener('keyboardDidShow', handleKeyboardShow);
+    Keyboard.addListener('keyboardWillHide', handleKeyboardHide);
+
+    console.log('✅ Keyboard listeners added (ChangePassword)');
+
+    // Cleanup
+    return () => {
+      Keyboard.removeAllListeners();
+      console.log('🧹 Keyboard listeners removed (ChangePassword)');
+    };
+  }, [isOpen]);
 
   // Password strength calculation
   const getPasswordStrength = (password: string) => {
