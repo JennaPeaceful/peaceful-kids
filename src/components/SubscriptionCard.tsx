@@ -50,7 +50,7 @@ const SubscriptionCard = ({ onSubscribe }: SubscriptionCardProps) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
         {/* Peace Plan */}
         <div 
-          className="relative rounded-lg border bg-card text-card-foreground shadow-sm p-6 flex flex-col overflow-hidden"
+          className="relative rounded-lg border text-card-foreground shadow-sm p-6 flex flex-col overflow-hidden"
           style={{
             backgroundImage: `url(${peacePlanBg})`,
             backgroundSize: 'cover',
@@ -96,7 +96,7 @@ const SubscriptionCard = ({ onSubscribe }: SubscriptionCardProps) => {
 
         {/* Peace Plus Plan - Highlighted */}
         <div 
-          className="relative rounded-lg border-2 border-accent/50 bg-card text-card-foreground shadow-sm p-6 flex flex-col overflow-hidden"
+          className="relative rounded-lg border-2 border-accent/50 text-card-foreground shadow-sm p-6 flex flex-col overflow-hidden"
           style={{
             backgroundImage: `url(${peacePlanBg})`,
             backgroundSize: 'cover',
