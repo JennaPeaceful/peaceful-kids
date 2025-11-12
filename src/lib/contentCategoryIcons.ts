@@ -6,9 +6,9 @@ import guidedWithoutMusic from '@/assets/content-categories/guided-without-music
 import breathwork from '@/assets/content-categories/breathwork.svg';
 import soundHealing from '@/assets/content-categories/sound-healing.svg';
 import specificIntention from '@/assets/content-categories/specific-intention.svg';
-import meditation from '@/assets/content-categories/meditation.svg';
-import somaticReset from '@/assets/content-categories/somatic-reset.svg';
-import transitions from '@/assets/content-categories/transitions.svg';
+import meditation from '@/assets/content-categories/meditation-line.svg';
+import somaticReset from '@/assets/content-categories/somatic-reset-line.svg';
+import transitions from '@/assets/content-categories/transitions-line.svg';
 import repeatedMantra from '@/assets/content-categories/repeated-mantra.svg';
 import mindfulnessActivities from '@/assets/content-categories/mindfulness-activities.svg';
 

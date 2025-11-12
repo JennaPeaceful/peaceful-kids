@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Badge } from '../components/ui/badge';
 import { formatCategoryName } from '@/lib/utils';
 import { getContentCategoryIcon } from '@/lib/contentCategoryIcons';
+import { getContentCategoryColor } from '@/lib/contentCategoryColors';
 import categoryBackground from '@/assets/category-icon-background.svg';
 import emotionsIcon from '@/assets/emotions.svg';
 import logo from '@/assets/logo.svg';
@@ -467,6 +468,7 @@ const Meditations = () => {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {contentCategories.map((contentCategory) => {
                 const icon = getContentCategoryIcon(contentCategory.name);
+                const categoryColor = getContentCategoryColor(contentCategory.name);
                 const isSelected = filters.selectedContentCategories.includes(contentCategory.name);
                 return (
                   <Button
@@ -476,12 +478,23 @@ const Meditations = () => {
                     className="flex flex-col items-center gap-2 h-auto py-4 hover:shadow-primary transition-all"
                   >
                     <div className="relative w-16 h-16 rounded-xl overflow-hidden flex items-center justify-center">
-                      {icon ? (
-                        <img 
-                          src={icon}
-                          alt=""
-                          className="w-12 h-12 object-contain"
-                        />
+                      {icon && categoryColor ? (
+                        <>
+                          {/* Colored background at 70% opacity */}
+                          <div 
+                            className="absolute inset-0" 
+                            style={{ 
+                              backgroundColor: categoryColor,
+                              opacity: 0.7 
+                            }}
+                          />
+                          {/* Dark line art on top */}
+                          <img 
+                            src={icon}
+                            alt=""
+                            className="relative z-10 w-12 h-12 object-contain"
+                          />
+                        </>
                       ) : (
                         <img 
                           src={categoryBackground}
