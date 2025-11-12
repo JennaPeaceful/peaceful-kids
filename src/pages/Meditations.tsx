@@ -191,7 +191,12 @@ const Meditations = () => {
     ? filteredByMediaType.filter(m => favorites.includes(m.id))
     : filteredByMediaType;
 
-  const sortedMeditations = [...filteredByFavorites].sort((a, b) => {
+  // Exclude courses when Adults category is selected
+  const filteredExcludingCourses = filters.selectedCategory === 'Adults'
+    ? filteredByFavorites.filter(m => m.category !== 'Courses')
+    : filteredByFavorites;
+
+  const sortedMeditations = [...filteredExcludingCourses].sort((a, b) => {
     // Priority 1: When course filter is active, sort by module > lecture order
     if (filters.selectedCourses.length > 0) {
       // Sort by module first (nulls last)
