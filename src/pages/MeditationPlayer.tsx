@@ -699,24 +699,16 @@ const MeditationPlayer = () => {
                 if (thumbnailUrl === '/introduction-healing-arts.svg') {
                   return introductionHealingArtsSvg;
                 }
+                // Always default to logo if no valid thumbnail
                 return thumbnailUrl || logoSvg;
               })()}
               alt={meditation.title}
               className="w-full h-full object-cover rounded-3xl shadow-2xl"
               onError={(e) => {
-                if (!e.currentTarget.src.includes('data:')) {
-                  logger.warn('Thumbnail failed to load, using placeholder');
-                  const fallbackSvg = `<svg width="300" height="300" xmlns="http://www.w3.org/2000/svg">
-                      <defs>
-                        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" style="stop-color:#8b5cf6;stop-opacity:0.3" />
-                          <stop offset="100%" style="stop-color:#ec4899;stop-opacity:0.6" />
-                        </linearGradient>
-                      </defs>
-                      <rect width="300" height="300" fill="url(#grad)" />
-                      <circle cx="150" cy="150" r="40" fill="white" opacity="0.8"/>
-                    </svg>`;
-                  e.currentTarget.src = 'data:image/svg+xml;base64,' + safeBase64Encode(fallbackSvg);
+                // If thumbnail fails, use logo instead of gradient placeholder
+                if (e.currentTarget.src !== logoSvg) {
+                  logger.warn('Thumbnail failed to load, using logo');
+                  e.currentTarget.src = logoSvg;
                 }
               }}
             />
