@@ -101,6 +101,8 @@ const MeditationPlayer = () => {
   const [usageRecordId, setUsageRecordId] = useState<string | null>(null);
   const lastUpdateTimeRef = useRef<number>(0);
   const [isTranscriptOpen, setIsTranscriptOpen] = useState(false);
+  const [videoHasStarted, setVideoHasStarted] = useState(false);
+  const calculatedDimensionsRef = useRef<{width: number, height: number} | null>(null);
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -668,25 +670,15 @@ const MeditationPlayer = () => {
 
         {/* Media Display - Skip for text-only content */}
         {!isTextOnly && (
-          <div id="media" className="relative mb-8 w-full md:max-w-2xl mx-auto">
+          <div id="media" className="relative mb-8 flex justify-center w-full max-w-4xl">
             {isPdf ? (
             /* PDF viewer - platform-aware display */
             <div className="w-full md:max-w-2xl overflow-x-hidden">
-              {/* Embedded PDF Viewer - use Office Online for OneDrive URLs, Google Docs for others */}
-              <PdfRenderer fileUrl={meditation.media_url} title={meditation.title} />
-
-              {/* Download/Open PDF Button - Below Viewer */}
-              <div className="mt-4 flex justify-center">
-                <Button
-                  onClick={() => {
-                    window.open(meditation.media_url, '_blank', 'noopener,noreferrer');
-                  }}
-                  className="flex items-center gap-2 bg-gradient-to-r from-primary via-secondary to-accent text-white hover:opacity-90 transition-opacity"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                  Open PDF
-                </Button>
-              </div>
+              <PdfRenderer
+                fileUrl={meditation.media_url}
+                imageUrl={meditation.image_url}
+                title={meditation.title}
+              />
             </div>
           ) : isAudio ? (
             /* Thumbnail for audio meditations - clickable play/pause */
@@ -728,39 +720,116 @@ const MeditationPlayer = () => {
               </div>
             </div>
           ) : (
-            /* Video player with native poster */
-            <video
-              ref={videoRef}
-              poster={safePoster}
-              playsInline
-              controls
-              preload="metadata"
-              className="w-full h-auto rounded-lg shadow-2xl object-contain bg-black"
-              style={{ maxHeight: '60vh' }}
-              onLoadStart={() => {
-                  logger.log('[Video] Loading from:', meditation.media_url);
-                  logger.log('[Video] Poster URL:', meditation.thumbnail_url || meditation.thumbnail || 'none');
-                  const videoEl = videoRef.current;
-                  if (videoEl) {
-                    logger.log('[Video Debug] Container dimensions:', {
-                      parentWidth: videoEl.parentElement?.offsetWidth,
-                      parentHeight: videoEl.parentElement?.offsetHeight,
-                      videoWidth: videoEl.offsetWidth,
-                      videoHeight: videoEl.offsetHeight,
-                      videoClientWidth: videoEl.clientWidth,
-                      videoClientHeight: videoEl.clientHeight
-                    });
-                  }
+            /* Video player with native poster - wrapped for pulsing background */
+            <div className="relative mx-auto transition-all duration-300"
+                 style={{
+                   ...(videoHasStarted && calculatedDimensionsRef.current
+                     ? {
+                         width: `${calculatedDimensionsRef.current.width}px`,
+                         height: `${calculatedDimensionsRef.current.height}px`
+                       }
+                     : {
+                         width: 'min(350px, 90vw)',
+                         height: 'min(350px, 90vw)'
+                       }
+                   )
+                 }}
+            >
+              {/* Separate poster image - shows before play */}
+              {!videoHasStarted && safePoster && (
+                <img
+                  src={safePoster}
+                  alt={meditation.title}
+                  className="absolute inset-0 w-full h-full object-cover rounded-lg shadow-2xl"
+                  style={{ pointerEvents: 'none' }}
+                />
+              )}
+
+              <video
+                ref={videoRef}
+                playsInline
+                controls
+                preload="metadata"
+                className={`rounded-lg w-full h-full ${videoHasStarted ? 'playing shadow-2xl' : ''}`}
+                style={{
+                  display: 'block',
+                  objectFit: 'contain'
+                }}
+              onLoadStart={(e) => {
+                  const videoEl = e.target as HTMLVideoElement;
+                  console.log('[VIDEO DEBUG - LoadStart]', {
+                    poster: videoEl.poster,
+                    elementDimensions: `${videoEl.offsetWidth}x${videoEl.offsetHeight}`,
+                    clientDimensions: `${videoEl.clientWidth}x${videoEl.clientHeight}`,
+                    containerWidth: videoEl.parentElement?.offsetWidth
+                  });
                   handleLoadStart();
                 }}
-                onCanPlay={handleCanPlay}
+                onCanPlay={(e) => {
+                  const videoEl = e.target as HTMLVideoElement;
+                  console.log('[VIDEO DEBUG - CanPlay]', {
+                    finalElementSize: `${videoEl.offsetWidth}x${videoEl.offsetHeight}`,
+                    videoNaturalSize: `${videoEl.videoWidth}x${videoEl.videoHeight}`
+                  });
+                  handleCanPlay();
+                }}
                 onCanPlayThrough={() => {
                   logger.log('[Video] Can play through');
                 }}
-                onLoadedMetadata={handleLoadedMetadata}
+                onLoadedMetadata={(e) => {
+                  const videoEl = e.target as HTMLVideoElement;
+                  const aspectRatio = videoEl.videoWidth / videoEl.videoHeight;
+                  const isPortrait = videoEl.videoHeight > videoEl.videoWidth;
+
+                  // Calculate explicit dimensions based on viewport
+                  const maxHeightVh = 80;
+                  const viewportHeight = window.innerHeight;
+                  const maxHeightPx = (maxHeightVh / 100) * viewportHeight;
+
+                  // Calculate width based on maintaining aspect ratio within height constraint
+                  const calculatedHeight = Math.min(videoEl.videoHeight, maxHeightPx);
+                  const calculatedWidth = calculatedHeight * aspectRatio;
+
+                  // Get container width
+                  const containerWidth = videoEl.parentElement?.offsetWidth || window.innerWidth;
+
+                  // For portrait, also limit to reasonable width (75% of container)
+                  const maxWidth = isPortrait ? containerWidth * 0.75 : containerWidth;
+                  const finalWidth = Math.min(calculatedWidth, maxWidth);
+                  const finalHeight = finalWidth / aspectRatio;
+
+                  console.log('[VIDEO DEBUG - MetadataLoaded]', {
+                    naturalDimensions: `${videoEl.videoWidth}x${videoEl.videoHeight}`,
+                    aspectRatio: aspectRatio.toFixed(3),
+                    calculatedDimensions: `${Math.round(finalWidth)}x${Math.round(finalHeight)}`,
+                    isPortrait,
+                    viewportHeight,
+                    containerWidth
+                  });
+
+                  // Store calculated dimensions in ref (don't apply yet - wait for play)
+                  calculatedDimensionsRef.current = {
+                    width: Math.round(finalWidth),
+                    height: Math.round(finalHeight)
+                  };
+
+                  handleLoadedMetadata();
+                }}
                 onTimeUpdate={handleTimeUpdate}
-                onPlay={() => {
-                  logger.log('[Video] Play event - native controls');
+                onPlay={(e) => {
+                  const videoEl = e.target as HTMLVideoElement;
+                  console.log('[VIDEO DEBUG - Playing]', {
+                    displayedSize: `${videoEl.offsetWidth}x${videoEl.offsetHeight}`,
+                    videoFileSize: `${videoEl.videoWidth}x${videoEl.videoHeight}`,
+                    computedStyle: window.getComputedStyle(videoEl).objectFit,
+                    calculatedDimensions: calculatedDimensionsRef.current
+                  });
+
+                  // Trigger transition from square to aspect ratio
+                  if (!videoHasStarted) {
+                    setVideoHasStarted(true);
+                  }
+
                   setPlaying(true);
                 }}
                 onPause={() => {
@@ -802,15 +871,20 @@ const MeditationPlayer = () => {
                 <source src={meditation.media_url} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
-          )}
 
-          {/* Loading Overlay */}
-          {isLoading && !isPdf && (
-            <div className={`absolute inset-0 ${isAudio ? 'bg-black/60 rounded-3xl' : 'bg-black/50 rounded-lg'} flex items-center justify-center pointer-events-none`}>
-              <div className="animate-spin w-8 h-8 border-2 border-white border-t-transparent rounded-full"></div>
+              {/* Floating Animation for Free Content */}
+              {!isLocked && player.isPlaying && (
+                <div className="absolute inset-0 rounded-lg animate-pulse-celebration"
+                     style={{
+                       boxShadow: '0 0 40px rgba(139, 69, 255, 0.3)',
+                       pointerEvents: 'none'
+                     }}
+                />
+              )}
             </div>
           )}
-          
+
+
           {/* Lock Overlay */}
           {isLocked && (
             <div className="absolute inset-0 bg-black/60 rounded-3xl flex items-center justify-center">
@@ -828,16 +902,6 @@ const MeditationPlayer = () => {
                 </Button>
               </div>
             </div>
-          )}
-          
-          {/* Floating Animation for Free Content */}
-          {!isLocked && player.isPlaying && (
-            <div className="absolute inset-0 rounded-lg animate-pulse-celebration"
-                 style={{
-                   boxShadow: '0 0 40px rgba(139, 69, 255, 0.3)',
-                   pointerEvents: 'none' // Allow touches to pass through to video controls
-                 }}
-            />
           )}
           </div>
         )}

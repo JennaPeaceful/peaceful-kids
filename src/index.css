@@ -281,20 +281,25 @@ All colors MUST be HSL for proper theming.
       object-fit: contain;
     }
   }
+}
 
-  /* Force hardware acceleration for better video poster rendering */
-  video {
-    -webkit-transform: translateZ(0);
-    -webkit-backface-visibility: hidden;
-    object-fit: contain;
-    -webkit-object-fit: contain;
-  }
+/* Force hardware acceleration for better video poster rendering */
+video {
+  -webkit-transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  transition: width 0.3s ease, height 0.3s ease;
+}
 
-  /* Ensure video posters maintain aspect ratio */
-  video[poster] {
-    object-fit: contain !important;
-    -webkit-object-fit: contain !important;
-  }
+/* Before play: cover to fill square without distortion */
+video[poster]:not(.playing) {
+  object-fit: cover !important;
+  -webkit-object-fit: cover !important;
+}
+
+/* After play: contain to show full video */
+video[poster].playing {
+  object-fit: contain !important;
+  -webkit-object-fit: contain !important;
 }
 
 @keyframes pulse-celebration {

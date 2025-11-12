@@ -215,11 +215,20 @@ const Meditations = () => {
     // Step 4: Sort only when course filter is active; otherwise preserve store order
     if (filters.selectedCourses.length > 0) {
       return [...result].sort((a, b) => {
+        // Sort PDFs to the top when module filter is active
+        if (filters.selectedModule !== null) {
+          const aIsPdf = a.media_type === 'pdf';
+          const bIsPdf = b.media_type === 'pdf';
+          if (aIsPdf !== bIsPdf) {
+            return aIsPdf ? -1 : 1; // PDFs come first
+          }
+        }
+
         // Sort by module first (nulls last)
         const aModule = a.module ?? Number.MAX_SAFE_INTEGER;
         const bModule = b.module ?? Number.MAX_SAFE_INTEGER;
         if (aModule !== bModule) return aModule - bModule;
-        
+
         // Then by lecture within module (nulls last)
         const aLecture = a.lecture ?? Number.MAX_SAFE_INTEGER;
         const bLecture = b.lecture ?? Number.MAX_SAFE_INTEGER;
@@ -239,6 +248,7 @@ const Meditations = () => {
     favorites,
     filters.selectedCategory,
     filters.selectedCourses,
+    filters.selectedModule,
     userMeditationUsage,
     user
   ]);

@@ -21,6 +21,7 @@ export interface Meditation {
   duration: number; // in seconds
   media_url: string;
   media_type: 'audio' | 'video' | 'pdf' | 'text';
+  image_url?: string; // Pre-converted image URL for PDFs
   is_free: boolean;
   category: string;
   age_group: string;

@@ -124,11 +124,11 @@ const MeditationListItem = ({ meditation, onPlay, courseThumbnail }: MeditationL
         {/* Media type indicator */}
         <div className="absolute bottom-1 right-1">
           {meditation.media_type === 'video' ? (
-            <Video className="w-4 h-4 text-white drop-shadow-lg" />
+            <Video className="w-4 h-4 text-primary/70 drop-shadow-lg" />
           ) : meditation.media_type === 'pdf' || meditation.media_type === 'text' ? (
-            <FileText className="w-4 h-4 text-white drop-shadow-lg" />
+            <FileText className="w-4 h-4 text-primary/70 drop-shadow-lg" />
           ) : (
-            <Music className="w-4 h-4 text-white drop-shadow-lg" />
+            <Music className="w-4 h-4 text-primary/70 drop-shadow-lg" />
           )}
         </div>
       </div>

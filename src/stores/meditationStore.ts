@@ -93,6 +93,7 @@ const transformMeditation = (dbMeditation: any): Meditation => ({
   duration: dbMeditation.duration || 0,
   media_url: dbMeditation.media_url || '',
   media_type: (dbMeditation.media_type as 'audio' | 'video' | 'pdf') || 'audio',
+  image_url: dbMeditation.image_url,
   is_free: dbMeditation.is_free || false,
   category: dbMeditation.category || 'Kid',
   age_group: dbMeditation.age_group || '',
@@ -130,7 +131,7 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
       // Fetch meditations with joined module data
       const { data, error } = await supabase
         .from('meditations')
-        .select('*, course_modules(*)')
+        .select('*, course_modules(*), image_url')
         .order('sort_order', { ascending: true });
 
       if (error) throw error;
