@@ -62,6 +62,9 @@ const Meditations = () => {
   const [mediaType, setMediaType] = useState<MediaType>('all');
   const [resultsExpanded, setResultsExpanded] = useState(false);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  
+  // Helper to normalize Adult category checks (handles both 'Adult' and 'Adults')
+  const isAdult = filters.selectedCategory?.toLowerCase() === 'adult';
 
   useEffect(() => {
     fetchMeditations();
@@ -72,16 +75,6 @@ const Meditations = () => {
       fetchUserMeditationUsage(user.id);
     }
   }, [user, fetchUserMeditationUsage]);
-
-  // Debug logging
-  useEffect(() => {
-    console.log('Meditations Debug:', {
-      selectedCategory: filters.selectedCategory,
-      contentCategoriesLength: contentCategories.length,
-      selectedContentCategoriesLength: filters.selectedContentCategories.length,
-      contentCategories: contentCategories.slice(0, 3)
-    });
-  }, [filters.selectedCategory, contentCategories, filters.selectedContentCategories]);
 
   useEffect(() => {
     setDisplayedItems(ITEMS_PER_LOAD);
@@ -212,8 +205,8 @@ const Meditations = () => {
       result = result.filter(m => favorites.includes(m.id));
     }
 
-    // Step 3: Exclude courses when Adults category is selected
-    if (filters.selectedCategory === 'Adults') {
+    // Step 3: Exclude courses when Adult category is selected
+    if (isAdult) {
       result = result.filter(m => m.category !== 'Courses');
     }
 
@@ -464,8 +457,8 @@ const Meditations = () => {
           </div>
         )}
 
-        {/* Content Categories - Show when Adults category is selected */}
-        {filters.selectedCategory === 'Adults' && !filters.selectedContentCategories.length && contentCategories.length > 0 && (
+        {/* Content Categories - Show when Adult category is selected */}
+        {isAdult && contentCategories.length > 0 && (
           <div className="mb-6">
             <label className="text-sm font-medium text-muted-foreground mb-3 block">
               Content Categories
@@ -610,7 +603,7 @@ const Meditations = () => {
 
         {/* Themes - Icon Grid - Show after age group for Kids or for Adult category */}
         {filters.selectedCategory && 
-         (filters.selectedCategory === 'Adult' || (filters.selectedCategory === 'Kid' && filters.selectedAgeGroup)) &&
+         (isAdult || (filters.selectedCategory === 'Kid' && filters.selectedAgeGroup)) &&
          availableThemeObjects.length > 0 && (
           <div className="mb-6">
             <label className="text-sm font-medium text-muted-foreground mb-3 block">
