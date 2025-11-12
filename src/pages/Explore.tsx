@@ -313,7 +313,7 @@ const Explore = () => {
           {/* Two Cards Side-by-Side */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Peace Plan */}
-            <Card className="relative overflow-hidden card-gradient p-8 border-2 border-primary/20 hover:border-primary/40 transition-all flex flex-col">
+            <Card className="relative overflow-hidden bg-transparent p-8 border-2 border-primary/20 hover:border-primary/40 transition-all flex flex-col">
               {/* SVG Background */}
               <img
                 src={peacePlanBg}
@@ -346,7 +346,7 @@ const Explore = () => {
 
               <Button 
                 onClick={() => handleSelectPlan('peace')}
-                className="relative z-10 w-full btn-soft mt-auto"
+                className="relative z-10 w-full mt-auto bg-[#d1cb3f] hover:bg-[#c4be3a] text-white font-bebas font-normal text-xl transition-all duration-300 hover:scale-105 shadow-md hover:shadow-lg"
                 size="lg"
               >
                 Subscribe
@@ -354,7 +354,7 @@ const Explore = () => {
             </Card>
 
             {/* Peace Plus Plan - Highlighted */}
-            <Card className="relative overflow-hidden card-premium p-8 border-2 border-accent/50 hover:border-accent transition-all flex flex-col">
+            <Card className="relative overflow-hidden bg-transparent p-8 border-2 border-accent/50 hover:border-accent transition-all flex flex-col">
               {/* SVG Background */}
               <img
                 src={peacePlusPlanBg}
@@ -365,8 +365,8 @@ const Explore = () => {
               {/* Yellow overlay */}
               <div className="absolute inset-0 bg-yellow-400/20 z-0"></div>
 
-              <div className="absolute -top-3 right-4 bg-accent text-accent-foreground text-xs font-semibold px-3 py-1 rounded-full shadow-md z-10">
-                Recommended
+              <div className="absolute -top-3 right-4 bg-[#ed2025] text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md z-10">
+                Most Popular
               </div>
               
               <div className="relative z-10 mb-6">
@@ -405,7 +405,7 @@ const Explore = () => {
 
               <Button 
                 onClick={() => handleSelectPlan('peace-plus')}
-                className="relative z-10 w-full btn-premium mt-auto"
+                className="relative z-10 w-full mt-auto bg-[#da3062] hover:bg-[#c72b58] text-white font-bebas font-normal text-xl transition-all duration-300 hover:scale-105 shadow-md hover:shadow-lg"
                 size="lg"
               >
                 Subscribe
