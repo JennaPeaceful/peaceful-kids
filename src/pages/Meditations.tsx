@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Search, X, ChevronsUp, ChevronsDown, Heart } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -182,60 +182,74 @@ const Meditations = () => {
     (!filters.selectedCategory || theme.category?.includes(filters.selectedCategory))
   );
 
-  // Sort meditations and filter by media type and favorites
-  const filteredByMediaType = mediaType === 'all' 
-    ? filteredMeditations 
-    : filteredMeditations.filter(m => m.media_type === mediaType);
+  // Consolidate all filtering and sorting in a single memoized operation
+  const sortedMeditations = useMemo(() => {
+    // Step 1: Filter by media type
+    let result = mediaType === 'all' 
+      ? filteredMeditations 
+      : filteredMeditations.filter(m => m.media_type === mediaType);
 
-  const filteredByFavorites = showFavoritesOnly
-    ? filteredByMediaType.filter(m => favorites.includes(m.id))
-    : filteredByMediaType;
-
-  // Exclude courses when Adults category is selected
-  const filteredExcludingCourses = filters.selectedCategory === 'Adults'
-    ? filteredByFavorites.filter(m => m.category !== 'Courses')
-    : filteredByFavorites;
-
-  const sortedMeditations = [...filteredExcludingCourses].sort((a, b) => {
-    // Priority 1: When course filter is active, sort by module > lecture order
-    if (filters.selectedCourses.length > 0) {
-      // Sort by module first (nulls last)
-      const aModule = a.module ?? Number.MAX_SAFE_INTEGER;
-      const bModule = b.module ?? Number.MAX_SAFE_INTEGER;
-      if (aModule !== bModule) return aModule - bModule;
-      
-      // Then by lecture within module (nulls last)
-      const aLecture = a.lecture ?? Number.MAX_SAFE_INTEGER;
-      const bLecture = b.lecture ?? Number.MAX_SAFE_INTEGER;
-      if (aLecture !== bLecture) return aLecture - bLecture;
+    // Step 2: Filter by favorites
+    if (showFavoritesOnly) {
+      result = result.filter(m => favorites.includes(m.id));
     }
-    
-    // Priority 2: Most recently played meditations first (if user is authenticated)
-    if (userMeditationUsage && user) {
-      const aUsage = userMeditationUsage.find(u => u.meditation_id === a.id);
-      const bUsage = userMeditationUsage.find(u => u.meditation_id === b.id);
-      
-      // If A was played but B wasn't, A comes first
-      if (aUsage && !bUsage) return -1;
-      if (!aUsage && bUsage) return 1;
-      
-      // If both were played, most recent comes first
-      if (aUsage && bUsage) {
-        const aTime = new Date(aUsage.updated_at).getTime();
-        const bTime = new Date(bUsage.updated_at).getTime();
-        if (aTime !== bTime) return bTime - aTime; // Descending (most recent first)
+
+    // Step 3: Exclude courses when Adults category is selected
+    if (filters.selectedCategory === 'Adults') {
+      result = result.filter(m => m.category !== 'Courses');
+    }
+
+    // Step 4: Sort
+    return [...result].sort((a, b) => {
+      // Priority 1: When course filter is active, sort by module > lecture order
+      if (filters.selectedCourses.length > 0) {
+        // Sort by module first (nulls last)
+        const aModule = a.module ?? Number.MAX_SAFE_INTEGER;
+        const bModule = b.module ?? Number.MAX_SAFE_INTEGER;
+        if (aModule !== bModule) return aModule - bModule;
+        
+        // Then by lecture within module (nulls last)
+        const aLecture = a.lecture ?? Number.MAX_SAFE_INTEGER;
+        const bLecture = b.lecture ?? Number.MAX_SAFE_INTEGER;
+        if (aLecture !== bLecture) return aLecture - bLecture;
       }
-    }
-    
-    // Priority 3: Free meditations before premium
-    if (a.is_free && !b.is_free) return -1;
-    if (!a.is_free && b.is_free) return 1;
+      
+      // Priority 2: Most recently played meditations first (if user is authenticated)
+      if (userMeditationUsage && user) {
+        const aUsage = userMeditationUsage.find(u => u.meditation_id === a.id);
+        const bUsage = userMeditationUsage.find(u => u.meditation_id === b.id);
+        
+        // If A was played but B wasn't, A comes first
+        if (aUsage && !bUsage) return -1;
+        if (!aUsage && bUsage) return 1;
+        
+        // If both were played, most recent comes first
+        if (aUsage && bUsage) {
+          const aTime = new Date(aUsage.updated_at).getTime();
+          const bTime = new Date(bUsage.updated_at).getTime();
+          if (aTime !== bTime) return bTime - aTime; // Descending (most recent first)
+        }
+      }
+      
+      // Priority 3: Free meditations before premium
+      if (a.is_free && !b.is_free) return -1;
+      if (!a.is_free && b.is_free) return 1;
 
-    // Priority 4: Alphabetical by title
-    const aTitle = (a.title || '').toLowerCase();
-    const bTitle = (b.title || '').toLowerCase();
-    return aTitle > bTitle ? 1 : -1;
-  });
+      // Priority 4: Alphabetical by title
+      const aTitle = (a.title || '').toLowerCase();
+      const bTitle = (b.title || '').toLowerCase();
+      return aTitle > bTitle ? 1 : -1;
+    });
+  }, [
+    filteredMeditations,
+    mediaType,
+    showFavoritesOnly,
+    favorites,
+    filters.selectedCategory,
+    filters.selectedCourses,
+    userMeditationUsage,
+    user
+  ]);
 
   const displayedMeditations = sortedMeditations.slice(0, displayedItems);
   
