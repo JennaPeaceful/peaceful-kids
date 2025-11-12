@@ -12,6 +12,7 @@ interface MeditationState {
   courses: string[];
   courseModules: Map<string, CourseModule>; // keyed by module_id
   themes: Array<{id: string; name: string; icon: string; color: string; category: string[]; icon_svg_url?: string; icon_png_url?: string; sort_order?: number}>;
+  contentCategories: Array<{id: string; name: string; sort_order?: number}>;
   ageGroups: string[];
   availableThemes: string[];
   filters: FilterState;
@@ -22,6 +23,7 @@ interface MeditationState {
   fetchMeditations: () => Promise<void>;
   fetchCategories: () => Promise<void>;
   fetchCourses: () => Promise<void>;
+  fetchContentCategories: () => Promise<void>;
   initializeThemes: () => void;
   fetchUserMeditationUsage: (userId: string) => Promise<void>;
   setMeditations: (meditations: Meditation[]) => void;
@@ -40,6 +42,7 @@ const initialFilters: FilterState = {
   selectedModule: null,
   selectedAgeGroup: null,
   selectedThemes: [],
+  selectedContentCategories: [],
   searchQuery: '',
 };
 
@@ -114,6 +117,7 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
   courses: [],
   courseModules: new Map(),
   themes: [],
+  contentCategories: [],
   ageGroups: [],
   availableThemes: [],
   filters: initialFilters,
@@ -191,6 +195,12 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
         );
       }
 
+      if (currentFilters.selectedContentCategories.length > 0) {
+        initialFiltered = initialFiltered.filter(m =>
+          m.content_categories?.some(cc => currentFilters.selectedContentCategories.includes(cc))
+        );
+      }
+
       if (currentFilters.searchQuery) {
         const query = currentFilters.searchQuery.toLowerCase();
         initialFiltered = initialFiltered.filter(m =>
@@ -229,6 +239,7 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
       // Fetch additional data
       await get().fetchCategories();
       await get().fetchCourses();
+      await get().fetchContentCategories();
       await get().initializeThemes();
       
       // Initial filters already applied during fetch to prevent UI reshuffle
@@ -279,6 +290,12 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
     if (updatedFilters.selectedThemes.length > 0) {
       filtered = filtered.filter(m =>
         m.themes.some(theme => updatedFilters.selectedThemes.includes(theme))
+      );
+    }
+
+    if (updatedFilters.selectedContentCategories.length > 0) {
+      filtered = filtered.filter(m =>
+        m.content_categories?.some(cc => updatedFilters.selectedContentCategories.includes(cc))
       );
     }
 
@@ -351,6 +368,27 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
     }
   },
 
+  fetchContentCategories: async () => {
+    try {
+      const { data, error } = await supabase
+        .from('content_categories')
+        .select('*')
+        .order('sort_order', { ascending: true });
+
+      if (error) throw error;
+
+      const contentCategories = (data || []).map((cat: any) => ({
+        id: cat.id,
+        name: cat.name,
+        sort_order: cat.sort_order,
+      }));
+
+      set({ contentCategories });
+    } catch (error) {
+      console.error('Error fetching content categories:', error);
+    }
+  },
+
   initializeThemes: async () => {
     try {
       const { data, error } = await supabase
@@ -403,6 +441,12 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
     if (filters.selectedThemes.length > 0) {
       filtered = filtered.filter(m => 
         m.themes.some(theme => filters.selectedThemes.includes(theme))
+      );
+    }
+    
+    if (filters.selectedContentCategories.length > 0) {
+      filtered = filtered.filter(m =>
+        m.content_categories?.some(cc => filters.selectedContentCategories.includes(cc))
       );
     }
     

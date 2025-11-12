@@ -111,6 +111,7 @@ export interface FilterState {
   selectedModule: number | null;
   selectedAgeGroup: string | null;
   selectedThemes: string[];
+  selectedContentCategories: string[];
   searchQuery: string;
 }
 

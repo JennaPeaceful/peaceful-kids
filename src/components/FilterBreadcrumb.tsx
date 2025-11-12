@@ -21,15 +21,18 @@ interface FilterBreadcrumbProps {
   selectedModule?: number | null;
   selectedAgeGroup: string | null;
   selectedThemes: string[];
+  selectedContentCategories?: string[];
   courses?: string[];
   courseThumbnails?: { [key: string]: string };
   ageGroups: string[];
   themes: Array<{ id: string; name: string; icon: string; category: string[]; icon_svg_url?: string }>;
+  contentCategories?: Array<{ id: string; name: string; sort_order?: number }>;
   onCategorySelect: (category: string | null) => void;
   onCourseToggle?: (course: string) => void;
   onModuleSelect?: (module: number | null) => void;
   onAgeGroupSelect: (ageGroup: string | null) => void;
   onThemeToggle: (theme: string) => void;
+  onContentCategoryToggle?: (contentCategory: string) => void;
 }
 
 const FilterBreadcrumb = ({
@@ -38,15 +41,18 @@ const FilterBreadcrumb = ({
   selectedModule = null,
   selectedAgeGroup,
   selectedThemes,
+  selectedContentCategories = [],
   courses = [],
   courseThumbnails = {},
   ageGroups,
   themes,
+  contentCategories = [],
   onCategorySelect,
   onCourseToggle,
   onModuleSelect,
   onAgeGroupSelect,
-  onThemeToggle
+  onThemeToggle,
+  onContentCategoryToggle
 }: FilterBreadcrumbProps) => {
   const [expandedPills, setExpandedPills] = useState<Set<string>>(new Set());
 
@@ -212,6 +218,34 @@ const FilterBreadcrumb = ({
               onClick={(e) => {
                 e.stopPropagation();
                 onThemeToggle(themeName);
+              }}
+            >
+              <X className="w-3 h-3" />
+            </Button>
+          </Badge>
+        );
+      })}
+
+      {/* Content Category Pills */}
+      {selectedContentCategories.map((contentCategoryName) => {
+        const pillId = `content-category-${contentCategoryName}`;
+        return (
+          <Badge 
+            key={contentCategoryName}
+            variant="secondary" 
+            className="h-8 px-3 cursor-pointer hover:bg-secondary/80 transition-colors flex items-center gap-2"
+            onClick={() => toggleExpand(pillId)}
+          >
+            <span className="text-sm">
+              {expandedPills.has(pillId) ? contentCategoryName : truncateText(contentCategoryName, 12)}
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-4 w-4 p-0 ml-1 hover:bg-transparent"
+              onClick={(e) => {
+                e.stopPropagation();
+                onContentCategoryToggle?.(contentCategoryName);
               }}
             >
               <X className="w-3 h-3" />
