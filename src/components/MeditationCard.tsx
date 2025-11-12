@@ -32,11 +32,20 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
     (effectivePlanType === 'peace_plan' && isCourse)
   );
 
-  // Get theme objects with icons for this meditation
-  const meditationThemes = meditation.themes
-    .map(themeName => themes.find(t => t.name === themeName))
-    .filter(Boolean)
-    .slice(0, 3);
+  // Get theme objects with icons for this meditation (deduped by id)
+  const meditationThemes = (() => {
+    const seen = new Set<string>();
+    const list: Array<NonNullable<typeof themes[number]>> = [] as any;
+    for (const themeName of meditation.themes || []) {
+      const theme = themes.find(t => t.name === themeName);
+      if (theme && !seen.has(theme.id)) {
+        seen.add(theme.id);
+        list.push(theme);
+        if (list.length === 3) break;
+      }
+    }
+    return list;
+  })();
 
   // Map database thumbnail paths to imported assets
   const getThumbnailSrc = () => {

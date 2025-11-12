@@ -152,9 +152,57 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
           }
           return true;
         });
+      // Compute initial filtered list using current filters to avoid initial reshuffle
+      const currentFilters = get().filters;
+      let initialFiltered = [...meditations];
+
+      // ALWAYS exclude meditations with courses field unless Courses category is explicitly selected
+      if (currentFilters.selectedCategory !== 'Courses') {
+        initialFiltered = initialFiltered.filter(m => !m.courses && m.category !== 'Courses');
+      }
+
+      // Apply category filter (skip for "Emotions" which uses themes instead)
+      if (currentFilters.selectedCategory && currentFilters.selectedCategory !== 'Emotions' && currentFilters.selectedCategory !== 'Courses') {
+        initialFiltered = initialFiltered.filter(m => m.category === currentFilters.selectedCategory);
+      }
+
+      // If Courses is selected, only show meditations with courses field
+      if (currentFilters.selectedCategory === 'Courses') {
+        initialFiltered = initialFiltered.filter(m => m.category === 'Courses' || m.courses);
+      }
+
+      if (currentFilters.selectedCourses.length > 0) {
+        initialFiltered = initialFiltered.filter(m =>
+          m.courses && currentFilters.selectedCourses.includes(m.courses)
+        );
+      }
+
+      if (currentFilters.selectedModule !== null) {
+        initialFiltered = initialFiltered.filter(m => m.module === currentFilters.selectedModule);
+      }
+
+      if (currentFilters.selectedAgeGroup) {
+        initialFiltered = initialFiltered.filter(m => m.age_group === currentFilters.selectedAgeGroup);
+      }
+
+      if (currentFilters.selectedThemes.length > 0) {
+        initialFiltered = initialFiltered.filter(m =>
+          m.themes.some(theme => currentFilters.selectedThemes.includes(theme))
+        );
+      }
+
+      if (currentFilters.searchQuery) {
+        const query = currentFilters.searchQuery.toLowerCase();
+        initialFiltered = initialFiltered.filter(m =>
+          m.title.toLowerCase().includes(query) ||
+          m.description.toLowerCase().includes(query) ||
+          m.themes.some(theme => theme.toLowerCase().includes(query))
+        );
+      }
+
       set({
         meditations,
-        filteredMeditations: meditations,
+        filteredMeditations: initialFiltered,
         recentMeditations: meditations.slice(0, 3),
         recommendedMeditations: meditations.filter(m => m.category === 'Kid' && m.age_group === 'Ages 6-8').slice(0, 4),
         courseModules: modulesMap,
@@ -183,8 +231,7 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
       await get().fetchCourses();
       await get().initializeThemes();
       
-      // Apply current filters if any
-      get().applyFilters();
+      // Initial filters already applied during fetch to prevent UI reshuffle
     } catch (error) {
       console.error('Error fetching meditations:', error);
       set({ isLoading: false });

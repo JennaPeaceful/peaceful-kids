@@ -199,10 +199,9 @@ const Meditations = () => {
       result = result.filter(m => m.category !== 'Courses');
     }
 
-    // Step 4: Sort
-    return [...result].sort((a, b) => {
-      // Priority 1: When course filter is active, sort by module > lecture order
-      if (filters.selectedCourses.length > 0) {
+    // Step 4: Sort only when course filter is active; otherwise preserve store order
+    if (filters.selectedCourses.length > 0) {
+      return [...result].sort((a, b) => {
         // Sort by module first (nulls last)
         const aModule = a.module ?? Number.MAX_SAFE_INTEGER;
         const bModule = b.module ?? Number.MAX_SAFE_INTEGER;
@@ -212,34 +211,14 @@ const Meditations = () => {
         const aLecture = a.lecture ?? Number.MAX_SAFE_INTEGER;
         const bLecture = b.lecture ?? Number.MAX_SAFE_INTEGER;
         if (aLecture !== bLecture) return aLecture - bLecture;
-      }
-      
-      // Priority 2: Most recently played meditations first (if user is authenticated)
-      if (userMeditationUsage && user) {
-        const aUsage = userMeditationUsage.find(u => u.meditation_id === a.id);
-        const bUsage = userMeditationUsage.find(u => u.meditation_id === b.id);
-        
-        // If A was played but B wasn't, A comes first
-        if (aUsage && !bUsage) return -1;
-        if (!aUsage && bUsage) return 1;
-        
-        // If both were played, most recent comes first
-        if (aUsage && bUsage) {
-          const aTime = new Date(aUsage.updated_at).getTime();
-          const bTime = new Date(bUsage.updated_at).getTime();
-          if (aTime !== bTime) return bTime - aTime; // Descending (most recent first)
-        }
-      }
-      
-      // Priority 3: Free meditations before premium
-      if (a.is_free && !b.is_free) return -1;
-      if (!a.is_free && b.is_free) return 1;
 
-      // Priority 4: Alphabetical by title
-      const aTitle = (a.title || '').toLowerCase();
-      const bTitle = (b.title || '').toLowerCase();
-      return aTitle > bTitle ? 1 : -1;
-    });
+        // Tie-breaker: stable by id
+        return a.id.localeCompare(b.id);
+      });
+    }
+
+    // Preserve original order from store when not sorting by course structure
+    return result;
   }, [
     filteredMeditations,
     mediaType,
