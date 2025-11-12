@@ -5,6 +5,7 @@ import { Card } from './ui/card';
 import { ParentalGate } from './ParentalGate';
 import { getSubscriptionIcon } from '@/utils/revenuecat';
 import peacePlanBg from '@/assets/peace-plan-bg.svg';
+import peacePlusPlanBg from '@/assets/peace-plus-plan-bg.svg';
 
 interface SubscriptionCardProps {
   onSubscribe?: (plan: string) => void;
@@ -54,7 +55,7 @@ const SubscriptionCard = ({ onSubscribe }: SubscriptionCardProps) => {
           <img 
             src={peacePlanBg} 
             alt="" 
-            className="absolute inset-0 w-full h-full object-cover z-0"
+            className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none select-none"
             aria-hidden="true"
           />
           
@@ -66,8 +67,8 @@ const SubscriptionCard = ({ onSubscribe }: SubscriptionCardProps) => {
                 <Music className="w-6 h-6 text-primary" />
               )}
             </div>
-            <h3 className="text-xl font-bold font-bebas mb-1">Peace Plan</h3>
-            <div className="text-3xl font-bold font-bebas mt-2">
+            <h3 className="text-xl font-bebas font-normal mb-1">Peace Plan</h3>
+            <div className="text-3xl font-bebas font-normal mt-2">
               $5.99
               <span className="text-sm font-normal font-sans text-muted-foreground">/month</span>
             </div>
@@ -99,9 +100,9 @@ const SubscriptionCard = ({ onSubscribe }: SubscriptionCardProps) => {
         <div className="relative rounded-lg border-2 border-accent/50 text-card-foreground shadow-sm p-6 flex flex-col overflow-hidden">
           {/* SVG Background */}
           <img 
-            src={peacePlanBg} 
+            src={peacePlusPlanBg} 
             alt="" 
-            className="absolute inset-0 w-full h-full object-cover z-0"
+            className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none select-none"
             aria-hidden="true"
           />
           
@@ -120,10 +121,10 @@ const SubscriptionCard = ({ onSubscribe }: SubscriptionCardProps) => {
                 <Sparkles className="w-6 h-6 text-accent-foreground" />
               )}
             </div>
-            <h3 className="text-xl font-bold font-bebas text-gradient-premium mb-1">
+            <h3 className="text-xl font-bebas font-normal text-gradient-premium mb-1">
               Peace Plus Plan
             </h3>
-            <div className="text-3xl font-bold font-bebas text-gradient-premium mt-2">
+            <div className="text-3xl font-bebas font-normal text-gradient-premium mt-2">
               $9.99
               <span className="text-sm font-normal font-sans text-muted-foreground">/month</span>
             </div>
