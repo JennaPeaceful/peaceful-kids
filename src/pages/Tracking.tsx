@@ -1,4 +1,3 @@
-import { TrendingUp, Clock } from 'lucide-react';
 import { useProgressStats } from '../hooks/useProgressStats';
 import { useTranslation } from 'react-i18next';
 import { Card } from '../components/ui/card';
@@ -7,6 +6,7 @@ import yourJourneyIcon from '../assets/your-journey.svg';
 import dayStreakIcon from '../assets/tracking/day-streak.svg';
 import totalSessionsIcon from '../assets/tracking/total-sessions.svg';
 import thisWeekIcon from '../assets/tracking/this-week.svg';
+import totalMinutesIcon from '../assets/tracking/total-minutes.svg';
 
 const Tracking = () => {
   const { data: stats, isLoading } = useProgressStats();
@@ -159,8 +159,8 @@ const Tracking = () => {
 
         {/* Total Minutes */}
         <Card className="card-gradient p-6 text-center mb-6">
-          <div className="w-16 h-16 bg-gradient-to-br from-accent to-warning rounded-full flex items-center justify-center mx-auto mb-4">
-            <Clock className="w-8 h-8 text-accent-foreground" />
+          <div className="w-16 h-16 mx-auto mb-3">
+            <img src={totalMinutesIcon} alt="Total Minutes" className="w-full h-full" />
           </div>
           <div className="text-4xl font-bold text-gradient-premium mb-2">
             {stats.totalMinutes}
