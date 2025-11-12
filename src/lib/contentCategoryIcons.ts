@@ -6,6 +6,9 @@ import guidedWithoutMusic from '@/assets/content-categories/guided-without-music
 import breathwork from '@/assets/content-categories/breathwork.svg';
 import soundHealing from '@/assets/content-categories/sound-healing.svg';
 import specificIntention from '@/assets/content-categories/specific-intention.svg';
+import meditation from '@/assets/content-categories/meditation.svg';
+import somaticReset from '@/assets/content-categories/somatic-reset.svg';
+import transitions from '@/assets/content-categories/transitions.svg';
 
 export const contentCategoryIcons: Record<string, string> = {
   'Binaurals': binauralBeats,
@@ -17,6 +20,9 @@ export const contentCategoryIcons: Record<string, string> = {
   'Breathwork': breathwork,
   'Meditation with Sound Healing': soundHealing,
   'Specific Intention Meditations': specificIntention,
+  'Meditation': meditation,
+  'Somatic Reset': somaticReset,
+  'Transitions': transitions,
 };
 
 export function getContentCategoryIcon(categoryName: string): string | null {
