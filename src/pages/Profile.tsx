@@ -3,12 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import {
   User, Settings, LogOut, Crown,
   Shield, FileText, HelpCircle, Trash2,
-  ChevronRight, Lock, RefreshCw, ExternalLink, Loader2
+  ChevronRight, Lock, RefreshCw, ExternalLink, Loader2, Key
 } from 'lucide-react';
 import { isNativePlatform, isIOS, isAndroid } from '@/utils/platform';
 import { restorePurchases, openSubscriptionManagement } from '@/utils/revenuecat';
 import { forceRefreshSubscription } from '@/utils/syncSubscription';
 import { WellnessDisclaimer } from '@/components/WellnessDisclaimer';
+import { ChangePasswordModal } from '@/components/ChangePasswordModal';
 import { useUserStore } from '../stores/userStore';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../integrations/supabase/client';
@@ -41,6 +42,7 @@ const Profile = () => {
   const { signOut, user } = useAuth();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
   const [isRestoringPurchases, setIsRestoringPurchases] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { t, i18n } = useTranslation();
@@ -516,6 +518,18 @@ const Profile = () => {
           <Button
             variant="ghost"
             className="w-full justify-between"
+            onClick={() => setShowChangePassword(true)}
+          >
+            <span className="flex items-center gap-2">
+              <Key className="w-4 h-4" />
+              Change Password
+            </span>
+            <ChevronRight className="w-4 h-4" />
+          </Button>
+
+          <Button
+            variant="ghost"
+            className="w-full justify-between"
             onClick={handleSignOutEverywhere}
           >
             <span className="flex items-center gap-2">
@@ -525,8 +539,8 @@ const Profile = () => {
             <ChevronRight className="w-4 h-4" />
           </Button>
 
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             className="w-full justify-between text-destructive hover:text-destructive"
             onClick={() => setShowDeleteDialog(true)}
           >
@@ -551,10 +565,16 @@ const Profile = () => {
         </Button>
       </div>
 
+      {/* Change Password Modal */}
+      <ChangePasswordModal
+        isOpen={showChangePassword}
+        onClose={() => setShowChangePassword(false)}
+      />
+
       {/* Wellness Disclaimer Modal */}
-      <WellnessDisclaimer 
-        forceOpen={showDisclaimer} 
-        onClose={() => setShowDisclaimer(false)} 
+      <WellnessDisclaimer
+        forceOpen={showDisclaimer}
+        onClose={() => setShowDisclaimer(false)}
       />
 
       {/* Delete Account Dialog */}

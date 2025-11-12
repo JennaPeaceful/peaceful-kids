@@ -19,6 +19,7 @@ import Meditations from "./pages/Meditations";
 import Tracking from "./pages/Tracking";
 import Profile from "./pages/Profile";
 import MeditationPlayer from "./pages/MeditationPlayer";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 import { useUserStore } from "./stores/userStore";
 
@@ -93,6 +94,7 @@ const App = () => {
                     <Route path="/meditation/:id" element={<AppLayout><MeditationPlayer /></AppLayout>} />
                     <Route path="/tracking" element={<AppLayout><Tracking /></AppLayout>} />
                     <Route path="/profile" element={<AppLayout><Profile /></AppLayout>} />
+                    <Route path="/reset-password" element={<ResetPassword />} />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
