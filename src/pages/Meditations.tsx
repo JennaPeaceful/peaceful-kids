@@ -133,11 +133,11 @@ const Meditations = () => {
     setFilters({ selectedThemes: newThemes });
   };
 
-  const handleContentCategoryToggle = (contentCategory: string) => {
-    const newContentCategories = filters.selectedContentCategories.includes(contentCategory)
-      ? filters.selectedContentCategories.filter(cc => cc !== contentCategory)
-      : [...filters.selectedContentCategories, contentCategory];
-    setFilters({ selectedContentCategories: newContentCategories });
+  const handleContentCategorySelect = (contentCategory: string) => {
+    // If the category is already selected, clear it (for X button)
+    // Otherwise, select it (single-select)
+    const isAlreadySelected = filters.selectedContentCategories.includes(contentCategory);
+    setFilters({ selectedContentCategories: isAlreadySelected ? [] : [contentCategory] });
   };
 
   const handleSearchChange = (query: string) => {
@@ -340,7 +340,7 @@ const Meditations = () => {
           onModuleSelect={handleModuleSelect}
           onAgeGroupSelect={handleAgeGroupSelect}
           onThemeToggle={handleThemeToggle}
-          onContentCategoryToggle={handleContentCategoryToggle}
+          onContentCategoryToggle={handleContentCategorySelect}
         />
 
         {/* Filter Selection - Show all available filters */}
@@ -470,7 +470,7 @@ const Meditations = () => {
         )}
 
         {/* Content Categories - Show when Adult category is selected */}
-        {isAdult && contentCategories.length > 0 && (
+        {isAdult && contentCategories.length > 0 && filters.selectedContentCategories.length === 0 && (
           <div className="mb-6">
             <label className="text-sm font-medium text-muted-foreground mb-3 block">
               Content Categories
@@ -484,7 +484,7 @@ const Meditations = () => {
                   <Button
                     key={contentCategory.id}
                     variant={isSelected ? "default" : "outline"}
-                    onClick={() => handleContentCategoryToggle(contentCategory.name)}
+                    onClick={() => handleContentCategorySelect(contentCategory.name)}
                     className="flex flex-col items-center gap-2 h-auto py-4 hover:shadow-primary transition-all"
                   >
                     <div className="relative w-16 h-16 rounded-xl overflow-hidden flex items-center justify-center">

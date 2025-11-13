@@ -331,26 +331,6 @@ video::-moz-media-controls-play-button {
   display: none !important;
 }
 
-/* ============================================
-   🔴 DEBUG MARKERS - Remove after fixing
-   ============================================ */
-video {
-  border: 3px solid red !important;
-  box-shadow: 0 0 0 1px yellow inset !important;
-}
-
-video::before {
-  content: "🔴 VIDEO ELEMENT";
-  position: absolute;
-  top: 0;
-  left: 0;
-  background: red;
-  color: white;
-  padding: 2px 5px;
-  font-size: 10px;
-  z-index: 9999;
-}
-
 @keyframes pulse-celebration {
   0%, 100% {
     opacity: 1;

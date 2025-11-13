@@ -17,6 +17,7 @@ import AuthModal from '@/components/AuthModal';
 import logoSvg from '@/assets/logo.svg';
 import highlyMeditatedCourseSvg from '@/assets/highly-meditated-course.svg';
 import introductionHealingArtsSvg from '@/assets/introduction-healing-arts.svg';
+import congratulationsSvg from '@/assets/congratulations.svg';
 import { supabase } from '@/integrations/supabase/client';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -737,18 +738,9 @@ const MeditationPlayer = () => {
                 )
               }}
             >
-              {/* Separate poster image - shows before play */}
-              {!videoHasStarted && safePoster && (
-                <img
-                  src={safePoster}
-                  alt={meditation.title}
-                  className="absolute inset-0 w-full h-full object-cover rounded-lg shadow-2xl"
-                  style={{ pointerEvents: 'none' }}
-                />
-              )}
-
               <video
                 ref={videoRef}
+                poster={safePoster}
                 playsInline
                 preload="metadata"
                 className={`rounded-lg w-full h-full ${videoHasStarted ? 'playing shadow-2xl' : ''}`}
@@ -756,50 +748,8 @@ const MeditationPlayer = () => {
                   display: 'block',
                   objectFit: 'contain'
                 }}
-              onLoadStart={(e) => {
-                  const videoEl = e.target as HTMLVideoElement;
-                  const computedStyle = window.getComputedStyle(videoEl);
-
-                  console.log('🔴 [VIDEO DEBUG - LoadStart] =================');
-                  console.log('Platform:', {
-                    isAndroid: isAndroid(),
-                    userAgent: navigator.userAgent
-                  });
-                  console.log('Video Element:', {
-                    poster: videoEl.poster,
-                    controls: videoEl.controls,
-                    playsInline: videoEl.playsInline,
-                    preload: videoEl.preload,
-                    elementDimensions: `${videoEl.offsetWidth}x${videoEl.offsetHeight}`,
-                    clientDimensions: `${videoEl.clientWidth}x${videoEl.clientHeight}`,
-                    containerWidth: videoEl.parentElement?.offsetWidth
-                  });
-                  console.log('Computed Styles:', {
-                    display: computedStyle.display,
-                    objectFit: computedStyle.objectFit,
-                    WebkitAppearance: computedStyle.webkitAppearance
-                  });
-                  console.log('All Attributes:', Array.from(videoEl.attributes).map(attr => `${attr.name}="${attr.value}"`));
-
-                  // Try to access shadow DOM (might not work)
-                  try {
-                    const shadowRoot = (videoEl as any).shadowRoot;
-                    console.log('Shadow DOM:', shadowRoot ? 'EXISTS' : 'NOT ACCESSIBLE');
-                  } catch (e) {
-                    console.log('Shadow DOM:', 'ERROR ACCESSING');
-                  }
-                  console.log('===============================================');
-
-                  handleLoadStart();
-                }}
-                onCanPlay={(e) => {
-                  const videoEl = e.target as HTMLVideoElement;
-                  console.log('[VIDEO DEBUG - CanPlay]', {
-                    finalElementSize: `${videoEl.offsetWidth}x${videoEl.offsetHeight}`,
-                    videoNaturalSize: `${videoEl.videoWidth}x${videoEl.videoHeight}`
-                  });
-                  handleCanPlay();
-                }}
+              onLoadStart={handleLoadStart}
+                onCanPlay={handleCanPlay}
                 onCanPlayThrough={() => {
                   logger.log('[Video] Can play through');
                 }}
@@ -825,15 +775,6 @@ const MeditationPlayer = () => {
                   const finalWidth = Math.min(calculatedWidth, maxWidth);
                   const finalHeight = finalWidth / aspectRatio;
 
-                  console.log('[VIDEO DEBUG - MetadataLoaded]', {
-                    naturalDimensions: `${videoEl.videoWidth}x${videoEl.videoHeight}`,
-                    aspectRatio: aspectRatio.toFixed(3),
-                    calculatedDimensions: `${Math.round(finalWidth)}x${Math.round(finalHeight)}`,
-                    isPortrait,
-                    viewportHeight,
-                    containerWidth
-                  });
-
                   // Store calculated dimensions in ref (don't apply yet - wait for play)
                   calculatedDimensionsRef.current = {
                     width: Math.round(finalWidth),
@@ -843,15 +784,7 @@ const MeditationPlayer = () => {
                   handleLoadedMetadata();
                 }}
                 onTimeUpdate={handleTimeUpdate}
-                onPlay={(e) => {
-                  const videoEl = e.target as HTMLVideoElement;
-                  console.log('[VIDEO DEBUG - Playing]', {
-                    displayedSize: `${videoEl.offsetWidth}x${videoEl.offsetHeight}`,
-                    videoFileSize: `${videoEl.videoWidth}x${videoEl.videoHeight}`,
-                    computedStyle: window.getComputedStyle(videoEl).objectFit,
-                    calculatedDimensions: calculatedDimensionsRef.current
-                  });
-
+                onPlay={() => {
                   // Trigger transition from square to aspect ratio
                   if (!videoHasStarted) {
                     setVideoHasStarted(true);
@@ -919,19 +852,6 @@ const MeditationPlayer = () => {
                      }}
                 />
               )}
-            </div>
-          )}
-
-          {/* 🔴 DEBUG OVERLAY - Remove after fixing */}
-          {!isAudio && !isPdf && !isTextOnly && (
-            <div className="fixed top-0 left-0 right-0 bg-red-500 text-white p-2 text-xs font-mono z-50 opacity-90">
-              <div className="max-w-screen-lg mx-auto">
-                <strong>🔴 DEBUG MODE</strong> |
-                Platform: {isAndroid() ? 'ANDROID' : 'iOS/Web'} |
-                Video Started: {videoHasStarted ? 'YES' : 'NO'} |
-                Playing: {player.isPlaying ? 'YES' : 'NO'} |
-                Poster: {safePoster ? 'SET' : 'NONE'}
-              </div>
             </div>
           )}
 
@@ -1107,7 +1027,13 @@ const MeditationPlayer = () => {
         {/* Completion Celebration */}
         {isCompleted && (
           <div className="text-center">
-            <div className="text-6xl mb-4 animate-bounce-gentle">🎉</div>
+            <div className="mb-4 animate-bounce-gentle">
+              <img
+                src={congratulationsSvg}
+                alt="Congratulations"
+                className="w-32 h-32 mx-auto"
+              />
+            </div>
             <h2 className="text-xl font-bold text-gradient-primary mb-2">
               Meditation Complete!
             </h2>
