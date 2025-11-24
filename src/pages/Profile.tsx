@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import {
   User, Settings, LogOut, Crown,
   Shield, FileText, HelpCircle, Trash2,
-  ChevronRight, Lock, RefreshCw, ExternalLink, Loader2, Key
+  ChevronRight, Lock, RefreshCw, ExternalLink, Loader2, Key, Gift
 } from 'lucide-react';
 import { isNativePlatform, isIOS, isAndroid } from '@/utils/platform';
-import { restorePurchases, openSubscriptionManagement } from '@/utils/revenuecat';
+import { restorePurchases, openSubscriptionManagement, presentPromoCodeRedemption } from '@/utils/revenuecat';
 import { forceRefreshSubscription } from '@/utils/syncSubscription';
 import { WellnessDisclaimer } from '@/components/WellnessDisclaimer';
 import { ChangePasswordModal } from '@/components/ChangePasswordModal';
@@ -182,6 +182,45 @@ const Profile = () => {
       toast({
         title: "Error",
         description: "Failed to open subscription management.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleRedeemPromoCode = async () => {
+    if (!isIOS()) {
+      toast({
+        title: "Not Available",
+        description: "Promo code redemption is only available on iOS.",
+      });
+      return;
+    }
+
+    try {
+      await presentPromoCodeRedemption();
+      // Success is handled by iOS
+      // If user successfully redeems, we should refresh subscription
+      if (user?.id) {
+        setTimeout(() => {
+          forceRefreshSubscription(
+            user.id,
+            (result) => {
+              toast({
+                title: "Promo Code Applied!",
+                description: `Your ${result.planType === 'peace_plus_plan' ? 'Peace Plus' : 'Peace'} Plan is now active.`,
+              });
+            },
+            (error) => {
+              logger.error('Sync error:', error);
+            }
+          );
+        }, 2000); // Wait 2 seconds for App Store to process
+      }
+    } catch (error: any) {
+      logger.error('Promo code redemption error:', error);
+      toast({
+        title: "Redemption Failed",
+        description: error.message || "Failed to open promo code redemption.",
         variant: "destructive",
       });
     }
@@ -406,6 +445,21 @@ const Profile = () => {
                 Restore Purchases
               </span>
               {!isRestoringPurchases && <ChevronRight className="w-4 h-4" />}
+            </Button>
+          )}
+
+          {/* Redeem Promo Code - iOS only */}
+          {isIOS() && (
+            <Button
+              variant="outline"
+              className="w-full justify-between"
+              onClick={handleRedeemPromoCode}
+            >
+              <span className="flex items-center gap-2">
+                <Gift className="w-4 h-4" />
+                Redeem Promo Code
+              </span>
+              <ChevronRight className="w-4 h-4" />
             </Button>
           )}
 

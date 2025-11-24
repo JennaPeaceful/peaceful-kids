@@ -68,12 +68,11 @@ const SubscriptionCard = ({ onSubscribe }: SubscriptionCardProps) => {
               )}
             </div>
             <h3 className="text-xl font-bebas font-normal mb-1">Peace Plan</h3>
-            <div className="text-3xl font-bebas font-normal mt-2">
-              $5.99
-              <span className="text-sm font-normal font-sans text-muted-foreground">/month</span>
+            <div className="text-3xl font-bebas font-normal mt-2 text-success">
+              7 Days Free
             </div>
             <p className="text-sm text-muted-foreground mt-2">
-              All Meditations
+              Then $5.99/month
             </p>
           </div>
 
@@ -88,11 +87,11 @@ const SubscriptionCard = ({ onSubscribe }: SubscriptionCardProps) => {
             </div>
           </div>
 
-          <Button 
+          <Button
             className="relative z-10 btn-soft w-full mt-auto"
             onClick={() => handleSelectPlan('peace')}
           >
-            Subscribe
+            Start 7-Day Free Trial
           </Button>
         </div>
 
@@ -125,11 +124,10 @@ const SubscriptionCard = ({ onSubscribe }: SubscriptionCardProps) => {
               Peace Plus Plan
             </h3>
             <div className="text-3xl font-bebas font-normal text-gradient-premium mt-2">
-              $9.99
-              <span className="text-sm font-normal font-sans text-muted-foreground">/month</span>
+              14 Days Free
             </div>
             <p className="text-sm text-muted-foreground mt-2">
-              All Content
+              Then $9.99/month
             </p>
           </div>
 
@@ -152,19 +150,19 @@ const SubscriptionCard = ({ onSubscribe }: SubscriptionCardProps) => {
             </div>
           </div>
 
-          <Button 
+          <Button
             className="relative z-10 btn-premium w-full mt-auto"
             onClick={() => handleSelectPlan('peace-plus')}
           >
             <Sparkles className="w-4 h-4 mr-2" />
-            Subscribe
+            Start 14-Day Free Trial
           </Button>
         </div>
       </div>
 
       {/* Disclaimer */}
       <p className="text-sm text-muted-foreground text-center">
-        Billed monthly. Cancel anytime.
+        Start with a free trial. Billed monthly after trial ends. Cancel anytime.
       </p>
 
       {/* Parental Gate */}

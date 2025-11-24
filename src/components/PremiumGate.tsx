@@ -10,7 +10,7 @@ import { Crown, Lock, Sparkles, Loader2, Check } from 'lucide-react';
 import AuthModal from './AuthModal';
 import { ParentalGate } from './ParentalGate';
 import { isNativePlatform } from '@/utils/platform';
-import { getOfferings, purchasePackage } from '@/utils/revenuecat';
+import { getOfferings, purchasePackage, formatTrialPeriod, checkTrialEligibility } from '@/utils/revenuecat';
 import { forceRefreshSubscription } from '@/utils/syncSubscription';
 import { toast } from '@/hooks/use-toast';
 
@@ -66,6 +66,7 @@ const PremiumGate = ({ children, feature, showUpgrade = true }: PremiumGateProps
   const [isLoadingOfferings, setIsLoadingOfferings] = useState(false);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState<PurchasesPackage | null>(null);
+  const [trialEligibility, setTrialEligibility] = useState<Record<string, any>>({});
 
   const isPremium = subscription?.is_active;
   const isLoggedIn = !!user;
@@ -97,6 +98,13 @@ const PremiumGate = ({ children, feature, showUpgrade = true }: PremiumGateProps
           description: 'Could not load subscription options. Please try again later.',
           variant: 'destructive',
         });
+      } else {
+        // Check trial eligibility for all products (iOS only)
+        const productIds = fetchedOfferings.current.availablePackages.map(
+          (pkg: any) => pkg.product.identifier
+        );
+        const eligibility = await checkTrialEligibility(productIds);
+        setTrialEligibility(eligibility);
       }
     } catch (error) {
       console.error('Failed to load offerings:', error);
@@ -301,6 +309,20 @@ const PremiumGate = ({ children, feature, showUpgrade = true }: PremiumGateProps
                     const isPeacePlus = pkg.identifier.includes('all');
                     const isSelected = selectedPackage?.identifier === pkg.identifier;
 
+                    // Trial information
+                    const introPrice = pkg.product.introPrice;
+                    const hasTrial = introPrice && introPrice.price === 0;
+                    const trialPeriod = hasTrial ? formatTrialPeriod(introPrice) : null;
+
+                    // Check eligibility (iOS only - will be empty object on Android/web)
+                    const productEligibility = trialEligibility[pkg.product.identifier];
+                    const isEligibleForTrial =
+                      hasTrial &&
+                      (!productEligibility || productEligibility.status === 0); // 0 = ELIGIBLE
+
+                    // Determine button text
+                    const showTrialButton = isEligibleForTrial && trialPeriod;
+
                     return (
                       <Card
                         key={pkg.identifier}
@@ -311,12 +333,25 @@ const PremiumGate = ({ children, feature, showUpgrade = true }: PremiumGateProps
                       >
                         <div className="flex justify-between items-start mb-4">
                           <div>
-                            <h3 className="text-xl font-bold">
+                            <h3 className="text-xl font-bold flex items-center gap-2">
                               {isPeacePlus ? 'Peace Plus Plan' : 'Peace Plan'}
+                              {showTrialButton && (
+                                <Badge className="bg-success text-white text-xs">
+                                  {trialPeriod} Free
+                                </Badge>
+                              )}
                             </h3>
-                            <p className="text-sm text-muted-foreground">
-                              {pkg.product.priceString}/month
-                            </p>
+                            {showTrialButton ? (
+                              <div>
+                                <p className="text-sm text-muted-foreground">
+                                  Then {pkg.product.priceString}/month
+                                </p>
+                              </div>
+                            ) : (
+                              <p className="text-sm text-muted-foreground">
+                                {pkg.product.priceString}/month
+                              </p>
+                            )}
                           </div>
                           {isPeacePlus && (
                             <Badge className="bg-gradient-to-r from-primary to-secondary text-white">
@@ -361,10 +396,19 @@ const PremiumGate = ({ children, feature, showUpgrade = true }: PremiumGateProps
                               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                               Processing...
                             </>
+                          ) : showTrialButton ? (
+                            `Start ${trialPeriod} Free Trial`
                           ) : (
                             `Subscribe for ${pkg.product.priceString}/month`
                           )}
                         </Button>
+
+                        {/* Trial terms */}
+                        {showTrialButton && (
+                          <p className="text-xs text-muted-foreground text-center mt-2">
+                            Free for {trialPeriod.toLowerCase()}, then {pkg.product.priceString}/month. Cancel anytime.
+                          </p>
+                        )}
                       </Card>
                     );
                   })}

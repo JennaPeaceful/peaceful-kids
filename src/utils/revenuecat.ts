@@ -300,3 +300,105 @@ export async function getSubscriptionIcon(packageId: 'meditations_monthly' | 'al
     return null;
   }
 }
+
+/**
+ * Format trial period from introPrice object
+ * Returns formatted string like "7 Days" or "14 Days"
+ * Returns null if no valid trial period found
+ */
+export function formatTrialPeriod(introPrice: any): string | null {
+  if (!introPrice) return null;
+
+  try {
+    // Check if it's a free trial (price should be 0)
+    if (introPrice.price !== 0) return null;
+
+    // Try to parse from period string (ISO 8601 format like "P1W" or "P7D")
+    if (introPrice.period) {
+      const period = introPrice.period.toUpperCase();
+
+      // Match patterns like P7D (7 days), P1W (1 week), P14D (14 days)
+      const daysMatch = period.match(/P(\d+)D/);
+      if (daysMatch) {
+        const days = parseInt(daysMatch[1], 10);
+        return `${days} Day${days !== 1 ? 's' : ''}`;
+      }
+
+      const weeksMatch = period.match(/P(\d+)W/);
+      if (weeksMatch) {
+        const weeks = parseInt(weeksMatch[1], 10);
+        const days = weeks * 7;
+        return `${days} Day${days !== 1 ? 's' : ''}`;
+      }
+    }
+
+    // Fallback to periodNumberOfUnits and periodUnit
+    if (introPrice.periodNumberOfUnits && introPrice.periodUnit) {
+      const units = introPrice.periodNumberOfUnits;
+      const unit = introPrice.periodUnit.toLowerCase();
+
+      if (unit === 'day') {
+        return `${units} Day${units !== 1 ? 's' : ''}`;
+      } else if (unit === 'week') {
+        const days = units * 7;
+        return `${days} Day${days !== 1 ? 's' : ''}`;
+      } else if (unit === 'month') {
+        return `${units} Month${units !== 1 ? 's' : ''}`;
+      }
+    }
+
+    logger.log('[RevenueCat] Could not parse trial period from introPrice:', introPrice);
+    return null;
+  } catch (error) {
+    logger.error('[RevenueCat] Failed to format trial period:', error);
+    return null;
+  }
+}
+
+/**
+ * Check trial eligibility for products (iOS only)
+ * Returns map of product IDs to eligibility status
+ * Returns empty map for web builds or Android
+ */
+export async function checkTrialEligibility(
+  productIds: string[]
+): Promise<Record<string, any>> {
+  if (!isCapacitorEnabled() || !isNativePlatform() || !isIOS()) {
+    // Only available on iOS
+    return {};
+  }
+
+  try {
+    const { Purchases } = await import('@revenuecat/purchases-capacitor');
+    const result = await Purchases.checkTrialOrIntroductoryPriceEligibility({
+      productIdentifiers: productIds
+    });
+
+    logger.log('[RevenueCat] Trial eligibility check result:', result);
+    return result;
+  } catch (error) {
+    logger.error('[RevenueCat] Failed to check trial eligibility:', error);
+    return {};
+  }
+}
+
+/**
+ * Present native promo code redemption sheet (iOS 14.0+ only)
+ * Opens Apple's built-in code redemption UI
+ * No-op on web builds or Android
+ */
+export async function presentPromoCodeRedemption(): Promise<void> {
+  if (!isCapacitorEnabled() || !isNativePlatform() || !isIOS()) {
+    logger.log('[RevenueCat] Promo code redemption only available on iOS');
+    return;
+  }
+
+  try {
+    const { Purchases } = await import('@revenuecat/purchases-capacitor');
+    await Purchases.presentCodeRedemptionSheet();
+    logger.log('[RevenueCat] Presented code redemption sheet');
+  } catch (error) {
+    logger.error('[RevenueCat] Failed to present code redemption sheet:', error);
+    throw error;
+  }
+}
