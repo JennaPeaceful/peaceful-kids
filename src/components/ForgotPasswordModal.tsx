@@ -77,7 +77,7 @@ export const ForgotPasswordModal = ({ isOpen, onClose }: ForgotPasswordModalProp
 
       const redirectUrl = isLocalWebDev
         ? `${window.location.origin}/reset-password`
-        : 'https://app.peacefulkids.app/reset-password';
+        : 'https://app.peacefulmeditationapp.com/reset-password';
 
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: redirectUrl,

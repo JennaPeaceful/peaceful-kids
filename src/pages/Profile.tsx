@@ -609,8 +609,8 @@ const Profile = () => {
 
       {/* Sign Out */}
       <div className="px-4 mb-4">
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           className="w-full"
           onClick={signOut}
         >

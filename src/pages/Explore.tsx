@@ -228,7 +228,7 @@ const Explore = () => {
           <div className="space-y-6 max-w-6xl mx-auto">
             <h2 className="text-2xl font-bold text-center mb-6">Featured Content</h2>
             {featuredMeditations.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-4">
                 {featuredMeditations.map((meditation) => (
                   <MeditationCard key={meditation.id} meditation={meditation} />
                 ))}
@@ -248,7 +248,7 @@ const Explore = () => {
             {featuredMeditations.length > 0 && (
               <div>
                 <h2 className="text-2xl font-bold text-center mb-6">Your Featured Meditations</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 px-4">
                   {featuredMeditations.map((meditation) => (
                     <MeditationCard key={meditation.id} meditation={meditation} />
                   ))}
@@ -265,8 +265,8 @@ const Explore = () => {
                 </div>
                 
                 <div className="mb-6">
-                  <h3 className="text-3xl font-bold text-black mb-2">Peace Plus Plan</h3>
-                  <div className="text-4xl font-bold text-black mt-3">$9.99</div>
+                  <h3 className="text-5xl font-bold text-black mb-2">Peace Plus Plan</h3>
+                  <div className="text-6xl font-bold text-black mt-3">$9.99</div>
                   <div className="text-sm text-black">/month</div>
                   <p className="text-black text-sm mt-3">All Content</p>
                 </div>
@@ -288,7 +288,7 @@ const Explore = () => {
                     <div className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                       <Check className="w-3 h-3 text-accent" />
                     </div>
-                    <span className="text-sm font-medium">Rainbow Array Course</span>
+                    <span className="text-sm font-medium">Exploring The Healing Arts</span>
                   </div>
                 </div>
 
@@ -318,10 +318,10 @@ const Explore = () => {
                 className="absolute -inset-px w-[calc(100%+2px)] h-[calc(100%+2px)] object-cover z-0 pointer-events-none select-none"
                 aria-hidden="true"
               />
-              
+
               <div className="relative z-10 mb-6">
-                <h2 className="text-3xl font-bebas font-normal text-black mb-2">Peace Plan</h2>
-                <div className="text-4xl font-bebas font-normal text-black mt-3">$5.99</div>
+                <h2 className="text-5xl font-bebas font-normal text-black mb-2">Peace Plan</h2>
+                <div className="text-6xl font-bebas font-normal text-black mt-3">$5.99</div>
                 <div className="text-sm text-black">/month</div>
                 <p className="text-black text-sm mt-3">All Meditations</p>
               </div>
@@ -341,12 +341,12 @@ const Explore = () => {
                 </div>
               </div>
 
-              <Button 
+              <Button
                 onClick={() => handleSelectPlan('peace')}
-                className="relative z-10 w-full mt-auto bg-[#d1cb3f] hover:bg-[#c4be3a] text-white font-bebas font-normal text-xl transition-all duration-300 hover:scale-105 shadow-md hover:shadow-lg"
+                className="relative z-10 w-full mt-auto bg-[#d1cb3f] hover:bg-[#c4be3a] text-white font-bebas font-normal text-[45px] tracking-[0.3em] transition-all duration-300 hover:scale-105 shadow-md hover:shadow-lg flex items-center justify-center leading-none pt-7 pb-7"
                 size="lg"
               >
-                Subscribe
+                SUBSCRIBE
               </Button>
             </div>
 
@@ -364,8 +364,8 @@ const Explore = () => {
                 <div className="absolute inset-0 bg-yellow-400/20 z-0"></div>
 
                 <div className="relative z-10 mb-6">
-                <h2 className="text-3xl font-bebas font-normal text-black mb-2">Peace Plus Plan</h2>
-                <div className="text-4xl font-bebas font-normal text-black mt-3">$9.99</div>
+                <h2 className="text-5xl font-bebas font-normal text-black mb-2">Peace Plus Plan</h2>
+                <div className="text-6xl font-bebas font-normal text-black mt-3">$9.99</div>
                 <div className="text-sm text-black">/month</div>
                 <p className="text-black text-sm mt-3">All Content</p>
               </div>
@@ -393,16 +393,16 @@ const Explore = () => {
                   <div className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                     <Check className="w-3 h-3 text-accent" />
                   </div>
-                  <span className="text-sm font-medium">Rainbow Array Course</span>
+                  <span className="text-sm font-medium">Exploring The Healing Arts</span>
                 </div>
               </div>
 
-              <Button 
+              <Button
                 onClick={() => handleSelectPlan('peace-plus')}
-                className="relative z-10 w-full mt-auto bg-[#da3062] hover:bg-[#c72b58] text-white font-bebas font-normal text-xl transition-all duration-300 hover:scale-105 shadow-md hover:shadow-lg"
+                className="relative z-10 w-full mt-auto bg-[#da3062] hover:bg-[#c72b58] text-white font-bebas font-normal text-[45px] tracking-[0.3em] transition-all duration-300 hover:scale-105 shadow-md hover:shadow-lg flex items-center justify-center leading-none pt-7 pb-7"
                 size="lg"
               >
-                Subscribe
+                SUBSCRIBE
               </Button>
             </div>
             <div className="absolute -top-3 right-4 bg-[#ed2025] text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md z-20">

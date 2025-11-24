@@ -8,6 +8,6 @@ export function cn(...inputs: ClassValue[]) {
 export function formatCategoryName(category: string | null): string {
   if (!category) return '';
   if (category.toLowerCase() === 'kid') return 'Kids';
-  if (category.toLowerCase() === 'adult') return 'Adults';
+  if (category.toLowerCase() === 'adult') return 'Getting Started';
   return category;
 }

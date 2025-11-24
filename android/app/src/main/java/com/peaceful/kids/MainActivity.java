@@ -18,6 +18,9 @@ public class MainActivity extends BridgeActivity {
             if (webView != null) {
                 WebSettings settings = webView.getSettings();
 
+                // Disable text auto-sizing to fix Android font scaling issues
+                settings.setTextZoom(100);
+
                 // Enable media playback without user gesture
                 settings.setMediaPlaybackRequiresUserGesture(false);
 

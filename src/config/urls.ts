@@ -7,28 +7,28 @@
 
 export const APP_URLS = {
   // Legal Pages
-  privacy: 'https://support.peacefulkids.app/privacy',
-  terms: 'https://support.peacefulkids.app/terms',
-  support: 'https://support.peacefulkids.app/support',
+  privacy: 'https://support.peacefulmeditationapp.com/privacy',
+  terms: 'https://support.peacefulmeditationapp.com/terms',
+  support: 'https://support.peacefulmeditationapp.com/support',
 
   // Account Management
-  subscription: 'https://support.peacefulkids.app/subscription',
-  accountDeletion: 'https://support.peacefulkids.app/account-deletion',
+  subscription: 'https://support.peacefulmeditationapp.com/subscription',
+  accountDeletion: 'https://support.peacefulmeditationapp.com/account-deletion',
 
   // Support Contact
-  supportEmail: 'support@peacefulkids.app',
+  supportEmail: 'support@peacefulmeditationapp.com',
 
   // Developer Contact (for error messages)
-  developerEmail: 'dev@peacefulkids.app',
+  developerEmail: 'dev@peacefulmeditationapp.com',
 
   // Reviewer Account (for App Store)
   reviewerEmail: 'reviewer@peaceful.app',
 
-  // CDN
+  // CDN (kept on old domain for stability)
   cdnBase: 'https://cdn.peacefulkids.app',
 
   // Main Website
-  website: 'https://peacefulkids.app',
+  website: 'https://peacefulmeditationapp.com',
 
   // App Store Links (for subscription management)
   appStore: {

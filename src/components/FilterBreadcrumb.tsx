@@ -84,7 +84,7 @@ const FilterBreadcrumb = ({
   };
 
   return (
-    <div className="flex items-center gap-2 mb-6 flex-wrap">
+    <div className="flex items-center gap-2 flex-wrap">
       {/* Category Pill */}
       {selectedCategory && (
         <Badge 

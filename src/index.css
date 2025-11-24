@@ -303,33 +303,12 @@ video[poster].playing {
 }
 
 /* ============================================
-   COMPREHENSIVE VIDEO CONTROLS HIDING
-   Hide ALL native video controls for custom UI
+   VIDEO CONTROLS CONFIGURATION
+   Allow native controls for meditation videos
    ============================================ */
 
-/* Hide ALL webkit media controls comprehensively */
-video::-webkit-media-controls,
-video::-webkit-media-controls-enclosure,
-video::-webkit-media-controls-panel,
-video::-webkit-media-controls-overlay-play-button,
-video::-webkit-media-controls-play-button,
-video::-webkit-media-controls-start-playback-button,
-video::-webkit-media-controls-timeline,
-video::-webkit-media-controls-current-time-display,
-video::-webkit-media-controls-time-remaining-display,
-video::-webkit-media-controls-mute-button,
-video::-webkit-media-controls-volume-slider,
-video::-webkit-media-controls-fullscreen-button,
-video::-webkit-media-controls-toggle-closed-captions-button {
-  display: none !important;
-  -webkit-appearance: none !important;
-}
-
-/* Mozilla/Firefox equivalents */
-video::-moz-media-controls,
-video::-moz-media-controls-play-button {
-  display: none !important;
-}
+/* Native controls are enabled via the 'controls' attribute on video elements */
+/* Removed CSS that was hiding controls - let browser native controls work */
 
 @keyframes pulse-celebration {
   0%, 100% {

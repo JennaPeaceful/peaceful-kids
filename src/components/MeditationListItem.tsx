@@ -4,6 +4,7 @@ import { Meditation } from '../types';
 import { useAuth } from '../hooks/useAuth';
 import { useUserStore } from '../stores/userStore';
 import { getAgeGroupColor } from '@/lib/ageGroupColors';
+import { getContentCategoryIcon } from '@/lib/contentCategoryIcons';
 import categoryBackground from '@/assets/category-icon-background.svg';
 import logo from '@/assets/logo.svg';
 import highlyMeditatedCourseSvg from '@/assets/highly-meditated-course.svg';
@@ -44,13 +45,26 @@ const MeditationListItem = ({ meditation, onPlay, courseThumbnail }: MeditationL
     
     // For non-lectures, use meditation's own thumbnail
     const thumbnailUrl = meditation.thumbnail_url || meditation.thumbnail;
+
+    // Filter out invalid placeholder URLs
+    if (!thumbnailUrl || thumbnailUrl.includes('/api/placeholder')) {
+      // Check if meditation has content categories - use category icon
+      if (meditation.content_categories && meditation.content_categories.length > 0) {
+        const categoryIcon = getContentCategoryIcon(meditation.content_categories[0]);
+        if (categoryIcon) {
+          return categoryIcon; // Line art SVG - will show on colorful background
+        }
+      }
+      return logo; // Final fallback
+    }
+
     if (thumbnailUrl === '/highly-meditated-course.svg') {
       return highlyMeditatedCourseSvg;
     }
     if (thumbnailUrl === '/introduction-healing-arts.svg') {
       return introductionHealingArtsSvg;
     }
-    return thumbnailUrl || logo;
+    return thumbnailUrl;
   };
 
   const handleClick = () => {
@@ -75,12 +89,17 @@ const MeditationListItem = ({ meditation, onPlay, courseThumbnail }: MeditationL
         {/* Colorful background layer - for wire icons (NO COLOR in URL), SVGs, and logo fallbacks */}
         {!meditation.lecture && (() => {
           const thumbnailToCheck = meditation.thumbnail_url || meditation.thumbnail || courseThumbnail;
-          return thumbnailToCheck &&
-            (/NO.?COLOR/i.test(thumbnailToCheck) ||
+          // Show background if using category icon fallback
+          const usingCategoryFallback = (!thumbnailToCheck || thumbnailToCheck.includes('/api/placeholder'))
+            && meditation.content_categories && meditation.content_categories.length > 0;
+
+          return (thumbnailToCheck || usingCategoryFallback) &&
+            (usingCategoryFallback ||
+             /NO.?COLOR/i.test(thumbnailToCheck) ||
              /\.svg(\?|$)/i.test(thumbnailToCheck) ||
              /(\/logo\.svg|assets\/logo)/i.test(thumbnailToCheck));
         })() && (
-          <img 
+          <img
             src={categoryBackground}
             alt=""
             className="absolute inset-0 w-full h-full object-cover opacity-70"
@@ -101,14 +120,6 @@ const MeditationListItem = ({ meditation, onPlay, courseThumbnail }: MeditationL
             target.src = logo;
           }}
         />
-        {/* Lecture number overlay */}
-        {meditation.lecture && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-2xl font-bold text-white drop-shadow-lg">
-              {meditation.lecture}
-            </span>
-          </div>
-        )}
         {/* SVG color overlay for age groups */}
         {!meditation.lecture && (() => {
           const thumbnailToCheck = meditation.thumbnail_url || meditation.thumbnail || courseThumbnail;

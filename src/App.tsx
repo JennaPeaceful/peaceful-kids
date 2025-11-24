@@ -22,6 +22,7 @@ import MeditationPlayer from "./pages/MeditationPlayer";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 import { useUserStore } from "./stores/userStore";
+import { initSentry } from "./config/sentry";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,9 @@ const App = () => {
 
   // Hide native Capacitor splash screen as soon as web app is loaded
   useEffect(() => {
+    // Initialize Sentry error tracking
+    initSentry();
+
     const hideNativeSplash = async () => {
       if (import.meta.env.VITE_CAPACITOR_ENABLED === 'true') {
         try {

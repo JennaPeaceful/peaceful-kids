@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Search, X, ChevronsUp, ChevronsDown, Heart } from 'lucide-react';
+import { Search, X, ChevronsUp, ChevronsDown, Heart, ArrowLeft } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useMeditationStore } from '../stores/meditationStore';
@@ -8,7 +8,6 @@ import { useAuth } from '../hooks/useAuth';
 import { useUserStore } from '../stores/userStore';
 import MeditationCard from '../components/MeditationCard';
 import MeditationListItem from '../components/MeditationListItem';
-import FilterBreadcrumb from '../components/FilterBreadcrumb';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { ScrollArea } from '../components/ui/scroll-area';
@@ -150,6 +149,61 @@ const Meditations = () => {
     setShowFavoritesOnly(false);
   };
 
+  // Navigate back through filter hierarchy
+  const handleFilterBack = () => {
+    if (filters.selectedModule !== null) {
+      // Back from module → course level
+      setFilters({ selectedModule: null });
+    } else if (filters.selectedCourses.length > 0) {
+      // Back from courses → Courses category (show course list)
+      setFilters({ selectedCourses: [] });
+    } else if (filters.selectedThemes.length > 0) {
+      // Back from themes → previous level (age group, content category, or category)
+      setFilters({ selectedThemes: [] });
+    } else if (filters.selectedContentCategories.length > 0) {
+      // Back from content categories (for Adults) → Adult category
+      setFilters({ selectedContentCategories: [] });
+    } else if (filters.selectedAgeGroup) {
+      // Back from age group → Kids category
+      setFilters({ selectedAgeGroup: null });
+    } else if (filters.selectedCategory) {
+      // Back from category → all categories view
+      setFilters({ selectedCategory: null });
+    }
+  };
+
+  // Get current filter breadcrumb label
+  const getCurrentFilterLabel = () => {
+    if (filters.selectedModule !== null) {
+      const course = filters.selectedCourses[0];
+      return `${course} › Module ${filters.selectedModule}`;
+    }
+    if (filters.selectedCourses.length > 0) {
+      return `Courses › ${filters.selectedCourses[0]}`;
+    }
+    if (filters.selectedThemes.length > 0) {
+      let path = filters.selectedCategory || '';
+      if (filters.selectedAgeGroup) {
+        path += ` › ${filters.selectedAgeGroup}`;
+      }
+      if (filters.selectedContentCategories.length > 0) {
+        path += ` › ${filters.selectedContentCategories[0]}`;
+      }
+      path += ` › Themes`;
+      return path;
+    }
+    if (filters.selectedContentCategories.length > 0) {
+      return `${filters.selectedCategory} › ${filters.selectedContentCategories[0]}`;
+    }
+    if (filters.selectedAgeGroup) {
+      return `Kids › ${filters.selectedAgeGroup}`;
+    }
+    if (filters.selectedCategory) {
+      return filters.selectedCategory === 'Kid' ? 'Kids' : filters.selectedCategory;
+    }
+    return 'Category';
+  };
+
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     if (resultsExpanded) {
       // For expanded view, handle window scroll
@@ -191,9 +245,34 @@ const Meditations = () => {
   };
   
   // Get filtered theme objects for FilterBreadcrumb and theme display
-  const availableThemeObjects = themes.filter(theme => 
+  const availableThemeObjects = themes.filter(theme =>
     (!filters.selectedCategory || theme.category?.includes(filters.selectedCategory))
   );
+
+  // Get available content categories based on current filtered meditations
+  const availableContentCategories = useMemo(() => {
+    // Get meditations after category filter is applied
+    let categoryFilteredMeditations = meditations;
+
+    if (filters.selectedCategory) {
+      categoryFilteredMeditations = meditations.filter(m => {
+        const normalizedCategory = m.category?.toLowerCase();
+        const normalizedFilter = filters.selectedCategory.toLowerCase();
+        return normalizedCategory === normalizedFilter ||
+               (normalizedFilter === 'adult' && normalizedCategory === 'adults') ||
+               (normalizedFilter === 'adults' && normalizedCategory === 'adult');
+      });
+    }
+
+    // Get unique content categories from these meditations
+    const uniqueContentCategories = new Set<string>();
+    categoryFilteredMeditations.forEach(m => {
+      m.content_categories?.forEach(cc => uniqueContentCategories.add(cc));
+    });
+
+    // Filter contentCategories to only those that exist in current results
+    return contentCategories.filter(cc => uniqueContentCategories.has(cc.name));
+  }, [meditations, contentCategories, filters.selectedCategory]);
 
   // Consolidate all filtering and sorting in a single memoized operation
   const sortedMeditations = useMemo(() => {
@@ -268,22 +347,9 @@ const Meditations = () => {
     <div className="pb-24 min-h-screen">
       {/* Header - Sticky */}
       <div className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b border-border/40 px-4 py-4 mb-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gradient-primary">
-            {t('meditations.title')}
-          </h1>
-          {hasActiveFilters && (
-            <Button
-              variant="ghost"
-              onClick={handleClearAll}
-              className="text-destructive"
-              size="sm"
-            >
-              <X className="w-4 h-4 mr-2" />
-              {t('meditations.clearAll')}
-            </Button>
-          )}
-        </div>
+        <h1 className="text-2xl font-bold text-gradient-primary">
+          {t('meditations.title')}
+        </h1>
       </div>
 
       <div className="px-4">
@@ -322,31 +388,37 @@ const Meditations = () => {
           </Button>
         </div>
 
-        {/* Filter Breadcrumb */}
-        <FilterBreadcrumb
-          selectedCategory={filters.selectedCategory}
-          selectedCourses={filters.selectedCourses}
-          selectedModule={filters.selectedModule}
-          selectedAgeGroup={filters.selectedAgeGroup}
-          selectedThemes={filters.selectedThemes}
-          selectedContentCategories={filters.selectedContentCategories}
-          courses={courses}
-          courseThumbnails={courseThumbnails}
-          ageGroups={ageGroups}
-          themes={availableThemeObjects}
-          contentCategories={contentCategories}
-          onCategorySelect={handleCategorySelect}
-          onCourseToggle={handleCourseToggle}
-          onModuleSelect={handleModuleSelect}
-          onAgeGroupSelect={handleAgeGroupSelect}
-          onThemeToggle={handleThemeToggle}
-          onContentCategoryToggle={handleContentCategorySelect}
-        />
+        {/* Back button and breadcrumb navigation */}
+        {hasActiveFilters && (
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleFilterBack}
+                className="flex items-center gap-1"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back
+              </Button>
+            </div>
+
+            <Button
+              variant="ghost"
+              onClick={handleClearAll}
+              className="text-destructive"
+              size="sm"
+            >
+              <X className="w-4 h-4 mr-1" />
+              {t('meditations.clearAll')}
+            </Button>
+          </div>
+        )}
 
         {/* Filter Selection - Show all available filters */}
         {!filters.selectedCategory && categories.length > 0 && (
           <div className="mb-6">
-            <label className="text-sm font-medium text-muted-foreground mb-2 block">Category</label>
+            <label className="text-sm font-medium text-muted-foreground mb-2 block">{getCurrentFilterLabel()}</label>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {categories
                 .filter(category => {
@@ -395,7 +467,7 @@ const Meditations = () => {
         {filters.selectedCategory === 'Emotions' && !filters.selectedThemes.length && availableThemes.length > 0 && (
           <div className="mb-6">
             <label className="text-sm font-medium text-muted-foreground mb-3 block">
-              Select an Emotion
+              {getCurrentFilterLabel()}
             </label>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {availableThemes.map((themeName) => {
@@ -438,9 +510,9 @@ const Meditations = () => {
         {filters.selectedCategory === 'Kid' && !filters.selectedAgeGroup && ageGroups.length > 0 && (
           <div className="mb-6">
             <label className="text-sm font-medium text-muted-foreground mb-3 block">
-              Age Group
+              {getCurrentFilterLabel()}
             </label>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 justify-items-center">
               {ageGroups.filter(ag => ag).map((ageGroup) => {
                 const isSelected = filters.selectedAgeGroup === ageGroup;
                 const icon = getAgeGroupIcon(ageGroup);
@@ -449,15 +521,15 @@ const Meditations = () => {
                     key={ageGroup}
                     variant="outline"
                     onClick={() => handleAgeGroupSelect(isSelected ? null : ageGroup)}
-                    className={`relative flex items-center justify-center h-auto py-6 transition-all overflow-hidden ${
-                      isSelected 
-                        ? 'border-2 shadow-lg scale-105' 
+                    className={`relative flex items-center justify-center aspect-[11/5] min-h-[70px] md:min-h-[90px] lg:min-h-[100px] transition-all overflow-hidden ${
+                      isSelected
+                        ? 'border-2 shadow-lg scale-105'
                         : 'hover:shadow-primary hover:scale-102'
                     }`}
                   >
                     {icon && (
-                      <img 
-                        src={icon} 
+                      <img
+                        src={icon}
                         alt={ageGroup}
                         className="absolute inset-0 w-full h-full object-cover"
                       />
@@ -470,13 +542,13 @@ const Meditations = () => {
         )}
 
         {/* Content Categories - Show when Adult category is selected */}
-        {isAdult && contentCategories.length > 0 && filters.selectedContentCategories.length === 0 && (
+        {isAdult && availableContentCategories.length > 0 && filters.selectedContentCategories.length === 0 && (
           <div className="mb-6">
             <label className="text-sm font-medium text-muted-foreground mb-3 block">
-              Content Categories
+              {getCurrentFilterLabel()}
             </label>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-              {contentCategories.map((contentCategory) => {
+              {availableContentCategories.map((contentCategory) => {
                 const icon = getContentCategoryIcon(contentCategory.name);
                 const categoryColor = getContentCategoryColor(contentCategory.name);
                 const isSelected = filters.selectedContentCategories.includes(contentCategory.name);
@@ -527,7 +599,7 @@ const Meditations = () => {
         {filters.selectedCategory === 'Courses' && !filters.selectedCourses.length && courses.length > 0 && (
           <div className="mb-6">
             <label className="text-sm font-medium text-muted-foreground mb-3 block">
-              Courses
+              {getCurrentFilterLabel()}
             </label>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {courses.map((course) => {
@@ -592,7 +664,7 @@ const Meditations = () => {
           return uniqueModules.length > 0 && filters.selectedModule === null ? (
             <div className="mb-6">
               <label className="text-sm font-medium text-muted-foreground mb-3 block">
-                Modules
+                {getCurrentFilterLabel()}
               </label>
               <div className="flex flex-col gap-2">
                 {uniqueModules.map((module) => {
@@ -636,12 +708,12 @@ const Meditations = () => {
         })()}
 
         {/* Themes - Icon Grid - Show after age group for Kids or for Adult category */}
-        {filters.selectedCategory && 
+        {filters.selectedCategory &&
          (isAdult || (filters.selectedCategory === 'Kid' && filters.selectedAgeGroup)) &&
          availableThemeObjects.length > 0 && (
           <div className="mb-6">
             <label className="text-sm font-medium text-muted-foreground mb-3 block">
-              Themes
+              {getCurrentFilterLabel()}
             </label>
             <div className="grid grid-cols-4 gap-3">
               {availableThemeObjects.map((theme) => {
@@ -676,6 +748,15 @@ const Meditations = () => {
 
       {/* Results Section with Expand/Collapse */}
       <div className="relative">
+        {/* Results Header - Show current filter path when viewing results */}
+        {filteredMeditations.length > 0 && hasActiveFilters && (
+          <div className="px-4 mb-4">
+            <label className="text-sm font-medium text-muted-foreground block">
+              {getCurrentFilterLabel()}
+            </label>
+          </div>
+        )}
+
         {/* Expand Arrow */}
         {filteredMeditations.length > 0 && !resultsExpanded && (
           <div className="px-4 mb-4 flex justify-center">

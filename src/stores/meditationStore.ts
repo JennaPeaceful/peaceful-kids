@@ -106,6 +106,7 @@ const transformMeditation = (dbMeditation: any): Meditation => ({
   course_module: dbMeditation.course_modules || undefined,
   created_at: dbMeditation.created_at || '',
   sort_order: dbMeditation.sort_order || 0,
+  featured_for_plan: dbMeditation.featured_for_plan || undefined,
 });
 
 export const useMeditationStore = create<MeditationState>((set, get) => ({

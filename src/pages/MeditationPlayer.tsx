@@ -11,9 +11,10 @@ import { Progress } from '../components/ui/progress';
 import { Slider } from '../components/ui/slider';
 import { toast } from '../hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
-import Skip10Icon from '@/components/icons/Skip10Icon';
 import { ParentalGate } from '@/components/ParentalGate';
 import AuthModal from '@/components/AuthModal';
+import SkipBackIcon from '@/components/icons/SkipBackIcon';
+import SkipForwardIcon from '@/components/icons/SkipForwardIcon';
 import logoSvg from '@/assets/logo.svg';
 import highlyMeditatedCourseSvg from '@/assets/highly-meditated-course.svg';
 import introductionHealingArtsSvg from '@/assets/introduction-healing-arts.svg';
@@ -103,6 +104,7 @@ const MeditationPlayer = () => {
   const lastUpdateTimeRef = useRef<number>(0);
   const [isTranscriptOpen, setIsTranscriptOpen] = useState(false);
   const [videoHasStarted, setVideoHasStarted] = useState(false);
+  const [isSeeking, setIsSeeking] = useState(false);
   const calculatedDimensionsRef = useRef<{width: number, height: number} | null>(null);
 
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -129,6 +131,19 @@ const MeditationPlayer = () => {
   // Compute safe poster - only use raster images (no SVG), fallback to logo
   const thumb = (meditation?.thumbnail_url || meditation?.thumbnail || '').toLowerCase();
   const safePoster = thumb.match(/\.(png|jpe?g|webp)(\?.*)?$/) ? (meditation?.thumbnail_url || meditation?.thumbnail) : logoSvg;
+
+  // Poster & Source Validation Logging
+  useEffect(() => {
+    if (!isAudio && !isPdf && !isTextOnly) {
+      console.log('[VIDEO POSTER & SOURCE]', {
+        safePoster,
+        mediaUrl: meditation?.media_url,
+        hasSource: !!meditation?.media_url,
+        mediaUrlLength: meditation?.media_url?.length || 0,
+        thumbnail: meditation?.thumbnail_url || meditation?.thumbnail
+      });
+    }
+  }, [meditation?.media_url, safePoster, isAudio, isPdf, isTextOnly]);
 
   // Debug logging
   logger.log('[MeditationPlayer] Debug:', {
@@ -157,6 +172,39 @@ const MeditationPlayer = () => {
       setDuration(meditation.duration || 300); // Default to 5 minutes if duration is null
     }
   }, [meditation]); // Removed setCurrentMeditation from dependencies to prevent infinite loop
+
+  // Container Dimensions & State Logging
+  useEffect(() => {
+    if (!isAudio && !isPdf && !isTextOnly) {
+      console.log('[VIDEO CONTAINER] State:', {
+        videoHasStarted,
+        calculatedDimensions: calculatedDimensionsRef.current,
+        containerWillBe: videoHasStarted && calculatedDimensionsRef.current
+          ? `${calculatedDimensionsRef.current.width}x${calculatedDimensionsRef.current.height}`
+          : '350x350 (square)'
+      });
+    }
+  }, [videoHasStarted, isAudio, isPdf, isTextOnly]);
+
+  // Poster Configuration Logging
+  useEffect(() => {
+    if (!isAudio && !isPdf && !isTextOnly && videoRef.current) {
+      console.log('[VIDEO POSTER] Poster configuration:', {
+        posterUrl: safePoster,
+        containerDimensions: {
+          width: videoHasStarted ? calculatedDimensionsRef.current?.width : '350px',
+          height: videoHasStarted ? calculatedDimensionsRef.current?.height : '350px'
+        },
+        videoElementDimensions: {
+          width: videoRef.current?.offsetWidth,
+          height: videoRef.current?.offsetHeight
+        },
+        objectFit: 'contain',
+        videoHasStarted,
+        separatePosterImg: !videoHasStarted
+      });
+    }
+  }, [videoHasStarted, safePoster, isAudio, isPdf, isTextOnly]);
 
   // Diagnostic: Log video element properties on mount
   useEffect(() => {
@@ -204,6 +252,8 @@ const MeditationPlayer = () => {
   };
 
   const handleTimeUpdate = () => {
+    if (isSeeking) return; // Don't interfere while user is seeking
+
     const mediaElement = isAudio ? audioRef.current : videoRef.current;
     if (mediaElement) {
       const currentTime = mediaElement.currentTime;
@@ -362,6 +412,13 @@ const MeditationPlayer = () => {
   }
 
   const handlePlayPause = async () => {
+    console.log('[CLICK] handlePlayPause called!', {
+      isLocked,
+      canPlay,
+      isPlaying: player.isPlaying,
+      mediaUrl: meditation?.media_url,
+      isLoading
+    });
     logger.log('[PlayPause] Button clicked, isLocked:', isLocked, 'canPlay:', canPlay, 'isPlaying:', player.isPlaying);
 
     if (isLocked) {
@@ -374,20 +431,26 @@ const MeditationPlayer = () => {
       return;
     }
 
-    if (!canPlay) {
-      logger.log('[PlayPause] Media not ready yet, showing loading toast');
-      toast({
-        title: "Media Loading",
-        description: "Please wait for the meditation to load completely.",
-      });
-      return;
-    }
-
     const mediaElement = isAudio ? audioRef.current : videoRef.current;
     if (!mediaElement) {
       logger.log('[PlayPause] No media element found!');
       return;
     }
+
+    // iOS: Log full state even if canPlay is false
+    console.log('[PLAY/PAUSE] Full state check:', {
+      isLocked,
+      canPlay,
+      canPlayState: canPlay,
+      isLoading,
+      videoElement: !!videoRef.current,
+      videoReadyState: mediaElement.readyState,
+      videoNetworkState: mediaElement.networkState,
+      videoSrc: mediaElement.src,
+      videoCurrentSrc: mediaElement.currentSrc,
+      videoError: mediaElement.error,
+      mediaUrl: meditation?.media_url
+    });
 
     logger.log('[PlayPause] Media element ready:', {
       readyState: mediaElement.readyState,
@@ -401,11 +464,12 @@ const MeditationPlayer = () => {
         logger.log('[PlayPause] Pausing media');
         mediaElement.pause();
       } else {
-        logger.log('[PlayPause] Starting playback');
+        logger.log('[PlayPause] Starting playback (iOS: attempting even if canPlay=false)');
+
         // Track meditation playback start
         if (meditation && !player.isPlaying) {
           trackMeditationPlayed(meditation.id, meditation.title);
-          
+
           // Track usage in meditation_usage table
           if (user) {
             try {
@@ -420,7 +484,7 @@ const MeditationPlayer = () => {
                 })
                 .select('id')
                 .single();
-              
+
               if (!error && data) {
                 setUsageRecordId(data.id);
                 lastUpdateTimeRef.current = Date.now();
@@ -442,16 +506,44 @@ const MeditationPlayer = () => {
           }
         }
 
+        // iOS: Try to load the video if readyState is too low
+        if (mediaElement.readyState < 2) { // HAVE_CURRENT_DATA = 2
+          logger.log('[PlayPause] ReadyState too low, calling load()');
+          console.log('[PlayPause] ReadyState low, calling load()');
+          mediaElement.load();
+        }
+
+        console.log('[PLAY/PAUSE] Attempting playback with element:', {
+          paused: mediaElement.paused,
+          ended: mediaElement.ended,
+          seeking: mediaElement.seeking,
+          readyState: mediaElement.readyState,
+          HAVE_NOTHING: 0,
+          HAVE_METADATA: 1,
+          HAVE_CURRENT_DATA: 2,
+          HAVE_FUTURE_DATA: 3,
+          HAVE_ENOUGH_DATA: 4
+        });
+
         const playPromise = mediaElement.play();
         logger.log('[PlayPause] Play promise created');
         if (playPromise !== undefined) {
           playPromise
             .then(() => {
               logger.log('[PlayPause] Playback started successfully');
+              console.log('[PlayPause] Playback started successfully');
+              setCanPlay(true); // Update canPlay state on successful play
             })
             .catch((error) => {
               logger.error('[PlayPause] Playback failed:', error);
-              setError('Playback failed. Please try again.');
+              console.log('[PlayPause ERROR] Details:', {
+                name: error.name,
+                message: error.message,
+                readyState: mediaElement.readyState,
+                networkState: mediaElement.networkState,
+                error: mediaElement.error
+              });
+              setError(`Playback failed: ${error.message}. Please try again.`);
               setPlaying(false);
             });
         }
@@ -498,10 +590,22 @@ const MeditationPlayer = () => {
 
   const handleSeek = (newTime: number[]) => {
     const time = newTime[0];
+    console.log('[Seek] handleSeek called, time:', time);
+    setLocalCurrentTime(time); // Update visual slider only
+    setIsSeeking(true); // Mark as seeking to prevent timeupdate interference
+  };
+
+  const handleSeekCommit = (newTime: number[]) => {
+    const time = newTime[0];
+    console.log('[Seek] handleSeekCommit called, time:', time);
     const mediaElement = isAudio ? audioRef.current : videoRef.current;
+    console.log('[Seek] mediaElement:', mediaElement, 'canPlay:', canPlay);
     if (mediaElement && canPlay) {
+      console.log('[Seek] Setting currentTime to:', time);
       mediaElement.currentTime = time;
+      console.log('[Seek] After set, currentTime is:', mediaElement.currentTime);
     }
+    // Don't clear isSeeking here - wait for 'seeked' event
   };
 
   const handleFavoriteClick = () => {
@@ -564,9 +668,9 @@ const MeditationPlayer = () => {
           variant="outline"
           size="sm"
           onClick={() => navigate(-1)}
-          className="w-10 h-10 rounded-full bg-background/80 backdrop-blur-sm"
+          className="w-12 h-12 rounded-full bg-background/80 backdrop-blur-sm"
         >
-          <ArrowLeft className="w-5 h-5" />
+          <ArrowLeft className="w-7 h-7" />
         </Button>
 
         <Button
@@ -614,17 +718,24 @@ const MeditationPlayer = () => {
             logger.error('[Audio] Error occurred');
             handleError(e);
           }}
+          onSeeked={() => {
+            console.log('[Seek] Seeked event - clearing isSeeking flag');
+            setIsSeeking(false);
+          }}
           onWaiting={() => {
             logger.log('[Audio] Waiting for data');
           }}
           onSuspend={() => {
+            if (isSeeking) return; // Don't reload while seeking
             logger.log('[Audio] Suspended - attempting to resume');
             const audioEl = audioRef.current;
             if (audioEl && audioEl.readyState < 3) {
               // If not fully loaded, try to resume loading
               setTimeout(() => {
-                logger.log('[Audio] Calling load() to resume');
-                audioEl.load();
+                if (!isSeeking) { // Check again after timeout
+                  logger.log('[Audio] Calling load() to resume');
+                  audioEl.load();
+                }
               }, 100);
             }
           }}
@@ -721,10 +832,9 @@ const MeditationPlayer = () => {
               </div>
             </div>
           ) : (
-            /* Video player with native poster - wrapped for pulsing background */
+            /* Video player with native controls */
             <div
-              className="relative mx-auto transition-all duration-300 cursor-pointer group"
-              onClick={handlePlayPause}
+              className="relative mx-auto transition-all duration-300"
               style={{
                 ...(videoHasStarted && calculatedDimensionsRef.current
                   ? {
@@ -738,15 +848,38 @@ const MeditationPlayer = () => {
                 )
               }}
             >
+              {/* Separate poster image - shown before playback */}
+              {!videoHasStarted && (
+                <>
+                  <img
+                    src={safePoster}
+                    alt={meditation.title}
+                    className="absolute inset-0 w-full h-full object-contain rounded-lg"
+                    style={{ pointerEvents: 'none' }}
+                  />
+                  {/* Clickable overlay on poster to start playback */}
+                  <div
+                    className="absolute inset-0 cursor-pointer"
+                    onClick={handlePlayPause}
+                    onTouchEnd={(e) => {
+                      e.preventDefault();
+                      handlePlayPause();
+                    }}
+                  />
+                </>
+              )}
+
               <video
                 ref={videoRef}
-                poster={safePoster}
+                src={meditation.media_url}
                 playsInline
+                {...(videoHasStarted ? { controls: true } : {})}
                 preload="metadata"
                 className={`rounded-lg w-full h-full ${videoHasStarted ? 'playing shadow-2xl' : ''}`}
                 style={{
                   display: 'block',
-                  objectFit: 'contain'
+                  objectFit: 'contain',
+                  visibility: videoHasStarted ? 'visible' : 'hidden'
                 }}
               onLoadStart={handleLoadStart}
                 onCanPlay={handleCanPlay}
@@ -757,6 +890,14 @@ const MeditationPlayer = () => {
                   const videoEl = e.target as HTMLVideoElement;
                   const aspectRatio = videoEl.videoWidth / videoEl.videoHeight;
                   const isPortrait = videoEl.videoHeight > videoEl.videoWidth;
+
+                  console.log('[VIDEO] Metadata loaded:', {
+                    videoWidth: videoEl.videoWidth,
+                    videoHeight: videoEl.videoHeight,
+                    aspectRatio,
+                    isPortrait,
+                    src: videoEl.src
+                  });
 
                   // Calculate explicit dimensions based on viewport
                   const maxHeightVh = 80;
@@ -770,8 +911,8 @@ const MeditationPlayer = () => {
                   // Get container width
                   const containerWidth = videoEl.parentElement?.offsetWidth || window.innerWidth;
 
-                  // For portrait, also limit to reasonable width (75% of container)
-                  const maxWidth = isPortrait ? containerWidth * 0.75 : containerWidth;
+                  // Use full container width - no portrait-specific constraint
+                  const maxWidth = containerWidth;
                   const finalWidth = Math.min(calculatedWidth, maxWidth);
                   const finalHeight = finalWidth / aspectRatio;
 
@@ -781,10 +922,17 @@ const MeditationPlayer = () => {
                     height: Math.round(finalHeight)
                   };
 
+                  console.log('[VIDEO] Calculated dimensions:', calculatedDimensionsRef.current);
+
                   handleLoadedMetadata();
                 }}
                 onTimeUpdate={handleTimeUpdate}
                 onPlay={() => {
+                  console.log('[VIDEO] Play event fired!', {
+                    videoHasStarted,
+                    calculatedDimensions: calculatedDimensionsRef.current,
+                    willTransition: !videoHasStarted
+                  });
                   // Trigger transition from square to aspect ratio
                   if (!videoHasStarted) {
                     setVideoHasStarted(true);
@@ -799,9 +947,27 @@ const MeditationPlayer = () => {
                 onEnded={handleEnded}
                 onError={(e) => {
                   const videoEl = e.target as HTMLVideoElement;
+                  console.log('[VIDEO ERROR] Comprehensive error details:', {
+                    hasVideoError: !!videoEl.error,
+                    errorCode: videoEl.error?.code,
+                    errorMessage: videoEl.error?.message,
+                    poster: videoEl.poster,
+                    src: videoEl.src,
+                    currentSrc: videoEl.currentSrc,
+                    networkState: videoEl.networkState,
+                    readyState: videoEl.readyState,
+                    // iOS codec detection
+                    canPlayType_mp4: videoEl.canPlayType('video/mp4'),
+                    canPlayType_h264: videoEl.canPlayType('video/mp4; codecs="avc1.42E01E"'),
+                    canPlayType_hevc: videoEl.canPlayType('video/mp4; codecs="hvc1"')
+                  });
                   // Only handle actual video errors, not poster image errors
                   // Poster errors don't set videoEl.error, so we check for that
                   if (videoEl.error && videoEl.error.code) {
+                    console.error('[VIDEO] Actual video error!', {
+                      code: videoEl.error.code,
+                      message: videoEl.error.message
+                    });
                     logger.error('[Video] Actual video error occurred:', {
                       code: videoEl.error.code,
                       message: videoEl.error.message
@@ -809,6 +975,7 @@ const MeditationPlayer = () => {
                     handleError(e);
                   } else {
                     // Just a poster image error - log but don't show error toast
+                    console.warn('[VIDEO] Poster image may have failed (not critical)');
                     logger.warn('[Video] Poster image may have failed (not critical):', videoEl.poster);
                   }
                 }}
@@ -828,20 +995,17 @@ const MeditationPlayer = () => {
                   }
                 }}
               >
-                <source src={meditation.media_url} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
 
-              {/* Custom Play/Pause Button Overlay */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="w-20 h-20 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center shadow-lg transition-all group-hover:scale-110 group-hover:bg-background/90">
-                  {player.isPlaying ? (
-                    <Pause className="w-10 h-10 text-foreground fill-foreground" />
-                  ) : (
+              {/* Custom Play Button Overlay - Only show on poster before video starts */}
+              {!videoHasStarted && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="w-20 h-20 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center shadow-lg">
                     <Play className="w-10 h-10 text-foreground fill-foreground ml-1" />
-                  )}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Floating Animation for Free Content */}
               {!isLocked && player.isPlaying && (
@@ -970,6 +1134,7 @@ const MeditationPlayer = () => {
                 max={duration}
                 step={1}
                 onValueChange={handleSeek}
+                onValueCommit={handleSeekCommit}
                 className="cursor-pointer"
                 disabled={!canPlay || isLocked}
               />
@@ -988,10 +1153,7 @@ const MeditationPlayer = () => {
                 disabled={isLocked || !canPlay}
                 className="w-16 h-16 rounded-full relative group"
               >
-                <Skip10Icon
-                  className="w-8 h-8"
-                  direction="backward"
-                />
+                <SkipBackIcon className="w-12 h-12" />
               </Button>
 
               <Button
@@ -1015,10 +1177,7 @@ const MeditationPlayer = () => {
                 disabled={isLocked || !canPlay}
                 className="w-16 h-16 rounded-full relative group"
               >
-                <Skip10Icon
-                  className="w-8 h-8"
-                  direction="forward"
-                />
+                <SkipForwardIcon className="w-12 h-12" />
               </Button>
             </div>
           </>
@@ -1026,39 +1185,39 @@ const MeditationPlayer = () => {
 
         {/* Completion Celebration */}
         {isCompleted && (
-          <div className="text-center">
+          <div className="text-center px-4">
             <div className="mb-4 animate-bounce-gentle">
               <img
                 src={congratulationsSvg}
                 alt="Congratulations"
-                className="w-32 h-32 mx-auto"
+                className="w-24 h-24 mx-auto"
               />
             </div>
-            <h2 className="text-xl font-bold text-gradient-primary mb-2">
+            <h2 className="text-lg font-bold text-gradient-primary mb-2">
               Meditation Complete!
             </h2>
-            <p className="text-muted-foreground mb-6">
+            <p className="text-sm text-muted-foreground mb-6">
               You've added {Math.round(duration / 60)} mindful minutes to your day
             </p>
-            <div className="flex gap-3">
+            <div className="flex flex-col gap-3 max-w-sm mx-auto">
               {user ? (
                 // Logged-in users: Show progress tracking
                 <>
-                  <Button onClick={() => navigate('/tracking')} className="btn-soft">
+                  <Button onClick={() => navigate('/tracking')} className="btn-soft w-full">
                     View Progress
                   </Button>
-                  <Button onClick={() => navigate('/meditations')} variant="outline">
+                  <Button onClick={() => navigate('/meditations')} variant="outline" className="w-full">
                     Find Another
                   </Button>
                 </>
               ) : (
                 // Non-logged-in users: Encourage account creation
                 <>
-                  <Button onClick={() => navigate('/explore')} className="btn-premium">
-                    Create Account to Track Progress
+                  <Button onClick={() => navigate('/explore')} className="btn-premium w-full">
+                    Track Your Progress
                   </Button>
-                  <Button onClick={() => navigate('/meditations')} variant="outline">
-                    Try Another Free Meditation
+                  <Button onClick={() => navigate('/meditations')} variant="outline" className="w-full">
+                    Try Another
                   </Button>
                 </>
               )}

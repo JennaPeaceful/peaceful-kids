@@ -6,6 +6,7 @@ import { useUserStore } from '../stores/userStore';
 import { useMeditationStore } from '../stores/meditationStore';
 import { useAuth } from '../hooks/useAuth';
 import { getAgeGroupColor } from '@/lib/ageGroupColors';
+import { getContentCategoryIcon } from '@/lib/contentCategoryIcons';
 import categoryBackground from '@/assets/category-icon-background.svg';
 import logo from '@/assets/logo.svg';
 import highlyMeditatedCourseSvg from '@/assets/highly-meditated-course.svg';
@@ -50,13 +51,26 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
   // Map database thumbnail paths to imported assets
   const getThumbnailSrc = () => {
     const thumbnailUrl = meditation.thumbnail_url || meditation.thumbnail;
+
+    // Filter out invalid placeholder URLs
+    if (!thumbnailUrl || thumbnailUrl.includes('/api/placeholder')) {
+      // Check if meditation has content categories - use category icon
+      if (meditation.content_categories && meditation.content_categories.length > 0) {
+        const categoryIcon = getContentCategoryIcon(meditation.content_categories[0]);
+        if (categoryIcon) {
+          return categoryIcon; // Line art SVG - will show on colorful background
+        }
+      }
+      return logo; // Final fallback
+    }
+
     if (thumbnailUrl === '/highly-meditated-course.svg') {
       return highlyMeditatedCourseSvg;
     }
     if (thumbnailUrl === '/introduction-healing-arts.svg') {
       return introductionHealingArtsSvg;
     }
-    return thumbnailUrl || logo;
+    return thumbnailUrl;
   };
 
   const handleCardClick = () => {
@@ -103,11 +117,19 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
       {/* Thumbnail Image */}
       <div className="relative mb-3 rounded-xl overflow-hidden aspect-square">
         {/* Colorful background layer - for wire icons (NO COLOR in URL), SVGs, and logo fallbacks */}
-        {(meditation.thumbnail_url || meditation.thumbnail) &&
-         (/NO.?COLOR/i.test(meditation.thumbnail_url || meditation.thumbnail || '') ||
-          /\.svg(\?|$)/i.test(meditation.thumbnail_url || meditation.thumbnail || '') ||
-          /(\/logo\.svg|assets\/logo)/i.test(meditation.thumbnail_url || meditation.thumbnail || '')) && (
-          <img 
+        {(() => {
+          const thumbnailUrl = meditation.thumbnail_url || meditation.thumbnail;
+          // Show background if using category icon fallback
+          const usingCategoryFallback = (!thumbnailUrl || thumbnailUrl.includes('/api/placeholder'))
+            && meditation.content_categories && meditation.content_categories.length > 0;
+
+          return (thumbnailUrl || usingCategoryFallback) &&
+            (usingCategoryFallback ||
+             /NO.?COLOR/i.test(thumbnailUrl || '') ||
+             /\.svg(\?|$)/i.test(thumbnailUrl || '') ||
+             /(\/logo\.svg|assets\/logo)/i.test(thumbnailUrl || ''));
+        })() && (
+          <img
             src={categoryBackground}
             alt=""
             className="absolute inset-0 w-full h-full object-cover opacity-70"
@@ -163,8 +185,8 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
 
       {/* Content */}
       <div className="space-y-1.5">
-        <h3 className="font-bold text-xs leading-tight line-clamp-2 min-h-[2.5rem]">
-          {meditation.lecture ? `Lecture ${meditation.lecture}: ` : ''}{meditation.public_title || meditation.title}
+        <h3 className="font-bold text-xs leading-tight line-clamp-3 min-h-[3rem]">
+          {meditation.public_title || meditation.title}
         </h3>
         
         <p className="text-xs text-muted-foreground line-clamp-2">
