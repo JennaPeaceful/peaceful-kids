@@ -50,9 +50,16 @@ export function initSentry(): void {
       // Filter out noisy errors
       beforeSend(event, hint) {
         const error = hint.originalException as Error;
+        const errorMessage = error?.message || '';
 
         // Filter out ResizeObserver errors (benign browser noise)
-        if (error?.message?.includes('ResizeObserver')) {
+        if (errorMessage.includes('ResizeObserver')) {
+          return null;
+        }
+
+        // Filter out WebKit internal errors (iOS WebView noise)
+        if (errorMessage.includes('EmptyRanges') ||
+            errorMessage.includes('sortedTrackListForMenu')) {
           return null;
         }
 
