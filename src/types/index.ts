@@ -20,16 +20,18 @@ export interface Meditation {
   thumbnail_url?: string;
   duration: number; // in seconds
   media_url: string;
-  media_type: 'audio' | 'video' | 'pdf' | 'text';
+  media_type: 'audio' | 'video' | 'pdf' | 'text' | 'image';
   image_url?: string; // Pre-converted image URL for PDFs
   is_free: boolean;
   category: string;
-  age_group: string;
+  categories?: string[]; // Array for multi-category support (e.g., ['Kid', 'Adult'])
+  age_group: string[]; // Array for multi-age support (e.g., ['Ages 3-5', 'Ages 6-8'])
   themes: string[];
   content_categories?: string[];
   courses?: string | null;
   module?: number | null;
   lecture?: number | null;
+  course_lecture_display_order?: number | null;
   module_id?: string | null;
   course_module?: CourseModule; // Joined data
   created_at: string;

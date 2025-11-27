@@ -1,6 +1,7 @@
 // Content category color mapping for icon backgrounds
 export const contentCategoryColors: Record<string, string> = {
   'Meditation': '#49a669',
+  'Getting Started': '#49a669',
   'Somatic Reset': '#f3839c',
   'Binaurals': '#449dbd',
   'Meditation with Breathwork': '#f79345',

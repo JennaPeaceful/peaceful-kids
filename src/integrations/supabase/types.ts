@@ -175,7 +175,7 @@ export type Database = {
       }
       meditations: {
         Row: {
-          age_group: string | null
+          age_group: string[] | null
           categories: string[] | null
           category: string | null
           content_categories: string[] | null
@@ -204,7 +204,7 @@ export type Database = {
           transcript: string | null
         }
         Insert: {
-          age_group?: string | null
+          age_group?: string[] | null
           categories?: string[] | null
           category?: string | null
           content_categories?: string[] | null
@@ -233,7 +233,7 @@ export type Database = {
           transcript?: string | null
         }
         Update: {
-          age_group?: string | null
+          age_group?: string[] | null
           categories?: string[] | null
           category?: string | null
           content_categories?: string[] | null
@@ -599,7 +599,7 @@ export type Database = {
       }
       meditations_adults: {
         Row: {
-          age_group: string | null
+          age_group: string[] | null
           categories: string[] | null
           category: string | null
           content_categories: string[] | null
@@ -620,7 +620,7 @@ export type Database = {
           title: string | null
         }
         Insert: {
-          age_group?: string | null
+          age_group?: string[] | null
           categories?: string[] | null
           category?: string | null
           content_categories?: string[] | null
@@ -641,7 +641,7 @@ export type Database = {
           title?: string | null
         }
         Update: {
-          age_group?: string | null
+          age_group?: string[] | null
           categories?: string[] | null
           category?: string | null
           content_categories?: string[] | null
@@ -666,7 +666,7 @@ export type Database = {
       meditations_by_age: {
         Row: {
           age_display: string | null
-          age_group: string | null
+          age_group: string[] | null
           categories: string[] | null
           category: string | null
           content_categories: string[] | null
@@ -688,7 +688,7 @@ export type Database = {
         }
         Insert: {
           age_display?: never
-          age_group?: string | null
+          age_group?: string[] | null
           categories?: string[] | null
           category?: string | null
           content_categories?: string[] | null
@@ -710,7 +710,7 @@ export type Database = {
         }
         Update: {
           age_display?: never
-          age_group?: string | null
+          age_group?: string[] | null
           categories?: string[] | null
           category?: string | null
           content_categories?: string[] | null
@@ -734,7 +734,7 @@ export type Database = {
       }
       meditations_kids: {
         Row: {
-          age_group: string | null
+          age_group: string[] | null
           categories: string[] | null
           category: string | null
           content_categories: string[] | null
@@ -755,7 +755,7 @@ export type Database = {
           title: string | null
         }
         Insert: {
-          age_group?: string | null
+          age_group?: string[] | null
           categories?: string[] | null
           category?: string | null
           content_categories?: string[] | null
@@ -776,7 +776,7 @@ export type Database = {
           title?: string | null
         }
         Update: {
-          age_group?: string | null
+          age_group?: string[] | null
           categories?: string[] | null
           category?: string | null
           content_categories?: string[] | null
@@ -843,7 +843,7 @@ export type Database = {
       get_meditations_for_age: {
         Args: { user_age: number }
         Returns: {
-          age_group: string | null
+          age_group: string[] | null
           categories: string[] | null
           category: string | null
           content_categories: string[] | null

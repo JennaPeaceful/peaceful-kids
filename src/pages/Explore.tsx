@@ -386,7 +386,7 @@ const Explore = () => {
                   type="button"
                 >
                   <Gift className="w-4 h-4" />
-                  <span>Redeem BRAVOANDCOCKTAILS</span>
+                  <span>Enter Promo Code</span>
                 </button>
               </div>
             </div>
@@ -457,7 +457,7 @@ const Explore = () => {
                   type="button"
                 >
                   <Gift className="w-4 h-4" />
-                  <span>Redeem BRAVOANDCOCKTAILS</span>
+                  <span>Enter Promo Code</span>
                 </button>
               </div>
             </div>

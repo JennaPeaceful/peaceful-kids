@@ -88,20 +88,22 @@ const transformMeditation = (dbMeditation: any): Meditation => ({
   public_title: dbMeditation.public_title,
   description: dbMeditation.description || '',
   transcript: dbMeditation.transcript || undefined,
-  thumbnail: dbMeditation.thumbnail_url || '/api/placeholder/300/200',
-  thumbnail_url: dbMeditation.thumbnail_url || '/api/placeholder/300/200',
+  thumbnail: dbMeditation.thumbnail_url || '',
+  thumbnail_url: dbMeditation.thumbnail_url || '',
   duration: dbMeditation.duration || 0,
   media_url: dbMeditation.media_url || '',
-  media_type: (dbMeditation.media_type as 'audio' | 'video' | 'pdf') || 'audio',
+  media_type: (dbMeditation.media_type as 'audio' | 'video' | 'pdf' | 'text' | 'image') || 'audio',
   image_url: dbMeditation.image_url,
   is_free: dbMeditation.is_free || false,
   category: dbMeditation.category || 'Kid',
-  age_group: dbMeditation.age_group || '',
+  categories: dbMeditation.categories || undefined, // Array for multi-category support
+  age_group: dbMeditation.age_group || [], // Array for multi-age support (e.g., ['Ages 3-5', 'Ages 6-8'])
   themes: dbMeditation.themes || [],
   content_categories: dbMeditation.content_categories || [],
   courses: dbMeditation.courses || null,
   module: dbMeditation.module || null,
   lecture: dbMeditation.lecture || null,
+  course_lecture_display_order: dbMeditation.course_lecture_display_order ?? null,
   module_id: dbMeditation.module_id || null,
   course_module: dbMeditation.course_modules || undefined,
   created_at: dbMeditation.created_at || '',
@@ -168,8 +170,12 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
       }
 
       // Apply category filter (skip for "Emotions" which uses themes instead)
+      // Check both array field (categories) and single field (category) for compatibility
       if (currentFilters.selectedCategory && currentFilters.selectedCategory !== 'Emotions' && currentFilters.selectedCategory !== 'Courses') {
-        initialFiltered = initialFiltered.filter(m => m.category === currentFilters.selectedCategory);
+        initialFiltered = initialFiltered.filter(m =>
+          (m.categories && m.categories.includes(currentFilters.selectedCategory)) ||
+          m.category === currentFilters.selectedCategory
+        );
       }
 
       // If Courses is selected, only show meditations with courses field
@@ -187,8 +193,11 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
         initialFiltered = initialFiltered.filter(m => m.module === currentFilters.selectedModule);
       }
 
+      // Filter by age group (age_group is now an array)
       if (currentFilters.selectedAgeGroup) {
-        initialFiltered = initialFiltered.filter(m => m.age_group === currentFilters.selectedAgeGroup);
+        initialFiltered = initialFiltered.filter(m =>
+          m.age_group && m.age_group.includes(currentFilters.selectedAgeGroup)
+        );
       }
 
       if (currentFilters.selectedThemes.length > 0) {
@@ -216,13 +225,13 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
         meditations,
         filteredMeditations: initialFiltered,
         recentMeditations: meditations.slice(0, 3),
-        recommendedMeditations: meditations.filter(m => m.category === 'Kid' && m.age_group === 'Ages 6-8').slice(0, 4),
+        recommendedMeditations: meditations.filter(m => m.category === 'Kid' && m.age_group?.includes('Ages 6-8')).slice(0, 4),
         courseModules: modulesMap,
-        isLoading: false 
+        isLoading: false
       });
-      
-      // Extract unique age groups from meditations and sort them
-      const uniqueAgeGroups = [...new Set(meditations.map(m => m.age_group).filter(Boolean))];
+
+      // Extract unique age groups from meditations and sort them (flatten arrays)
+      const uniqueAgeGroups = [...new Set(meditations.flatMap(m => m.age_group || []))];
       const sortedAgeGroups = uniqueAgeGroups.sort((a, b) => {
         // Define age order priority
         const ageOrder = [
@@ -266,8 +275,12 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
     }
 
     // Apply category filter (skip for "Emotions" which uses themes instead)
+    // Check both array field (categories) and single field (category) for compatibility
     if (updatedFilters.selectedCategory && updatedFilters.selectedCategory !== 'Emotions' && updatedFilters.selectedCategory !== 'Courses') {
-      filtered = filtered.filter(m => m.category === updatedFilters.selectedCategory);
+      filtered = filtered.filter(m =>
+        (m.categories && m.categories.includes(updatedFilters.selectedCategory)) ||
+        m.category === updatedFilters.selectedCategory
+      );
     }
 
     // If Courses is selected, only show meditations with courses field
@@ -285,8 +298,11 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
       filtered = filtered.filter(m => m.module === updatedFilters.selectedModule);
     }
 
+    // Filter by age group (age_group is now an array)
     if (updatedFilters.selectedAgeGroup) {
-      filtered = filtered.filter(m => m.age_group === updatedFilters.selectedAgeGroup);
+      filtered = filtered.filter(m =>
+        m.age_group && m.age_group.includes(updatedFilters.selectedAgeGroup)
+      );
     }
 
     if (updatedFilters.selectedThemes.length > 0) {
@@ -421,8 +437,12 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
     }
     
     // Apply category filter (skip for "Emotions" which uses themes instead)
+    // Check both array field (categories) and single field (category) for compatibility
     if (filters.selectedCategory && filters.selectedCategory !== 'Emotions' && filters.selectedCategory !== 'Courses') {
-      filtered = filtered.filter(m => m.category === filters.selectedCategory);
+      filtered = filtered.filter(m =>
+        (m.categories && m.categories.includes(filters.selectedCategory)) ||
+        m.category === filters.selectedCategory
+      );
     }
     
     // If Courses is selected, only show meditations with courses field
@@ -439,9 +459,12 @@ export const useMeditationStore = create<MeditationState>((set, get) => ({
     if (filters.selectedModule !== null) {
       filtered = filtered.filter(m => m.module === filters.selectedModule);
     }
-    
+
+    // Filter by age group (age_group is now an array)
     if (filters.selectedAgeGroup) {
-      filtered = filtered.filter(m => m.age_group === filters.selectedAgeGroup);
+      filtered = filtered.filter(m =>
+        m.age_group && m.age_group.includes(filters.selectedAgeGroup)
+      );
     }
     
     if (filters.selectedThemes.length > 0) {

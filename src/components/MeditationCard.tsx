@@ -7,6 +7,7 @@ import { useMeditationStore } from '../stores/meditationStore';
 import { useAuth } from '../hooks/useAuth';
 import { getAgeGroupColor } from '@/lib/ageGroupColors';
 import { getContentCategoryIcon } from '@/lib/contentCategoryIcons';
+import { getKidsContentCategoryIcon, hasKidsIcon } from '@/lib/kidsContentCategoryIcons';
 import categoryBackground from '@/assets/category-icon-background.svg';
 import logo from '@/assets/logo.svg';
 import highlyMeditatedCourseSvg from '@/assets/highly-meditated-course.svg';
@@ -48,6 +49,9 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
     return list;
   })();
 
+  // Check if this is a kids meditation (has age_group)
+  const isKidsMeditation = !!meditation.age_group;
+
   // Map database thumbnail paths to imported assets
   const getThumbnailSrc = () => {
     const thumbnailUrl = meditation.thumbnail_url || meditation.thumbnail;
@@ -56,7 +60,18 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
     if (!thumbnailUrl || thumbnailUrl.includes('/api/placeholder')) {
       // Check if meditation has content categories - use category icon
       if (meditation.content_categories && meditation.content_categories.length > 0) {
-        const categoryIcon = getContentCategoryIcon(meditation.content_categories[0]);
+        const category = meditation.content_categories[0];
+
+        // For kids meditations, use colored icons based on age group
+        if (isKidsMeditation && hasKidsIcon(category)) {
+          const kidsIcon = getKidsContentCategoryIcon(category, meditation.age_group);
+          if (kidsIcon) {
+            return kidsIcon; // Colored SVG for kids
+          }
+        }
+
+        // Fall back to line-art icon for adults
+        const categoryIcon = getContentCategoryIcon(category);
         if (categoryIcon) {
           return categoryIcon; // Line art SVG - will show on colorful background
         }
@@ -72,6 +87,14 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
     }
     return thumbnailUrl;
   };
+
+  // Check if using a kids colored icon (no background needed)
+  const usingKidsColoredIcon = isKidsMeditation &&
+    meditation.content_categories &&
+    meditation.content_categories.length > 0 &&
+    hasKidsIcon(meditation.content_categories[0]) &&
+    (!meditation.thumbnail_url && !meditation.thumbnail ||
+     (meditation.thumbnail_url || meditation.thumbnail || '').includes('/api/placeholder'));
 
   const handleCardClick = () => {
     if (onPlay) {
@@ -117,9 +140,10 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
       {/* Thumbnail Image */}
       <div className="relative mb-3 rounded-xl overflow-hidden aspect-square">
         {/* Colorful background layer - for wire icons (NO COLOR in URL), SVGs, and logo fallbacks */}
-        {(() => {
+        {/* Skip background for kids colored icons since they're already colored */}
+        {!usingKidsColoredIcon && (() => {
           const thumbnailUrl = meditation.thumbnail_url || meditation.thumbnail;
-          // Show background if using category icon fallback
+          // Show background if using category icon fallback (adult line-art icons only)
           const usingCategoryFallback = (!thumbnailUrl || thumbnailUrl.includes('/api/placeholder'))
             && meditation.content_categories && meditation.content_categories.length > 0;
 
@@ -141,7 +165,8 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
           alt={meditation.title}
           className="absolute inset-0 w-full h-full object-contain p-4"
           style={
-            meditation.age_group && getAgeGroupColor(meditation.age_group)
+            // Skip drop-shadow for kids colored icons (they're already colored)
+            !usingKidsColoredIcon && meditation.age_group && getAgeGroupColor(meditation.age_group)
               ? { filter: `drop-shadow(0 0 0 ${getAgeGroupColor(meditation.age_group)})` }
               : undefined
           }
@@ -150,10 +175,10 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
             target.src = logo;
           }}
         />
-        {/* SVG color overlay for age groups */}
-        {meditation.age_group && getAgeGroupColor(meditation.age_group) && 
+        {/* SVG color overlay for age groups - skip for kids colored icons */}
+        {!usingKidsColoredIcon && meditation.age_group && getAgeGroupColor(meditation.age_group) &&
          /NO.?COLOR/i.test(meditation.thumbnail_url || meditation.thumbnail || '') && (
-          <div 
+          <div
             className="absolute inset-0 mix-blend-overlay opacity-60 pointer-events-none"
             style={{ backgroundColor: getAgeGroupColor(meditation.age_group) || undefined }}
           />
@@ -218,7 +243,7 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
           <div className="flex-shrink-0">
             {meditation.media_type === 'video' ? (
               <Video className="w-5 h-5 text-primary/70" />
-            ) : meditation.media_type === 'pdf' || meditation.media_type === 'text' ? (
+            ) : meditation.media_type === 'pdf' || meditation.media_type === 'text' || meditation.media_type === 'image' ? (
               <FileText className="w-5 h-5 text-primary/70" />
             ) : (
               <Music className="w-5 h-5 text-primary/70" />

@@ -7,9 +7,9 @@
 
 export const APP_URLS = {
   // Legal Pages
-  privacy: 'https://support.peacefulmeditationapp.com/privacy',
-  terms: 'https://support.peacefulmeditationapp.com/terms',
-  support: 'https://support.peacefulmeditationapp.com/support',
+  privacy: 'https://peacefulmeditationapp.com/privacy-policy/',
+  terms: 'https://peacefulmeditationapp.com/terms-of-service/',
+  support: 'https://peacefulmeditationapp.com/support-faq/',
 
   // Account Management
   subscription: 'https://support.peacefulmeditationapp.com/subscription',

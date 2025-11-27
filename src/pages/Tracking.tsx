@@ -16,7 +16,7 @@ const Tracking = () => {
     return (
       <div className="pb-24 pt-6 px-4">
         <div className="text-center py-12">
-          <div className="text-4xl mb-4">🧘‍♂️</div>
+          <img src={totalMinutesIcon} alt="Loading" className="w-16 h-16 mx-auto mb-4" />
           <p className="text-muted-foreground">{t('tracking.loadingProgress')}</p>
         </div>
       </div>

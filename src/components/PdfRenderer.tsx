@@ -3,10 +3,11 @@ import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 import { Capacitor } from '@capacitor/core';
-import { FileOpener } from '@capawesome-team/capacitor-file-opener';
+import { Browser } from '@capacitor/browser';
 import { InlineLoadingState } from './LoadingState';
 import { Button } from './ui/button';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, ZoomIn } from 'lucide-react';
+import ImageLightbox from './ImageLightbox';
 
 // Configure PDF.js worker using CDN (Vite-compatible)
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
@@ -15,9 +16,10 @@ interface PdfRendererProps {
   fileUrl: string;
   imageUrl?: string;
   title?: string;
+  mediaType?: 'pdf' | 'image' | 'text' | 'audio' | 'video';
 }
 
-const PdfRenderer: React.FC<PdfRendererProps> = ({ fileUrl, imageUrl, title }) => {
+const PdfRenderer: React.FC<PdfRendererProps> = ({ fileUrl, imageUrl, title, mediaType }) => {
   const isNative = Capacitor.isNativePlatform();
 
   // State for PDF rendering (used by all platforms now)
@@ -28,49 +30,81 @@ const PdfRenderer: React.FC<PdfRendererProps> = ({ fileUrl, imageUrl, title }) =
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // Debug: Log render
-  console.log('[PdfRenderer] Rendering:', { isNative, fileUrl, imageUrl, title });
+  console.log('[PdfRenderer] Rendering:', { isNative, fileUrl, imageUrl, title, mediaType });
+
+  // State for lightbox
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+
+  // Handler to open PDF in in-app browser
+  const handleOpenExternal = async () => {
+    console.log('[PdfRenderer] Open PDF button clicked');
+    try {
+      // On Android, use Google Docs Viewer since Chrome Custom Tabs just downloads PDFs
+      // On iOS, Safari renders PDFs natively
+      const isAndroid = Capacitor.getPlatform() === 'android';
+      const urlToOpen = isAndroid
+        ? `https://docs.google.com/viewer?url=${fileUrl}`
+        : fileUrl;
+
+      console.log('[PdfRenderer] Opening URL:', urlToOpen);
+
+      await Browser.open({
+        url: urlToOpen,
+        presentationStyle: 'fullscreen'
+      });
+    } catch (error) {
+      console.error('Error opening PDF in browser:', error);
+      window.open(fileUrl, '_blank', 'noopener,noreferrer');
+    }
+  };
 
   // If we have a pre-converted image, show that instead of trying to render PDF
   if (imageUrl) {
     console.log('[PdfRenderer] Using pre-converted image:', imageUrl);
 
-    // Handler to open PDF externally
-    const handleOpenExternal = async () => {
-      console.log('[PdfRenderer] Open PDF button clicked');
-      try {
-        await FileOpener.openFile({
-          path: fileUrl,
-          mimeType: 'application/pdf',
-        });
-      } catch (error) {
-        console.error('Error opening PDF with FileOpener:', error);
-        window.open(fileUrl, '_blank', 'noopener,noreferrer');
-      }
-    };
-
     return (
       <div className="w-full flex flex-col gap-4">
-        {/* Image displayed inline */}
-        <img
-          src={imageUrl}
-          alt={title || 'PDF Document'}
-          className="w-full rounded-lg shadow-lg"
-          onError={(e) => {
-            console.error('[PdfRenderer] Image failed to load:', imageUrl);
-            e.currentTarget.style.display = 'none';
-          }}
+        {/* Tappable image with zoom hint */}
+        <div
+          className="relative cursor-pointer group"
+          onClick={() => setLightboxOpen(true)}
+        >
+          <img
+            src={imageUrl}
+            alt={title || 'Document'}
+            className="w-full rounded-lg shadow-lg"
+            onError={(e) => {
+              console.error('[PdfRenderer] Image failed to load:', imageUrl);
+              e.currentTarget.style.display = 'none';
+            }}
+          />
+          {/* Zoom hint overlay */}
+          <div className="absolute bottom-3 right-3 bg-black/60 text-white px-3 py-1.5 rounded-full flex items-center gap-1.5 text-sm opacity-80 group-hover:opacity-100 transition-opacity">
+            <ZoomIn className="w-4 h-4" />
+            <span>Tap to zoom</span>
+          </div>
+        </div>
+
+        {/* Lightbox for zooming */}
+        <ImageLightbox
+          isOpen={lightboxOpen}
+          onClose={() => setLightboxOpen(false)}
+          imageUrl={imageUrl}
+          alt={title || 'Document'}
         />
 
-        {/* Button BELOW image */}
-        <div className="flex justify-center">
-          <Button
-            onClick={handleOpenExternal}
-            className="flex items-center gap-2 bg-gradient-to-r from-primary via-secondary to-accent text-white hover:opacity-90 transition-opacity"
-          >
-            <ExternalLink className="w-4 h-4" />
-            Open in PDF Viewer
-          </Button>
-        </div>
+        {/* Show PDF viewer button only for actual PDFs (not infographics) */}
+        {mediaType === 'pdf' && isNative && (
+          <div className="flex justify-center">
+            <Button
+              onClick={handleOpenExternal}
+              className="flex items-center gap-2 bg-gradient-to-r from-primary via-secondary to-accent text-white hover:opacity-90 transition-opacity"
+            >
+              <ExternalLink className="w-4 h-4" />
+              Open in PDF Viewer
+            </Button>
+          </div>
+        )}
       </div>
     );
   }
@@ -124,22 +158,6 @@ const PdfRenderer: React.FC<PdfRendererProps> = ({ fileUrl, imageUrl, title }) =
   };
 
   const pages = useMemo(() => Array.from({ length: numPages }, (_, i) => i + 1), [numPages]);
-
-  // Handler to open PDF externally (for native platforms)
-  const handleOpenExternal = async () => {
-    console.log('[PdfRenderer] Open PDF button clicked');
-    try {
-      // Try to open with system PDF viewer
-      await FileOpener.openFile({
-        path: fileUrl,
-        mimeType: 'application/pdf',
-      });
-    } catch (error) {
-      console.error('Error opening PDF with FileOpener:', error);
-      // Fallback to opening in browser
-      window.open(fileUrl, '_blank', 'noopener,noreferrer');
-    }
-  };
 
   // Log initial render info
   useEffect(() => {

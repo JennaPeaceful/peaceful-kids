@@ -122,8 +122,10 @@ const MeditationPlayer = () => {
     (effectivePlanType === 'peace_plan' && isCourse)
   );
   const isAudio = meditation?.media_type === 'audio';
-  // Check both media_type and URL extension for PDF detection
+  // Check both media_type and URL extension for PDF/image detection
+  // media_type 'image' also uses PdfRenderer (via imageUrl) for infographics
   const isPdf = meditation?.media_type === 'pdf' ||
+    meditation?.media_type === 'image' ||
     meditation?.media_url?.toLowerCase().endsWith('.pdf') ||
     meditation?.title?.toLowerCase().includes('.pdf');
   const isTextOnly = meditation?.media_type === 'text';
@@ -663,7 +665,10 @@ const MeditationPlayer = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/5 pb-24">
       {/* Header - with safe area padding for mobile */}
-      <div className="flex items-center justify-between p-4 pt-6 safe-top">
+      <div
+        className="flex items-center justify-between p-4"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 1.5rem)' }}
+      >
         <Button
           variant="outline"
           size="sm"
@@ -790,6 +795,7 @@ const MeditationPlayer = () => {
                 fileUrl={meditation.media_url}
                 imageUrl={meditation.image_url}
                 title={meditation.title}
+                mediaType={meditation.media_type}
               />
             </div>
           ) : isAudio ? (
@@ -848,16 +854,27 @@ const MeditationPlayer = () => {
                 )
               }}
             >
-              {/* Separate poster image - shown before playback */}
-              {!videoHasStarted && (
-                <>
-                  <img
-                    src={safePoster}
-                    alt={meditation.title}
-                    className="absolute inset-0 w-full h-full object-contain rounded-lg"
-                    style={{ pointerEvents: 'none' }}
-                  />
-                  {/* Clickable overlay on poster to start playback */}
+              {/* Poster overlay - always rendered, fades out when video starts */}
+              <div
+                className="absolute inset-0 z-10 transition-opacity duration-300"
+                style={{
+                  opacity: videoHasStarted ? 0 : 1,
+                  pointerEvents: videoHasStarted ? 'none' : 'auto'
+                }}
+              >
+                <img
+                  src={safePoster}
+                  alt={meditation.title}
+                  className="w-full h-full object-contain rounded-lg"
+                />
+                {/* Play button overlay - inside poster wrapper so it fades together */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="w-20 h-20 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center shadow-lg">
+                    <Play className="w-10 h-10 text-foreground fill-foreground ml-1" />
+                  </div>
+                </div>
+                {/* Clickable overlay on poster to start playback */}
+                {!videoHasStarted && (
                   <div
                     className="absolute inset-0 cursor-pointer"
                     onClick={handlePlayPause}
@@ -866,8 +883,8 @@ const MeditationPlayer = () => {
                       handlePlayPause();
                     }}
                   />
-                </>
-              )}
+                )}
+              </div>
 
               <video
                 ref={videoRef}
@@ -879,7 +896,8 @@ const MeditationPlayer = () => {
                 style={{
                   display: 'block',
                   objectFit: 'contain',
-                  visibility: videoHasStarted ? 'visible' : 'hidden'
+                  opacity: videoHasStarted ? 1 : 0,
+                  transition: 'opacity 0.15s ease-in-out'
                 }}
               onLoadStart={handleLoadStart}
                 onCanPlay={handleCanPlay}
@@ -930,15 +948,32 @@ const MeditationPlayer = () => {
                 onPlay={() => {
                   console.log('[VIDEO] Play event fired!', {
                     videoHasStarted,
-                    calculatedDimensions: calculatedDimensionsRef.current,
-                    willTransition: !videoHasStarted
+                    calculatedDimensions: calculatedDimensionsRef.current
                   });
-                  // Trigger transition from square to aspect ratio
-                  if (!videoHasStarted) {
-                    setVideoHasStarted(true);
-                  }
-
+                  // Only update playing state - don't transition yet (wait for onPlaying)
                   setPlaying(true);
+                }}
+                onPlaying={() => {
+                  // Video has actual frames - safe to show and resize
+                  console.log('[VIDEO] Playing event fired - checking readiness');
+                  if (!videoHasStarted) {
+                    const checkAndReveal = () => {
+                      const video = videoRef.current;
+                      // HAVE_CURRENT_DATA (2) = at least one frame available
+                      if (video && video.readyState >= 2) {
+                        console.log('[VIDEO] Video ready (readyState:', video.readyState, '), revealing after delay');
+                        // Additional delay to ensure frame is painted
+                        setTimeout(() => {
+                          setVideoHasStarted(true);
+                        }, 200);
+                      } else {
+                        // Check again in 50ms
+                        console.log('[VIDEO] Not ready yet (readyState:', video?.readyState, '), checking again...');
+                        setTimeout(checkAndReveal, 50);
+                      }
+                    };
+                    checkAndReveal();
+                  }
                 }}
                 onPause={() => {
                   logger.log('[Video] Pause event - native controls');
@@ -997,15 +1032,6 @@ const MeditationPlayer = () => {
               >
                 Your browser does not support the video tag.
               </video>
-
-              {/* Custom Play Button Overlay - Only show on poster before video starts */}
-              {!videoHasStarted && (
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="w-20 h-20 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center shadow-lg">
-                    <Play className="w-10 h-10 text-foreground fill-foreground ml-1" />
-                  </div>
-                </div>
-              )}
 
               {/* Floating Animation for Free Content */}
               {!isLocked && player.isPlaying && (
@@ -1151,9 +1177,9 @@ const MeditationPlayer = () => {
                 size="lg"
                 onClick={() => handleSkip(-10)}
                 disabled={isLocked || !canPlay}
-                className="w-16 h-16 rounded-full relative group"
+                className="w-16 h-16 rounded-full relative group [&_svg]:!w-10 [&_svg]:!h-10"
               >
-                <SkipBackIcon className="w-12 h-12" />
+                <SkipBackIcon />
               </Button>
 
               <Button
@@ -1175,9 +1201,9 @@ const MeditationPlayer = () => {
                 size="lg"
                 onClick={() => handleSkip(10)}
                 disabled={isLocked || !canPlay}
-                className="w-16 h-16 rounded-full relative group"
+                className="w-16 h-16 rounded-full relative group [&_svg]:!w-10 [&_svg]:!h-10"
               >
-                <SkipForwardIcon className="w-12 h-12" />
+                <SkipForwardIcon />
               </Button>
             </div>
           </>

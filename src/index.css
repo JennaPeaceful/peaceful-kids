@@ -70,14 +70,14 @@ All colors MUST be HSL for proper theming.
     --shadow-card: 0 4px 20px -4px hsl(260 15% 75% / 0.15);
     --shadow-premium: 0 8px 25px -5px hsl(45 100% 60% / 0.4);
 
-    /* Age Group Colors */
-    --age-3-5: 342 72% 52%;
-    --age-3-8: 280 65% 60%;
-    --age-6-8: 200 85% 45%;
-    --age-9-12: 195 45% 52%;
-    --age-9-17: 45 95% 55%;
-    --age-13-17: 330 55% 55%;
-    --age-all: 28 90% 60%;
+    /* Age Group Colors - Matching kids SVG icon colors */
+    --age-3-5: 345 70% 52%;    /* red #da3062 */
+    --age-3-8: 44 90% 61%;     /* yellow #f5c542 */
+    --age-6-8: 141 40% 47%;    /* green #49a669 */
+    --age-9-12: 196 48% 50%;   /* dark blue #449dbd */
+    --age-9-17: 190 55% 72%;   /* cyan/light blue #8cd5e4 */
+    --age-13-17: 258 90% 66%;  /* purple #8b5cf6 */
+    --age-all: 26 92% 62%;     /* orange #f79345 */
 
     --sidebar-background: 0 0% 98%;
 
@@ -149,14 +149,14 @@ All colors MUST be HSL for proper theming.
     --shadow-card: 0 4px 20px -4px hsl(260 15% 5% / 0.4);
     --shadow-premium: 0 8px 25px -5px hsl(45 100% 50% / 0.5);
     
-    /* Age Group Colors - Dark Mode */
-    --age-3-5: 342 72% 58%;
-    --age-3-8: 280 65% 65%;
-    --age-6-8: 200 85% 50%;
-    --age-9-12: 195 45% 58%;
-    --age-9-17: 45 95% 60%;
-    --age-13-17: 330 55% 60%;
-    --age-all: 28 90% 65%;
+    /* Age Group Colors - Dark Mode (slightly brighter for visibility) */
+    --age-3-5: 345 70% 58%;    /* red */
+    --age-3-8: 44 90% 65%;     /* yellow */
+    --age-6-8: 141 40% 53%;    /* green */
+    --age-9-12: 196 48% 56%;   /* dark blue */
+    --age-9-17: 190 55% 76%;   /* cyan/light blue */
+    --age-13-17: 258 90% 72%;  /* purple */
+    --age-all: 26 92% 66%;     /* orange */
     
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;

@@ -23,6 +23,7 @@ export const contentCategoryIcons: Record<string, string> = {
   'Meditation with Sound Healing': soundHealing,
   'Specific Intention Meditations': specificIntention,
   'Meditation': meditation,
+  'Getting Started': meditation,
   'Somatic Reset': somaticReset,
   'Transitions': transitions,
   'Repeated Mantra Meditations': repeatedMantra,

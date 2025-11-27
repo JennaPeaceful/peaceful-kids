@@ -136,7 +136,7 @@ const MeditationListItem = ({ meditation, onPlay, courseThumbnail }: MeditationL
         <div className="absolute bottom-1 right-1">
           {meditation.media_type === 'video' ? (
             <Video className="w-4 h-4 text-primary/70 drop-shadow-lg" />
-          ) : meditation.media_type === 'pdf' || meditation.media_type === 'text' ? (
+          ) : meditation.media_type === 'pdf' || meditation.media_type === 'text' || meditation.media_type === 'image' ? (
             <FileText className="w-4 h-4 text-primary/70 drop-shadow-lg" />
           ) : (
             <Music className="w-4 h-4 text-primary/70 drop-shadow-lg" />
