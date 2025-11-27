@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Check, Headphones } from 'lucide-react';
+import { Check, Headphones, Gift } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { useTranslation } from 'react-i18next';
@@ -14,8 +14,9 @@ import { useUserStore } from '@/stores/userStore';
 import { useMeditationStore } from '@/stores/meditationStore';
 import MeditationCard from '@/components/MeditationCard';
 import { toast } from '@/hooks/use-toast';
-import { isNativePlatform } from '@/utils/platform';
-import { getOfferings, purchasePackage } from '@/utils/revenuecat';
+import { isNativePlatform, isIOS } from '@/utils/platform';
+import { getOfferings, purchasePackage, presentPromoCodeRedemption } from '@/utils/revenuecat';
+import { logger } from '@/utils/logger';
 import { forceRefreshSubscription } from '@/utils/syncSubscription';
 
 const Explore = () => {
@@ -179,6 +180,31 @@ const Explore = () => {
     }
   };
 
+  const handleRedeemPromoCode = async () => {
+    if (!isNativePlatform() || !isIOS()) {
+      toast({
+        title: "iOS Only",
+        description: "Promo code redemption is only available on iOS devices.",
+      });
+      return;
+    }
+
+    try {
+      await presentPromoCodeRedemption();
+      toast({
+        title: "Code Redeemed!",
+        description: "Your promotional offer has been applied. Subscribe now to activate your extended trial.",
+      });
+    } catch (error: any) {
+      logger.error('Promo redemption error:', error);
+      toast({
+        title: "Redemption Failed",
+        description: error.message || "Failed to redeem promo code.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleTryFreeSamples = () => {
     navigate('/meditations');
   };
@@ -228,7 +254,7 @@ const Explore = () => {
           <div className="space-y-6 max-w-6xl mx-auto">
             <h2 className="text-2xl font-bold text-center mb-6">Featured Content</h2>
             {featuredMeditations.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-4">
+              <div className="grid grid-cols-2 gap-4 md:gap-6 px-4">
                 {featuredMeditations.map((meditation) => (
                   <MeditationCard key={meditation.id} meditation={meditation} />
                 ))}
@@ -248,7 +274,7 @@ const Explore = () => {
             {featuredMeditations.length > 0 && (
               <div>
                 <h2 className="text-2xl font-bold text-center mb-6">Your Featured Meditations</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 px-4">
+                <div className="grid grid-cols-2 gap-4 md:gap-6 mb-8 px-4">
                   {featuredMeditations.map((meditation) => (
                     <MeditationCard key={meditation.id} meditation={meditation} />
                   ))}
@@ -343,11 +369,26 @@ const Explore = () => {
 
               <Button
                 onClick={() => handleSelectPlan('peace')}
-                className="relative z-10 w-full mt-auto bg-[#d1cb3f] hover:bg-[#c4be3a] text-white font-bebas font-normal text-[45px] tracking-[0.3em] transition-all duration-300 hover:scale-105 shadow-md hover:shadow-lg flex items-center justify-center leading-none pt-7 pb-7"
+                className="relative z-10 w-full mt-auto bg-[#d1cb3f] hover:bg-[#c4be3a] text-white font-bebas font-normal text-[20px] sm:text-[24px] md:text-[26px] tracking-[0.08em] sm:tracking-[0.12em] transition-all duration-300 hover:scale-105 shadow-md hover:shadow-lg h-[72px]"
                 size="lg"
               >
-                SUBSCRIBE
+                <span className="translate-y-[2px]">START YOUR 7 DAY FREE TRIAL</span>
               </Button>
+
+              {/* Promo Code Section */}
+              <div className="relative z-10 mt-4 pt-4 border-t border-black/10">
+                <p className="text-xs text-black/60 text-center mb-2 font-normal">
+                  Have a promo code?
+                </p>
+                <button
+                  onClick={handleRedeemPromoCode}
+                  className="w-full text-sm text-black/80 hover:text-black font-medium flex items-center justify-center gap-1.5 transition-colors py-2 rounded hover:bg-black/5"
+                  type="button"
+                >
+                  <Gift className="w-4 h-4" />
+                  <span>Redeem BRAVOANDCOCKTAILS</span>
+                </button>
+              </div>
             </div>
 
             {/* Peace Plus Plan - Highlighted */}
@@ -399,11 +440,26 @@ const Explore = () => {
 
               <Button
                 onClick={() => handleSelectPlan('peace-plus')}
-                className="relative z-10 w-full mt-auto bg-[#da3062] hover:bg-[#c72b58] text-white font-bebas font-normal text-[45px] tracking-[0.3em] transition-all duration-300 hover:scale-105 shadow-md hover:shadow-lg flex items-center justify-center leading-none pt-7 pb-7"
+                className="relative z-10 w-full mt-auto bg-[#da3062] hover:bg-[#c72b58] text-white font-bebas font-normal text-[20px] sm:text-[24px] md:text-[26px] tracking-[0.08em] sm:tracking-[0.12em] transition-all duration-300 hover:scale-105 shadow-md hover:shadow-lg h-[72px]"
                 size="lg"
               >
-                SUBSCRIBE
+                <span className="translate-y-[2px]">START YOUR 14 DAY FREE TRIAL</span>
               </Button>
+
+              {/* Promo Code Section */}
+              <div className="relative z-10 mt-4 pt-4 border-t border-black/10">
+                <p className="text-xs text-black/60 text-center mb-2 font-normal">
+                  Have a promo code?
+                </p>
+                <button
+                  onClick={handleRedeemPromoCode}
+                  className="w-full text-sm text-black/80 hover:text-black font-medium flex items-center justify-center gap-1.5 transition-colors py-2 rounded hover:bg-black/5"
+                  type="button"
+                >
+                  <Gift className="w-4 h-4" />
+                  <span>Redeem BRAVOANDCOCKTAILS</span>
+                </button>
+              </div>
             </div>
             <div className="absolute -top-3 right-4 bg-[#ed2025] text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md z-20">
               Most Popular
