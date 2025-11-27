@@ -378,9 +378,6 @@ const Explore = () => {
 
               {/* Promo Code Section */}
               <div className="relative z-10 mt-4 pt-4 border-t border-black/10">
-                <p className="text-xs text-black/60 text-center mb-2 font-normal">
-                  Have a promo code?
-                </p>
                 <button
                   onClick={handleRedeemPromoCode}
                   className="w-full text-sm text-black/80 hover:text-black font-medium flex items-center justify-center gap-1.5 transition-colors py-2 rounded hover:bg-black/5"
@@ -450,9 +447,6 @@ const Explore = () => {
 
               {/* Promo Code Section */}
               <div className="relative z-10 mt-4 pt-4 border-t border-black/10">
-                <p className="text-xs text-black/60 text-center mb-2 font-normal">
-                  Have a promo code?
-                </p>
                 <button
                   onClick={handleRedeemPromoCode}
                   className="w-full text-sm text-black/80 hover:text-black font-medium flex items-center justify-center gap-1.5 transition-colors py-2 rounded hover:bg-black/5"
