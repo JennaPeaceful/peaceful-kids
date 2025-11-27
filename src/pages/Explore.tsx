@@ -336,14 +336,15 @@ const Explore = () => {
           {/* Two Cards Side-by-Side */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Peace Plan */}
-            <div className="relative overflow-hidden rounded-lg bg-transparent p-8 border-2 border-primary/20 hover:border-primary/40 transition-all flex flex-col">
-              {/* SVG Background */}
-              <img
-                src={peacePlanBg}
-                alt=""
-                className="absolute -inset-px w-[calc(100%+2px)] h-[calc(100%+2px)] object-cover z-0 pointer-events-none select-none"
-                aria-hidden="true"
-              />
+            <div className="relative">
+              <div className="relative overflow-hidden rounded-lg bg-transparent p-8 border-2 border-primary/20 hover:border-primary/40 transition-all flex flex-col">
+                {/* SVG Background */}
+                <img
+                  src={peacePlanBg}
+                  alt=""
+                  className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none select-none"
+                  aria-hidden="true"
+                />
 
               <div className="relative z-10 mb-6">
                 <h2 className="text-5xl font-bebas font-normal text-black mb-2">Peace Plan</h2>
@@ -389,6 +390,7 @@ const Explore = () => {
                   <span>Enter Promo Code</span>
                 </button>
               </div>
+              </div>
             </div>
 
             {/* Peace Plus Plan - Highlighted */}
@@ -398,7 +400,7 @@ const Explore = () => {
                 <img
                   src={peacePlusPlanBg}
                   alt=""
-                  className="absolute -inset-px w-[calc(100%+2px)] h-[calc(100%+2px)] object-cover z-0 pointer-events-none select-none"
+                  className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none select-none"
                   aria-hidden="true"
                 />
                 {/* Yellow overlay */}
