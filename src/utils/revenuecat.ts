@@ -383,22 +383,42 @@ export async function checkTrialEligibility(
 }
 
 /**
- * Present native promo code redemption sheet (iOS 14.0+ only)
- * Opens Apple's built-in code redemption UI
- * No-op on web builds or Android
+ * Present promo code redemption
+ * - iOS: Opens Apple's native code redemption sheet (iOS 14.0+)
+ * - Android: Opens Google Play Store redemption page
+ * No-op on web builds
  */
-export async function presentPromoCodeRedemption(): Promise<void> {
-  if (!isCapacitorEnabled() || !isNativePlatform() || !isIOS()) {
-    logger.log('[RevenueCat] Promo code redemption only available on iOS');
-    return;
+export async function presentPromoCodeRedemption(): Promise<{ platform: 'ios' | 'android' | 'web' }> {
+  if (!isCapacitorEnabled() || !isNativePlatform()) {
+    logger.log('[RevenueCat] Promo code redemption not available on web');
+    return { platform: 'web' };
   }
 
-  try {
-    const { Purchases } = await import('@revenuecat/purchases-capacitor');
-    await Purchases.presentCodeRedemptionSheet();
-    logger.log('[RevenueCat] Presented code redemption sheet');
-  } catch (error) {
-    logger.error('[RevenueCat] Failed to present code redemption sheet:', error);
-    throw error;
+  if (isIOS()) {
+    try {
+      const { Purchases } = await import('@revenuecat/purchases-capacitor');
+      await Purchases.presentCodeRedemptionSheet();
+      logger.log('[RevenueCat] Presented iOS code redemption sheet');
+      return { platform: 'ios' };
+    } catch (error) {
+      logger.error('[RevenueCat] Failed to present code redemption sheet:', error);
+      throw error;
+    }
   }
+
+  if (isAndroid()) {
+    try {
+      // Open Google Play Store redemption page
+      // This allows users to enter their promo code directly in the Play Store
+      const redeemUrl = 'https://play.google.com/redeem';
+      window.open(redeemUrl, '_blank');
+      logger.log('[RevenueCat] Opened Google Play redemption page');
+      return { platform: 'android' };
+    } catch (error) {
+      logger.error('[RevenueCat] Failed to open Play Store redemption:', error);
+      throw error;
+    }
+  }
+
+  return { platform: 'web' };
 }

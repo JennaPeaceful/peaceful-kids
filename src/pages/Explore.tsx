@@ -181,20 +181,30 @@ const Explore = () => {
   };
 
   const handleRedeemPromoCode = async () => {
-    if (!isNativePlatform() || !isIOS()) {
+    if (!isNativePlatform()) {
       toast({
-        title: "iOS Only",
-        description: "Promo code redemption is only available on iOS devices.",
+        title: "Mobile Only",
+        description: "Promo code redemption is only available on mobile apps.",
       });
       return;
     }
 
     try {
-      await presentPromoCodeRedemption();
-      toast({
-        title: "Code Redeemed!",
-        description: "Your promotional offer has been applied. Subscribe now to activate your extended trial.",
-      });
+      const result = await presentPromoCodeRedemption();
+
+      if (result.platform === 'android') {
+        // Android: Show guidance since we opened Play Store
+        toast({
+          title: "Play Store Opened",
+          description: "Enter your promo code in the Play Store, then return here to subscribe.",
+        });
+      } else if (result.platform === 'ios') {
+        // iOS: Success is handled by the native sheet
+        toast({
+          title: "Code Redeemed!",
+          description: "Your promotional offer has been applied. Subscribe now to activate your extended trial.",
+        });
+      }
     } catch (error: any) {
       logger.error('Promo redemption error:', error);
       toast({

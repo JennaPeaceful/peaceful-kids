@@ -78,6 +78,11 @@ const Meditations = () => {
     setDisplayedItems(ITEMS_PER_LOAD);
   }, [filteredMeditations]);
 
+  // Scroll to top when filters change
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [filters.selectedCategory, filters.selectedAgeGroup, filters.selectedThemes, filters.selectedContentCategories, filters.selectedCourses, filters.selectedModule]);
+
   const handleCategorySelect = (category: string | null) => {
     if (category === null) {
       clearFilters();

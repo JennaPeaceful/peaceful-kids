@@ -5,6 +5,7 @@ import {
   Shield, FileText, HelpCircle, Trash2,
   ChevronRight, Lock, RefreshCw, ExternalLink, Loader2, Key, Gift
 } from 'lucide-react';
+import { App as CapacitorApp } from '@capacitor/app';
 import { isNativePlatform, isIOS, isAndroid } from '@/utils/platform';
 import { restorePurchases, openSubscriptionManagement, presentPromoCodeRedemption } from '@/utils/revenuecat';
 import { forceRefreshSubscription } from '@/utils/syncSubscription';
@@ -45,7 +46,24 @@ const Profile = () => {
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [isRestoringPurchases, setIsRestoringPurchases] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [appVersion, setAppVersion] = useState<string>('1.2.2');
   const { t, i18n } = useTranslation();
+
+  // Fetch app version on mount
+  useEffect(() => {
+    const getAppVersion = async () => {
+      if (isNativePlatform()) {
+        try {
+          const info = await CapacitorApp.getInfo();
+          setAppVersion(info.version);
+        } catch (error) {
+          logger.error('Failed to get app version:', error);
+        }
+      }
+    };
+
+    getAppVersion();
+  }, []);
 
   const handleRefreshSubscription = async () => {
     if (!user?.id) {
@@ -188,33 +206,42 @@ const Profile = () => {
   };
 
   const handleRedeemPromoCode = async () => {
-    if (!isIOS()) {
+    if (!isNativePlatform()) {
       toast({
         title: "Not Available",
-        description: "Promo code redemption is only available on iOS.",
+        description: "Promo code redemption is only available on mobile apps.",
       });
       return;
     }
 
     try {
-      await presentPromoCodeRedemption();
-      // Success is handled by iOS
-      // If user successfully redeems, we should refresh subscription
-      if (user?.id) {
-        setTimeout(() => {
-          forceRefreshSubscription(
-            user.id,
-            (result) => {
-              toast({
-                title: "Promo Code Applied!",
-                description: `Your ${result.planType === 'peace_plus_plan' ? 'Peace Plus' : 'Peace'} Plan is now active.`,
-              });
-            },
-            (error) => {
-              logger.error('Sync error:', error);
-            }
-          );
-        }, 2000); // Wait 2 seconds for App Store to process
+      const result = await presentPromoCodeRedemption();
+
+      if (result.platform === 'android') {
+        // Android: Show guidance since we opened Play Store
+        toast({
+          title: "Play Store Opened",
+          description: "Enter your promo code in the Play Store, then return here and tap 'Restore Purchases'.",
+        });
+      } else if (result.platform === 'ios') {
+        // iOS: Success is handled by the native sheet
+        // If user successfully redeems, we should refresh subscription
+        if (user?.id) {
+          setTimeout(() => {
+            forceRefreshSubscription(
+              user.id,
+              (syncResult) => {
+                toast({
+                  title: "Promo Code Applied!",
+                  description: `Your ${syncResult.planType === 'peace_plus_plan' ? 'Peace Plus' : 'Peace'} Plan is now active.`,
+                });
+              },
+              (error) => {
+                logger.error('Sync error:', error);
+              }
+            );
+          }, 2000); // Wait 2 seconds for App Store to process
+        }
       }
     } catch (error: any) {
       logger.error('Promo code redemption error:', error);
@@ -448,8 +475,8 @@ const Profile = () => {
             </Button>
           )}
 
-          {/* Redeem Promo Code - iOS only */}
-          {isIOS() && (
+          {/* Redeem Promo Code - Native only (iOS and Android) */}
+          {isNativePlatform() && (
             <Button
               variant="outline"
               className="w-full justify-between"
@@ -542,7 +569,7 @@ const Profile = () => {
             </div>
             <h4 className="font-semibold mb-1">Peaceful Kids</h4>
             <p className="text-xs text-muted-foreground">
-              Version 1.0.0 • Production Channel
+              Version {appVersion} • Production Channel
             </p>
             <p className="text-xs text-muted-foreground mt-1 flex items-center justify-center gap-1">
               <img src={madeWithLove} alt="Made with love" className="w-4 h-4" />
