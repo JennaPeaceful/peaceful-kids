@@ -46,7 +46,7 @@ const Profile = () => {
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [isRestoringPurchases, setIsRestoringPurchases] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [appVersion, setAppVersion] = useState<string>('1.2.2');
+  const [appVersion, setAppVersion] = useState<string>('1.2.6');
   const { t, i18n } = useTranslation();
 
   // Fetch app version on mount
@@ -565,9 +565,9 @@ const Profile = () => {
           {/* App Version */}
           <div className="pt-4 mt-4 border-t border-border text-center">
             <div className="flex justify-center mb-3">
-              <img src={logo} alt="Peaceful Kids" className="w-12 h-12" />
+              <img src={logo} alt="Peaceful Meditation" className="w-12 h-12" />
             </div>
-            <h4 className="font-semibold mb-1">Peaceful Kids</h4>
+            <h4 className="font-semibold mb-1">Peaceful Meditation</h4>
             <p className="text-xs text-muted-foreground">
               Version {appVersion} • Production Channel
             </p>

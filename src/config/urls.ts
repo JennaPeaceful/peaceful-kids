@@ -24,8 +24,8 @@ export const APP_URLS = {
   // Reviewer Account (for App Store)
   reviewerEmail: 'reviewer@peaceful.app',
 
-  // CDN (kept on old domain for stability)
-  cdnBase: 'https://cdn.peacefulkids.app',
+  // CDN (migrated to new domain)
+  cdnBase: 'https://cdn.peacefulmeditationapp.com',
 
   // Main Website
   website: 'https://peacefulmeditationapp.com',

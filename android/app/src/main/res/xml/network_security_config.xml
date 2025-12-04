@@ -14,6 +14,7 @@
         <domain includeSubdomains="true">peacefulmeditationapp.com</domain>
         <domain includeSubdomains="true">support.peacefulmeditationapp.com</domain>
         <domain includeSubdomains="true">app.peacefulmeditationapp.com</domain>
+        <domain includeSubdomains="true">cdn.peacefulmeditationapp.com</domain>
 
         <!-- Legacy domains (backwards compatibility during transition) -->
         <domain includeSubdomains="true">support.peacefulkids.app</domain>

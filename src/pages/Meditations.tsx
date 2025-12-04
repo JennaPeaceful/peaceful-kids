@@ -19,6 +19,7 @@ import emotionsIcon from '@/assets/emotions.svg';
 import logo from '@/assets/logo.svg';
 import highlyMeditatedCourseSvg from '@/assets/highly-meditated-course.svg';
 import introductionHealingArtsSvg from '@/assets/introduction-healing-arts.svg';
+import { APP_URLS } from '@/config/urls';
 
 // Import age group icons
 import ages35Icon from '@/assets/age-icons/ages-3-5.png';
@@ -437,7 +438,7 @@ const Meditations = () => {
                 if (themeName === 'Miscellaneous') {
                   themeFileName = 'Misellaneous'; // CDN has misspelled version
                 }
-                const themeIconUrl = `https://cdn.peacefulkids.app/SVG%20FILES%20NO%20COLOR/CONTENT%20CATEGORY%20NO%20COLOR/${encodeURIComponent(themeFileName)}.svg`;
+                const themeIconUrl = `${APP_URLS.cdnBase}/SVG%20FILES%20NO%20COLOR/CONTENT%20CATEGORY%20NO%20COLOR/${encodeURIComponent(themeFileName)}.svg`;
                 return (
                   <Button
                     key={themeName}
