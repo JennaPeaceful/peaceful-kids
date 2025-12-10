@@ -180,40 +180,54 @@ const Explore = () => {
     }
   };
 
-  const handleRedeemPromoCode = async () => {
-    if (!isNativePlatform()) {
-      toast({
-        title: "Mobile Only",
-        description: "Promo code redemption is only available on mobile apps.",
-      });
-      return;
-    }
+  const handleRedeemPromoCode = async (planId: 'peace' | 'peace_plus') => {
+  if (!isNativePlatform()) {
+    toast({
+      title: 'Mobile only',
+      description: 'Promo code redemption is only available in the mobile apps.',
+    });
+    return;
+  }
 
+  const ua = navigator.userAgent || '';
+  const isAndroid = /Android/i.test(ua);
+  const isIOS = /iPhone|iPad|iPod/.test(ua);
+
+  // ANDROID: open billing sheet for the selected plan
+  if (isAndroid) {
+    handleSelectPlan(planId); // same function your main buttons use
+
+    toast({
+      title: 'Enter code in Google Play',
+      description:
+        'When the Google Play screen opens, tap your payment method → "Redeem code" and enter your promo code.',
+    });
+    return;
+  }
+
+  // iOS: keep existing offer-code flow
+  if (isIOS) {
     try {
       const result = await presentPromoCodeRedemption();
 
-      if (result.platform === 'android') {
-        // Android: Show guidance since we opened Play Store
+      if (result.platform === 'ios') {
         toast({
-          title: "Play Store Opened",
-          description: "Enter your promo code in the Play Store, then return here to subscribe.",
-        });
-      } else if (result.platform === 'ios') {
-        // iOS: Success is handled by the native sheet
-        toast({
-          title: "Code Redeemed!",
-          description: "Your promotional offer has been applied. Subscribe now to activate your extended trial.",
+          title: 'Code redeemed!',
+          description:
+            'Your promotional offer has been applied. Subscribe now to activate your extended trial.',
         });
       }
     } catch (error: any) {
-      logger.error('Promo redemption error:', error);
+      logger.error('Promo redemption error', error);
       toast({
-        title: "Redemption Failed",
-        description: error.message || "Failed to redeem promo code.",
-        variant: "destructive",
+        title: 'Redemption failed',
+        description: error.message || 'Failed to redeem promo code.',
+        variant: 'destructive',
       });
     }
-  };
+  }
+};
+
 
   const handleTryFreeSamples = () => {
     navigate('/meditations');
@@ -389,7 +403,7 @@ const Explore = () => {
               {/* Promo Code Section */}
               <div className="relative z-10 mt-4 pt-4 border-t border-black/10">
                 <button
-                  onClick={handleRedeemPromoCode}
+                  onClick={handleRedeemPromoCode('peace')}
                   className="w-full text-sm text-black/80 hover:text-black font-medium flex items-center justify-center gap-1.5 transition-colors py-2 rounded hover:bg-black/5"
                   type="button"
                 >
@@ -458,7 +472,7 @@ const Explore = () => {
               {/* Promo Code Section */}
               <div className="relative z-10 mt-4 pt-4 border-t border-black/10">
                 <button
-                  onClick={handleRedeemPromoCode}
+                  onClick={handleRedeemPromoCode('peace_plus')}
                   className="w-full text-sm text-black/80 hover:text-black font-medium flex items-center justify-center gap-1.5 transition-colors py-2 rounded hover:bg-black/5"
                   type="button"
                 >
