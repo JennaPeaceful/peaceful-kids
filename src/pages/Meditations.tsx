@@ -469,7 +469,7 @@ const Meditations = () => {
               {getCurrentFilterLabel()}
             </label>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-              {availableThemes.map((themeName) => {
+              {availableThemeObjects.map((theme) => {
                 // Map theme names to CDN filenames (handle special characters and misspellings)
                 let themeFileName = themeName.replace(/\\/g, '-').replace(/\//g, '-');
                 if (themeName === 'Miscellaneous') {

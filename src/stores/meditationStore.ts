@@ -74,7 +74,7 @@ const staticThemes = [
   { id: '9f568eb6-820d-4ab7-b1b4-69d3ab40919f', name: 'Separation Anxiety', icon: '👋', color: '#BE185D', category: ['Kids'] },
   { id: '84906132-9572-46f5-b413-ff90996c12c6', name: 'Stress', icon: '😟', color: '#EA580C', category: ['Kids'] },
   { id: 'e1e4c02e-2017-4697-99a0-47dc114d0ce4', name: 'Transitions', icon: '🚪', color: '#4F46E5', category: ['Kids'] },
-  { id: '222d6345-e877-4748-ae5d-c90467db5a4e', name: 'Upset', icon: '😔', color: '#991B1B', category: ['Kids'] },
+  { id: '222d6345-e877-4748-ae5d-c90467db5a4e', name: 'Upset', icon: '😔', color: '#991B1B', category: ['Kids'], icon_svg_url: 'https://cdn.peacefulmeditationapp.com/icons/svg/Upset.svg', icon_png_url: 'https://cdn.peacefulmeditationapp.com/icons/png/Upset.png' },
   { id: '807e7bd8-5def-40b4-b411-e844abb2ed30', name: 'Binaurals', icon: '🎧', color: '#6366F1', category: ['Adults'] },
   { id: '4793c37f-3f0e-4807-9321-7e718c771b83', name: 'Miscellaneous', icon: '📌', color: '#94A3B8', category: ['Adults'] },
   { id: '759e4a6b-6bc6-430a-a9bb-756549190747', name: 'Kid', icon: '👶', color: '#EC4899', category: ['Kids', 'Adults'] },
