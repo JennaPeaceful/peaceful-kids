@@ -139,20 +139,23 @@ const MeditationCard = ({ meditation, onPlay }: MeditationCardProps) => {
     >
       {/* Thumbnail Image */}
       <div className="relative mb-3 rounded-xl overflow-hidden aspect-square">
-        {/* Colorful background layer - for wire icons (NO COLOR in URL), SVGs, and logo fallbacks */}
-        {/* Skip background for kids colored icons since they're already colored */}
-        {!usingKidsColoredIcon && (() => {
-          const thumbnailUrl = meditation.thumbnail_url || meditation.thumbnail;
-          // Show background if using category icon fallback (adult line-art icons only)
-          const usingCategoryFallback = (!thumbnailUrl || thumbnailUrl.includes('/api/placeholder'))
-            && meditation.content_categories && meditation.content_categories.length > 0;
+      {/* Colorful background layer - for wire icons (NO COLOR in URL), SVGs, and logo fallbacks */}
+      {/* Skip background for kids colored icons since they're already colored */}
+      {!usingKidsColoredIcon && (() => {
+        const thumbnailUrl = meditation.thumbnail_url || meditation.thumbnail;
+        // Show background if using category icon fallback (adult line-art icons only)
+        const usingCategoryFallback = (!thumbnailUrl || thumbnailUrl.includes('/api/placeholder'))
+          && meditation.content_categories && meditation.content_categories.length > 0;
 
-          return (thumbnailUrl || usingCategoryFallback) &&
-            (usingCategoryFallback ||
-             /NO.?COLOR/i.test(thumbnailUrl || '') ||
-             /\.svg(\?|$)/i.test(thumbnailUrl || '') ||
-             /(\/logo\.svg|assets\/logo)/i.test(thumbnailUrl || ''));
-        })() && (
+        // Don't show background for R2 CDN thumbnails (they're already complete images)
+        const isR2Thumbnail = thumbnailUrl && thumbnailUrl.includes('cdn.peacefulmeditationapp.com');
+
+        return !isR2Thumbnail && (thumbnailUrl || usingCategoryFallback) &&
+          (usingCategoryFallback ||
+           /NO.?COLOR/i.test(thumbnailUrl || '') ||
+           /\.svg(\?|$)/i.test(thumbnailUrl || '') ||
+           /(\/logo\.svg|assets\/logo)/i.test(thumbnailUrl || ''));
+      })() && (
           <img
             src={categoryBackground}
             alt=""
