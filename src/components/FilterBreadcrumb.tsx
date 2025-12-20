@@ -189,12 +189,17 @@ const FilterBreadcrumb = ({
         const theme = themes.find(t => t.name === themeName);
         const pillId = `theme-${themeName}`;
 
-        // Build CDN URL just like Meditations page to avoid broken SVGs
-        let themeFileName = themeName.replace(/\\/g, '-').replace(/\//g, '-');
-        if (themeName === 'Miscellaneous') {
-          themeFileName = 'Misellaneous'; // CDN has misspelled version
+        // Use database icon_svg_url if available, otherwise fall back to constructed CDN URL
+        let themeIconUrl = theme?.icon_svg_url;
+        
+        if (!themeIconUrl) {
+          // Fallback: Build CDN URL for themes without icon_svg_url in database
+          let themeFileName = themeName.replace(/\/g, '-').replace(/\//g, '-');
+          if (themeName === 'Miscellaneous') {
+            themeFileName = 'Misellaneous'; // CDN has misspelled version
+          }
+          themeIconUrl = `${APP_URLS.cdnBase}/SVG%20FILES%20NO%20COLOR/CONTENT%20CATEGORY%20NO%20COLOR/${encodeURIComponent(themeFileName)}.svg`;
         }
-        const themeIconUrl = `${APP_URLS.cdnBase}/SVG%20FILES%20NO%20COLOR/CONTENT%20CATEGORY%20NO%20COLOR/${encodeURIComponent(themeFileName)}.svg`;
 
         return (
           <Badge 
