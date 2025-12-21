@@ -105,13 +105,7 @@ const Meditations = () => {
   };
 
   const handleAgeGroupSelect = (ageGroup: string | null) => {
-    // For Emotions category, clear category selection when age group is selected
-    // This allows the emotion theme cards to be displayed
-    if (filters.selectedCategory === 'Emotions' && ageGroup) {
-      setFilters({ selectedAgeGroup: ageGroup, selectedCategory: null });
-    } else {
-      setFilters({ selectedAgeGroup: ageGroup });
-    }
+    setFilters({ selectedAgeGroup: ageGroup });
   };
 
   const handleThemeToggle = (theme: string) => {
@@ -213,9 +207,14 @@ const Meditations = () => {
   };
   
   // Get filtered theme objects for FilterBreadcrumb and theme display
-  const availableThemeObjects = themes.filter(theme =>
-    (!filters.selectedCategory || theme.category?.includes(filters.selectedCategory))
-  );
+  // Special case: Emotions category should show themes with 'Kids' category (emotion themes)
+  const availableThemeObjects = themes.filter(theme => {
+    if (!filters.selectedCategory) return true;
+    if (filters.selectedCategory === 'Emotions') {
+      return theme.category?.includes('Kids');
+    }
+    return theme.category?.includes(filters.selectedCategory);
+  });
 
   // Get available content categories based on current filtered meditations
   const availableContentCategories = useMemo(() => {
