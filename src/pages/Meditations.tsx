@@ -207,11 +207,21 @@ const Meditations = () => {
   };
   
   // Get filtered theme objects for FilterBreadcrumb and theme display
-  // Special case: Emotions category should show themes with 'Kids' category (emotion themes)
+  // Special case: Emotions category should show emotion-specific themes
+  const emotionThemeNames = [
+    'Anger', 'Anxiety\\Worry', 'Bedtime', 'Breathwork', 'Calm', 'Energize', 
+    'Family Change', 'Focus', 'Frustration', 'Mindfulness Exercises Eating',
+    'Mindfulness Exercises Grounding', 'Mindfulness Exercises Teeth Brushing',
+    'Mindfulness Exercises Walking', 'Mornings', 'Overwhelm', 'Protection',
+    'Reset', 'Rest', 'Sadness', 'Scared', 'Separation Anxiety', 'Somatic Reset',
+    'Stress', 'Transitions', 'Upset', 'Kid', 'Sports'
+  ];
+  
   const availableThemeObjects = themes.filter(theme => {
     if (!filters.selectedCategory) return true;
     if (filters.selectedCategory === 'Emotions') {
-      return theme.category?.includes('Kids');
+      // For Emotions, show themes by name (emotion themes)
+      return emotionThemeNames.includes(theme.name);
     }
     return theme.category?.includes(filters.selectedCategory);
   });
