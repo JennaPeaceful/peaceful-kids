@@ -507,7 +507,11 @@ const Meditations = () => {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {availableThemeObjects.map((theme) => {
                 // Use database icon URLs (prefer PNG for better compatibility)
-                const themeIconUrl = theme.icon_png_url || theme.icon_svg_url || theme.icon;
+                // Fix Anxiety\Worry URL: replace backslash with dash to match Cloudflare filename
+                let themeIconUrl = theme.icon_png_url || theme.icon_svg_url || theme.icon;
+                if (themeIconUrl && typeof themeIconUrl === 'string') {
+                  themeIconUrl = themeIconUrl.replace(/Anxiety\\Worry/g, 'Anxiety-Worry');
+                }
                 return (
                   <Button
                     key={theme.name}
