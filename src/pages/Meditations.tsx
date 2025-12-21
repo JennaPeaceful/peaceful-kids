@@ -477,6 +477,27 @@ const Meditations = () => {
           </div>
         )}
 
+        {/* DEBUG LOGGING FOR EMOTIONS BUG */}
+        {(() => {
+          if (filters.selectedCategory === 'Emotions' && filters.selectedAgeGroup) {
+            console.log('=== EMOTIONS DEBUG ===');
+            console.log('selectedCategory:', filters.selectedCategory);
+            console.log('selectedAgeGroup:', filters.selectedAgeGroup);
+            console.log('selectedThemes:', filters.selectedThemes);
+            console.log('availableThemes.length:', availableThemes.length);
+            console.log('availableThemeObjects.length:', availableThemeObjects.length);
+            console.log('availableThemeObjects:', availableThemeObjects);
+            console.log('Condition check:', {
+              hasCategory: filters.selectedCategory === 'Emotions',
+              hasAgeGroup: !!filters.selectedAgeGroup,
+              noThemesSelected: !filters.selectedThemes.length,
+              hasAvailableThemes: availableThemes.length > 0,
+              hasAvailableThemeObjects: availableThemeObjects.length > 0
+            });
+          }
+          return null;
+        })()}
+
         {/* Emotions (Themes) - Show when Emotions category AND age group are selected */}
         {filters.selectedCategory === 'Emotions' && filters.selectedAgeGroup && !filters.selectedThemes.length && availableThemes.length > 0 && (
           <div className="mb-6">
