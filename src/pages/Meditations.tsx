@@ -476,16 +476,16 @@ const Meditations = () => {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {availableThemeObjects.map((theme) => {
                 // Map theme names to CDN filenames (handle special characters and misspellings)
-                let themeFileName = themeName.replace(/\\/g, '-').replace(/\//g, '-');
-                if (themeName === 'Miscellaneous') {
+                let themeFileName = theme.name.replace(/\\/g, '-').replace(/\//g, '-');
+                if (theme.name === 'Miscellaneous') {
                   themeFileName = 'Misellaneous'; // CDN has misspelled version
                 }
                 const themeIconUrl = `${APP_URLS.cdnBase}/SVG%20FILES%20NO%20COLOR/CONTENT%20CATEGORY%20NO%20COLOR/${encodeURIComponent(themeFileName)}.svg`;
                 return (
                   <Button
-                    key={themeName}
+                    key={theme.name}
                     variant="outline"
-                    onClick={() => handleThemeToggle(themeName)}
+                    onClick={() => handleThemeToggle(theme.name)}
                     className="flex flex-col items-center gap-2 h-auto py-4 hover:shadow-primary transition-all"
                   >
                     <div className="relative w-16 h-16 rounded-xl overflow-hidden">
@@ -496,12 +496,12 @@ const Meditations = () => {
                       />
                       <img 
                         src={themeIconUrl}
-                        alt={themeName}
+                        alt={theme.name}
                         className="absolute inset-0 w-full h-full object-contain p-3"
                       />
                     </div>
                     <span className="text-xs font-medium text-center leading-tight whitespace-normal min-h-[2rem] flex items-center">
-                      {themeName}
+                      {theme.name}
                     </span>
                   </Button>
                 );
