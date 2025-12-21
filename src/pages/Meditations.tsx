@@ -147,7 +147,7 @@ const Meditations = () => {
       // Back from content categories (for Adults) → Adult category
       setFilters({ selectedContentCategories: [] });
     } else if (filters.selectedAgeGroup) {
-      // Back from age group → Kids category
+      // Back from age group → Kids or Emotions category
       setFilters({ selectedAgeGroup: null });
     } else if (filters.selectedCategory) {
       // Back from category → all categories view
@@ -179,7 +179,9 @@ const Meditations = () => {
       return `${filters.selectedCategory} › ${filters.selectedContentCategories[0]}`;
     }
     if (filters.selectedAgeGroup) {
-      return `Kids › ${filters.selectedAgeGroup}`;
+      // Show age group under Emotions or Kids
+      const categoryName = filters.selectedCategory === 'Kid' ? 'Kids' : filters.selectedCategory;
+      return `${categoryName} › ${filters.selectedAgeGroup}`;
     }
     if (filters.selectedCategory) {
       return filters.selectedCategory === 'Kid' ? 'Kids' : filters.selectedCategory;
@@ -425,8 +427,43 @@ const Meditations = () => {
           </div>
         )}
 
-        {/* Emotions (Themes) - Show when Emotions category is selected */}
-        {filters.selectedCategory === 'Emotions' && !filters.selectedThemes.length && availableThemes.length > 0 && (
+        {/* Emotions - Age Groups - Show first when Emotions category is selected */}
+        {filters.selectedCategory === 'Emotions' && !filters.selectedAgeGroup && ageGroups.length > 0 && (
+          <div className="mb-6">
+            <label className="text-sm font-medium text-muted-foreground mb-3 block">
+              {getCurrentFilterLabel()}
+            </label>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 justify-items-center">
+              {ageGroups.filter(ag => ag).map((ageGroup) => {
+                const isSelected = filters.selectedAgeGroup === ageGroup;
+                const icon = getAgeGroupIcon(ageGroup);
+                return (
+                  <Button
+                    key={ageGroup}
+                    variant="outline"
+                    onClick={() => handleAgeGroupSelect(isSelected ? null : ageGroup)}
+                    className={`relative flex items-center justify-center aspect-[11/5] min-h-[70px] md:min-h-[90px] lg:min-h-[100px] transition-all overflow-hidden ${
+                      isSelected
+                        ? 'border-2 shadow-lg scale-105'
+                        : 'hover:shadow-primary hover:scale-102'
+                    }`}
+                  >
+                    {icon && (
+                      <img
+                        src={icon}
+                        alt={ageGroup}
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                    )}
+                  </Button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Emotions (Themes) - Show when Emotions category AND age group are selected */}
+        {filters.selectedCategory === 'Emotions' && filters.selectedAgeGroup && !filters.selectedThemes.length && availableThemes.length > 0 && (
           <div className="mb-6">
             <label className="text-sm font-medium text-muted-foreground mb-3 block">
               {getCurrentFilterLabel()}
