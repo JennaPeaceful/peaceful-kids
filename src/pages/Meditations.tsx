@@ -209,12 +209,12 @@ const Meditations = () => {
   // Get filtered theme objects for FilterBreadcrumb and theme display
   // Special case: Emotions category should show emotion-specific themes
   const emotionThemeNames = [
-    'Anger', 'Anxiety\\Worry', 'Bedtime', 'Breathwork', 'Calm', 'Energize', 
-    'Family Change', 'Focus', 'Frustration', 'Mindfulness Exercises Eating',
-    'Mindfulness Exercises Grounding', 'Mindfulness Exercises Teeth Brushing',
-    'Mindfulness Exercises Walking', 'Mornings', 'Overwhelm', 'Protection',
-    'Reset', 'Rest', 'Sadness', 'Scared', 'Separation Anxiety', 'Somatic Reset',
-    'Stress', 'Transitions', 'Upset', 'Kid', 'Sports'
+    'Mornings', 'Bedtime', 'Anger', 'Anxiety\\Worry', 'Calm', 'Family Change',
+    'Energize', 'Focus', 'Frustration', 'Mindfulness Exercises Teeth Brushing',
+    'Mindfulness Exercises Walking', 'Mindfulness Exercises Eating',
+    'Mindfulness Exercises Grounding', 'Miscellaneous', 'Overwhelm', 'Protection',
+    'Reset', 'Rest', 'Sadness', 'Scared', 'Separation Anxiety', 'Sports',
+    'Stress', 'Upset'
   ];
   
   const availableThemeObjects = themes.filter(theme => {
