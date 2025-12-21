@@ -105,7 +105,13 @@ const Meditations = () => {
   };
 
   const handleAgeGroupSelect = (ageGroup: string | null) => {
-    setFilters({ selectedAgeGroup: ageGroup });
+    // For Emotions category, clear category selection when age group is selected
+    // This allows the emotion theme cards to be displayed
+    if (filters.selectedCategory === 'Emotions' && ageGroup) {
+      setFilters({ selectedAgeGroup: ageGroup, selectedCategory: null });
+    } else {
+      setFilters({ selectedAgeGroup: ageGroup });
+    }
   };
 
   const handleThemeToggle = (theme: string) => {
