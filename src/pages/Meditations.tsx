@@ -506,12 +506,8 @@ const Meditations = () => {
             </label>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {availableThemeObjects.map((theme) => {
-                // Map theme names to CDN filenames (handle special characters and misspellings)
-                let themeFileName = theme.name.replace(/\\/g, '-').replace(/\//g, '-');
-                if (theme.name === 'Miscellaneous') {
-                  themeFileName = 'Misellaneous'; // CDN has misspelled version
-                }
-                const themeIconUrl = `${APP_URLS.cdnBase}/SVG%20FILES%20NO%20COLOR/CONTENT%20CATEGORY%20NO%20COLOR/${encodeURIComponent(themeFileName)}.svg`;
+                // Use database icon URLs (prefer PNG for better compatibility)
+                const themeIconUrl = theme.icon_png_url || theme.icon_svg_url || theme.icon;
                 return (
                   <Button
                     key={theme.name}
